@@ -50,8 +50,6 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
           : '';
         const apiUrl = `${baseUrl}/api/scholarships/${encodeURIComponent(id)}`;
         
-        console.log('Fetching scholarship:', apiUrl);
-        
         const res = await fetch(apiUrl, {
           method: 'GET',
           cache: 'no-store',
@@ -63,12 +61,8 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
           redirect: 'error'
         });
         
-        console.log('Response status:', res.status);
-        console.log('Response headers:', Object.fromEntries(res.headers.entries()));
-        
         // Check if response is JSON
         const contentType = res.headers.get("content-type");
-        console.log('Content-Type:', contentType);
         
         if (!contentType || !contentType.includes("application/json")) {
           const text = await res.text();
@@ -95,15 +89,11 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
         }
         
         const data = await res.json();
-        console.log('Received data:', data);
         
         if (!data || !data.scholarship) {
-          console.error("Missing scholarship in response:", data);
           throw new Error('Scholarship data not found in response');
         }
         
-        console.log('Setting scholarship:', data.scholarship.name);
-        console.log('Scholarship data:', JSON.stringify(data.scholarship, null, 2));
         setScholarship(data.scholarship);
         setError(""); // Clear any previous errors
 
@@ -138,9 +128,8 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
               setIsSaved(saved);
             }
           })
-          .catch(err => {
+          .catch(() => {
             // Silently fail - user might not be logged in
-            console.debug('Saved status check failed (user may not be logged in):', err.message);
           });
       } catch (err: any) {
         console.error('Error in fetchScholarship:', err);
@@ -214,8 +203,6 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
     }
   };
 
-  console.log('Render check - loading:', loading, 'error:', error, 'has scholarship:', !!scholarship);
-  
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
