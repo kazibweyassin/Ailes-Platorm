@@ -12,7 +12,7 @@ export function Footer() {
           {/* Company Info */}
           <div className="space-y-4">
             <Image 
-              src="/logo.png" 
+              src="/Logo.png" 
               alt="Ailes Global" 
               width={150} 
               height={40}
@@ -69,11 +69,14 @@ export function Footer() {
               </li>
               <li className="flex items-start space-x-2">
                 <Phone className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                <span className="text-gray-300">+1 (555) 123-4567</span>
+                <span className="text-gray-300">+256 786 367460</span>
+                <span className="text-gray-300">+256 704 833021</span>
+
+
               </li>
               <li className="flex items-start space-x-2">
                 <MapPin className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                <span className="text-gray-300">123 Education Street, City, Country</span>
+                <span className="text-gray-300">Access Building Rubaga Road Kampala Uganda</span>
               </li>
             </ul>
           </div>

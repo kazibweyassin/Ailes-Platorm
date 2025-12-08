@@ -28,7 +28,7 @@ export function Navbar() {
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center">
             <Image 
-              src="/logo.png" 
+              src="/Logo.png" 
               alt="Ailes Global" 
               width={150} 
               height={40}

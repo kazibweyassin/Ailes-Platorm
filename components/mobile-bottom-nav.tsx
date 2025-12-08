@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   Home,
   Search,
@@ -13,32 +14,39 @@ import { cn } from "@/lib/utils";
 
 function MobileBottomNav() {
   const pathname = usePathname();
+  const { data: session, status } = useSession();
+  const isLoggedIn = status === "authenticated";
 
   const navItems = [
     {
       href: "/",
       label: "Home",
       icon: Home,
+      showWhen: "always"
     },
     {
       href: "/university-matcher",
       label: "Find",
       icon: Search,
+      showWhen: "always"
     },
     {
       href: "/scholarships",
       label: "Scholarships",
       icon: Award,
+      showWhen: "always"
     },
     {
       href: "/blog",
       label: "Resources",
       icon: BookOpen,
+      showWhen: "always"
     },
     {
-      href: "/dashboard",
-      label: "Dashboard",
+      href: isLoggedIn ? "/dashboard" : "/auth/signin",
+      label: isLoggedIn ? "Dashboard" : "Sign In",
       icon: User,
+      showWhen: "always"
     },
   ];
 
