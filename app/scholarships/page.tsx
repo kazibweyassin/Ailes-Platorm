@@ -25,162 +25,6 @@ import {
   Loader2,
 } from "lucide-react";
 
-// Mock scholarship data
-const mockScholarships = [
-  {
-    id: "1",
-    name: "Mastercard Foundation Scholars Program",
-    provider: "Mastercard Foundation",
-    amount: 100000,
-    currency: "USD",
-    type: "FULL",
-    deadline: "2025-03-31",
-    country: "USA",
-    description: "Full scholarship for African students pursuing undergraduate or postgraduate studies in the US.",
-    forWomen: true,
-    forAfrican: true,
-    fieldOfStudy: ["Computer Science", "Engineering", "Business"],
-    degreeLevel: ["MASTER", "PHD"],
-    minGPA: 3.5,
-    featured: true,
-    views: 15420,
-    applications: 342,
-  },
-  {
-    id: "2",
-    name: "Chevening Scholarships",
-    provider: "UK Government",
-    amount: 45000,
-    currency: "GBP",
-    type: "FULL",
-    deadline: "2025-11-02",
-    country: "UK",
-    description: "UK government's international awards program for future leaders to pursue one-year master's degrees.",
-    forWomen: false,
-    forAfrican: false,
-    fieldOfStudy: ["Any"],
-    degreeLevel: ["MASTER"],
-    minGPA: 3.0,
-    featured: true,
-    views: 23150,
-    applications: 567,
-  },
-  {
-    id: "3",
-    name: "DAAD Scholarships",
-    provider: "German Academic Exchange Service",
-    amount: 30000,
-    currency: "EUR",
-    type: "FULL",
-    deadline: "2025-04-30",
-    country: "Germany",
-    description: "Support for international students to pursue postgraduate studies in Germany.",
-    forWomen: false,
-    forAfrican: false,
-    fieldOfStudy: ["Engineering", "Science", "Technology"],
-    degreeLevel: ["MASTER", "PHD"],
-    minGPA: 3.2,
-    featured: false,
-    views: 18700,
-    applications: 423,
-  },
-  {
-    id: "4",
-    name: "African Women in STEM Scholarship",
-    provider: "Google.org",
-    amount: 50000,
-    currency: "USD",
-    type: "PARTIAL",
-    deadline: "2025-02-15",
-    country: "USA",
-    description: "Supporting African women pursuing degrees in Science, Technology, Engineering, and Mathematics.",
-    forWomen: true,
-    forAfrican: true,
-    fieldOfStudy: ["Computer Science", "Engineering", "Mathematics", "Physics"],
-    degreeLevel: ["BACHELOR", "MASTER"],
-    minGPA: 3.3,
-    featured: true,
-    views: 12340,
-    applications: 289,
-  },
-  {
-    id: "5",
-    name: "Mandela Rhodes Scholarships",
-    provider: "Mandela Rhodes Foundation",
-    amount: 25000,
-    currency: "USD",
-    type: "FULL",
-    deadline: "2025-03-01",
-    country: "South Africa",
-    description: "For African students demonstrating leadership and academic excellence.",
-    forWomen: false,
-    forAfrican: true,
-    fieldOfStudy: ["Any"],
-    degreeLevel: ["BACHELOR", "MASTER"],
-    minGPA: 3.5,
-    featured: false,
-    views: 9870,
-    applications: 156,
-  },
-  {
-    id: "6",
-    name: "Gates Cambridge Scholarship",
-    provider: "Bill & Melinda Gates Foundation",
-    amount: 60000,
-    currency: "GBP",
-    type: "FULL",
-    deadline: "2025-12-05",
-    country: "UK",
-    description: "For outstanding applicants from outside the UK to pursue postgraduate study at Cambridge.",
-    forWomen: false,
-    forAfrican: false,
-    fieldOfStudy: ["Any"],
-    degreeLevel: ["MASTER", "PHD"],
-    minGPA: 3.7,
-    featured: true,
-    views: 28900,
-    applications: 634,
-  },
-  {
-    id: "7",
-    name: "Fulbright Foreign Student Program",
-    provider: "US Government",
-    amount: 55000,
-    currency: "USD",
-    type: "FULL",
-    deadline: "2025-05-15",
-    country: "USA",
-    description: "Enables graduate students from abroad to study and conduct research in the United States.",
-    forWomen: false,
-    forAfrican: false,
-    fieldOfStudy: ["Any"],
-    degreeLevel: ["MASTER", "PHD"],
-    minGPA: 3.4,
-    featured: true,
-    views: 31200,
-    applications: 721,
-  },
-  {
-    id: "8",
-    name: "Commonwealth Scholarships",
-    provider: "Commonwealth Scholarship Commission",
-    amount: 40000,
-    currency: "GBP",
-    type: "FULL",
-    deadline: "2025-12-15",
-    country: "UK",
-    description: "For students from low and middle-income Commonwealth countries to pursue Master's and PhD studies.",
-    forWomen: false,
-    forAfrican: false,
-    fieldOfStudy: ["Any"],
-    degreeLevel: ["MASTER", "PHD"],
-    minGPA: 3.0,
-    featured: false,
-    views: 19400,
-    applications: 445,
-  },
-];
-
 export default function ScholarshipsPage() {
   const [scholarships, setScholarships] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -222,7 +66,12 @@ export default function ScholarshipsPage() {
         if (forWomenOnly) params.append('forWomen', 'true');
         if (forAfricanOnly) params.append('forAfrican', 'true');
         
-        const res = await fetch(`/api/scholarships?${params}`);
+        const res = await fetch(`/api/scholarships?${params}`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        });
         if (!res.ok) throw new Error('Failed to fetch scholarships');
         
         const data = await res.json();
@@ -512,9 +361,9 @@ export default function ScholarshipsPage() {
                         </div>
                         <div className="flex items-center gap-2 text-xs text-gray-500">
                           <Users className="h-3 w-3" />
-                          <span>{scholarship.views.toLocaleString()} views</span>
+                          <span>{scholarship.views?.toLocaleString() || 0} views</span>
                           <span>•</span>
-                          <span>{scholarship.applications} applications</span>
+                          <span>{scholarship._count?.applications || 0} applications</span>
                         </div>
                       </div>
 
@@ -593,5 +442,6 @@ export default function ScholarshipsPage() {
     </div>
   );
 }
+
 
 

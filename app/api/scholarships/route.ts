@@ -17,7 +17,7 @@ export async function GET(req: Request) {
     const deadline = searchParams.get("deadline") // "upcoming", "thisMonth", "nextMonth"
     const featured = searchParams.get("featured") === "true"
     const page = parseInt(searchParams.get("page") || "1")
-    const limit = parseInt(searchParams.get("limit") || "20")
+    const limit = parseInt(searchParams.get("limit") || "50")
     const skip = (page - 1) * limit
 
     const where: any = {}
@@ -119,6 +119,12 @@ export async function GET(req: Request) {
         page,
         limit,
         totalPages: Math.ceil(total / limit)
+      }
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
       }
     })
   } catch (error) {

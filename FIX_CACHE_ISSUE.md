@@ -63,3 +63,4 @@ After clearing cache, you should see:
 Next.js caches compiled modules for performance. When files are created or modified, sometimes the cache doesn't update properly, especially on Windows. Clearing the `.next` folder forces Next.js to rebuild everything from scratch.
 
 
+
