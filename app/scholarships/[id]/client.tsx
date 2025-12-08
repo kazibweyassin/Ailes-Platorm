@@ -63,30 +63,46 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
           redirect: 'error'
         });
         
+        console.log('Response status:', res.status);
+        console.log('Response headers:', Object.fromEntries(res.headers.entries()));
+        
         // Check if response is JSON
         const contentType = res.headers.get("content-type");
+        console.log('Content-Type:', contentType);
+        
         if (!contentType || !contentType.includes("application/json")) {
           const text = await res.text();
-          console.error("Non-JSON response:", text.substring(0, 200));
-          console.error("Response status:", res.status);
-          console.error("Response URL:", res.url);
-          throw new Error('Scholarship not found - Invalid response format');
+          console.error("Non-JSON response received:");
+          console.error("Status:", res.status);
+          console.error("Status Text:", res.statusText);
+          console.error("Response Preview:", text.substring(0, 500));
+          console.error("Full URL:", res.url);
+          throw new Error(`Invalid response format. Expected JSON but got ${contentType || 'unknown'}. Status: ${res.status}`);
         }
         
         if (!res.ok) {
           let errorData;
           try {
-            errorData = await res.json();
-          } catch {
-            errorData = { error: `Request failed with status ${res.status}` };
+            const text = await res.text();
+            console.error("Error response text:", text);
+            errorData = JSON.parse(text);
+          } catch (parseError) {
+            console.error("Failed to parse error response:", parseError);
+            errorData = { error: `Request failed with status ${res.status}: ${res.statusText}` };
           }
-          throw new Error(errorData.error || 'Scholarship not found');
+          console.error("Error data:", errorData);
+          throw new Error(errorData.error || `Scholarship not found (${res.status})`);
         }
         
         const data = await res.json();
+        console.log('Received data:', data);
+        
         if (!data || !data.scholarship) {
+          console.error("Missing scholarship in response:", data);
           throw new Error('Scholarship data not found in response');
         }
+        
+        console.log('Setting scholarship:', data.scholarship.name);
         setScholarship(data.scholarship);
 
         // Fetch similar scholarships (same country or field)
