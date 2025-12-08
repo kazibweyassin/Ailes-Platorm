@@ -1,0 +1,655 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Target,
+  Sparkles,
+  CheckCircle2,
+  AlertCircle,
+  ArrowRight,
+  Heart,
+  Award,
+  TrendingUp,
+  Filter,
+  Download,
+  Loader2,
+  User,
+} from "lucide-react";
+
+// Mock data - will be replaced with API call
+const mockMatches = [
+  {
+    id: "1",
+    scholarship: {
+      id: "1",
+      name: "Mastercard Foundation Scholars Program",
+      provider: "Mastercard Foundation",
+      amount: 100000,
+      currency: "USD",
+      type: "FULL",
+      deadline: "2025-03-31",
+      country: "USA",
+      forWomen: true,
+      forAfrican: true,
+      fieldOfStudy: ["Computer Science", "Engineering", "Business"],
+      degreeLevel: ["MASTER", "PHD"],
+    },
+    matchScore: 95,
+    matchReasons: [
+      "Perfect match for your country (Nigeria)",
+      "Your GPA (3.8) exceeds minimum requirement (3.5)",
+      "Your field of study (Computer Science) is eligible",
+      "Master's degree level matches your goal",
+      "Specifically for African women",
+    ],
+    missingRequirements: [],
+  },
+  {
+    id: "2",
+    scholarship: {
+      id: "2",
+      name: "Chevening Scholarships",
+      provider: "UK Government",
+      amount: 45000,
+      currency: "GBP",
+      type: "FULL",
+      deadline: "2025-11-02",
+      country: "UK",
+      forWomen: false,
+      forAfrican: false,
+      fieldOfStudy: ["Any"],
+      degreeLevel: ["MASTER"],
+    },
+    matchScore: 88,
+    matchReasons: [
+      "Your GPA (3.8) meets requirements",
+      "IELTS score (7.5) is excellent",
+      "Master's degree level matches",
+      "Leadership experience valued",
+    ],
+    missingRequirements: [
+      "Requires 2+ years work experience",
+    ],
+  },
+  {
+    id: "3",
+    scholarship: {
+      id: "3",
+      name: "DAAD Scholarships",
+      provider: "German Academic Exchange Service",
+      amount: 30000,
+      currency: "EUR",
+      type: "FULL",
+      deadline: "2025-04-30",
+      country: "Germany",
+      forWomen: false,
+      forAfrican: false,
+      fieldOfStudy: ["Engineering", "Science", "Technology"],
+      degreeLevel: ["MASTER", "PHD"],
+    },
+    matchScore: 82,
+    matchReasons: [
+      "Strong academic performance (GPA 3.8)",
+      "Field of study matches (Computer Science)",
+      "Degree level aligned (Master's)",
+    ],
+    missingRequirements: [
+      "German language proficiency recommended (not required)",
+    ],
+  },
+  {
+    id: "4",
+    scholarship: {
+      id: "4",
+      name: "African Women in STEM Scholarship",
+      provider: "Google.org",
+      amount: 50000,
+      currency: "USD",
+      type: "PARTIAL",
+      deadline: "2025-02-15",
+      country: "USA",
+      forWomen: true,
+      forAfrican: true,
+      fieldOfStudy: ["Computer Science", "Engineering", "Mathematics"],
+      degreeLevel: ["BACHELOR", "MASTER"],
+    },
+    matchScore: 98,
+    matchReasons: [
+      "Perfect match - African woman in STEM",
+      "Computer Science is your field",
+      "GPA exceeds requirements",
+      "Age within range",
+      "Deadline approaching (urgent opportunity)",
+    ],
+    missingRequirements: [],
+  },
+];
+
+export default function ScholarshipMatchPage() {
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [matches, setMatches] = useState<any[]>([]);
+  const [filter, setFilter] = useState<"all" | "perfect" | "good" | "fair">("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [error, setError] = useState("");
+  const [savedScholarshipIds, setSavedScholarshipIds] = useState<Set<string>>(new Set());
+  const [savingId, setSavingId] = useState<string | null>(null);
+
+  // Check authentication status
+  useEffect(() => {
+    async function checkAuth() {
+      try {
+        const res = await fetch('/api/auth/session');
+        const session = await res.json();
+        if (!session || !session.user) {
+          router.push('/auth/signin?callbackUrl=/scholarships/match');
+          setIsAuthenticated(false);
+        } else {
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        router.push('/auth/signin?callbackUrl=/scholarships/match');
+        setIsAuthenticated(false);
+      }
+    }
+    checkAuth();
+  }, [router]);
+
+  // Fetch matches from API
+  useEffect(() => {
+    if (isAuthenticated === false) return;
+    if (isAuthenticated === null) return; // Wait for auth check
+
+    async function fetchMatches() {
+      try {
+        setIsLoading(true);
+        const res = await fetch('/api/scholarships/match');
+        
+        if (res.status === 401) {
+          router.push('/auth/signin?callbackUrl=/scholarships/match');
+          return;
+        }
+        
+        if (!res.ok) throw new Error('Failed to fetch matches');
+        
+        const data = await res.json();
+        setMatches(data.matches || []);
+
+        // Fetch saved scholarships
+        const savedRes = await fetch('/api/saved/scholarships');
+        if (savedRes.ok) {
+          const savedData = await savedRes.json();
+          const ids = new Set<string>(savedData.scholarships?.map((s: any) => s.id) || []);
+          setSavedScholarshipIds(ids);
+        }
+        setError("");
+      } catch (err) {
+        console.error('Error fetching matches:', err);
+        setError("Failed to load scholarship matches. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchMatches();
+  }, [isAuthenticated, router]);
+
+  const toggleSave = async (scholarshipId: string) => {
+    try {
+      setSavingId(scholarshipId);
+      const isSaved = savedScholarshipIds.has(scholarshipId);
+      
+      const res = await fetch('/api/saved/scholarships', {
+        method: isSaved ? 'DELETE' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scholarshipId }),
+      });
+
+      if (!res.ok) throw new Error('Failed to save scholarship');
+
+      const newSaved = new Set(savedScholarshipIds);
+      if (isSaved) {
+        newSaved.delete(scholarshipId);
+      } else {
+        newSaved.add(scholarshipId);
+      }
+      setSavedScholarshipIds(newSaved);
+    } catch (err) {
+      console.error('Error saving scholarship:', err);
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  const getScoreColor = (score: number) => {
+    if (score >= 90) return "text-green-600 bg-green-50 border-green-200";
+    if (score >= 75) return "text-blue-600 bg-blue-50 border-blue-200";
+    if (score >= 60) return "text-orange-600 bg-orange-50 border-orange-200";
+    return "text-gray-600 bg-gray-50 border-gray-200";
+  };
+
+  const getScoreLabel = (score: number) => {
+    if (score >= 90) return "Perfect Match";
+    if (score >= 75) return "Great Match";
+    if (score >= 60) return "Good Match";
+    return "Fair Match";
+  };
+
+  const filteredMatches = matches
+    .filter((match) => {
+      if (filter === "perfect" && match.matchScore < 90) return false;
+      if (filter === "good" && (match.matchScore < 75 || match.matchScore >= 90)) return false;
+      if (filter === "fair" && match.matchScore >= 75) return false;
+      if (searchTerm && !match.scholarship.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+        return false;
+      }
+      return true;
+    })
+    .sort((a, b) => b.matchScore - a.matchScore);
+
+  const stats = {
+    total: matches.length,
+    perfect: matches.filter((m) => m.matchScore >= 90).length,
+    good: matches.filter((m) => m.matchScore >= 75 && m.matchScore < 90).length,
+    fair: matches.filter((m) => m.matchScore < 75).length,
+  };
+
+  // Show loading while checking authentication
+  if (isAuthenticated === null) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-light via-white to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated (redirect will happen)
+  if (isAuthenticated === false) {
+    return null;
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-light via-white to-purple-50 flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center"
+        >
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+            className="w-20 h-20 mx-auto mb-6"
+          >
+            <Sparkles className="w-20 h-20 text-primary" />
+          </motion.div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            AI Matching Your Profile
+          </h2>
+          <p className="text-gray-600 mb-4">
+            Analyzing 500+ scholarships to find your perfect matches...
+          </p>
+          <div className="flex items-center justify-center gap-2">
+            <motion.div
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 1, repeat: Infinity }}
+              className="w-3 h-3 bg-primary rounded-full"
+            />
+            <motion.div
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}
+              className="w-3 h-3 bg-primary rounded-full"
+            />
+            <motion.div
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}
+              className="w-3 h-3 bg-primary rounded-full"
+            />
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Hero Section */}
+      <section className="bg-gradient-to-br from-primary-light via-white to-purple-50 py-12">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          {error && (
+            <div className="max-w-4xl mx-auto mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
+              <AlertCircle className="h-5 w-5 text-red-600" />
+              <p className="text-red-800">{error}</p>
+            </div>
+          )}
+          
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-4xl mx-auto text-center"
+          >
+            <div className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm mb-4">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">AI-Powered Matching</span>
+            </div>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+              Your Personalized Scholarship Matches
+            </h1>
+            <p className="text-base text-gray-600 mb-6">
+              We found {matches.length} scholarships that match your profile
+            </p>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                <Card className="bg-white">
+                  <CardContent className="pt-6 text-center">
+                    <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                    <p className="text-xs text-gray-600">Total Matches</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+              >
+                <Card className="bg-green-50 border-green-200">
+                  <CardContent className="pt-6 text-center">
+                    <p className="text-2xl font-bold text-green-600">{stats.perfect}</p>
+                    <p className="text-xs text-green-600">Perfect (90%+)</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                <Card className="bg-blue-50 border-blue-200">
+                  <CardContent className="pt-6 text-center">
+                    <p className="text-2xl font-bold text-blue-600">{stats.good}</p>
+                    <p className="text-xs text-blue-600">Great (75-89%)</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <Card className="bg-orange-50 border-orange-200">
+                  <CardContent className="pt-6 text-center">
+                    <p className="text-2xl font-bold text-orange-600">{stats.fair}</p>
+                    <p className="text-xs text-orange-600">Good (60-74%)</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Filters */}
+      <section className="py-6 border-b bg-gray-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="flex gap-2 w-full md:w-auto">
+              <Button
+                variant={filter === "all" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilter("all")}
+              >
+                All Matches
+              </Button>
+              <Button
+                variant={filter === "perfect" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilter("perfect")}
+              >
+                Perfect
+              </Button>
+              <Button
+                variant={filter === "good" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilter("good")}
+              >
+                Great
+              </Button>
+              <Button
+                variant={filter === "fair" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilter("fair")}
+              >
+                Good
+              </Button>
+            </div>
+            <div className="flex gap-2 w-full md:w-auto">
+              <Input
+                placeholder="Search scholarships..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="flex-1 md:w-64"
+              />
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Export PDF
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Matches List */}
+      <section className="py-12">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-5xl mx-auto space-y-6">
+            <AnimatePresence mode="popLayout">
+              {filteredMatches.map((match, index) => (
+                <motion.div
+                  key={match.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Card className="hover:shadow-xl transition-all duration-300 overflow-hidden">
+                    <CardHeader className="pb-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <CardTitle className="text-xl">
+                              {match.scholarship.name}
+                            </CardTitle>
+                            {match.scholarship.forWomen && (
+                              <span className="text-xs px-2 py-1 bg-pink-100 text-pink-700 rounded-full">
+                                For Women
+                              </span>
+                            )}
+                            {match.scholarship.forAfrican && (
+                              <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full">
+                                For Africans
+                              </span>
+                            )}
+                          </div>
+                          <CardDescription className="flex items-center gap-4 text-sm">
+                            <span className="font-medium">
+                              {match.scholarship.provider}
+                            </span>
+                            <span>•</span>
+                            <span className="font-bold text-primary">
+                              {match.scholarship.currency} ${match.scholarship.amount.toLocaleString()}
+                            </span>
+                            <span>•</span>
+                            <span>{match.scholarship.type} Scholarship</span>
+                          </CardDescription>
+                        </div>
+                        <div className={`text-center px-4 py-2 rounded-lg border-2 ${getScoreColor(match.matchScore)}`}>
+                          <div className="text-2xl font-bold">{match.matchScore}%</div>
+                          <div className="text-xs">{getScoreLabel(match.matchScore)}</div>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {/* Match Reasons */}
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4 text-green-600" />
+                          Why This Matches You
+                        </h4>
+                        <ul className="space-y-1">
+                          {match.matchReasons.map((reason: string, idx: number) => (
+                            <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
+                              <span className="text-green-600 mt-1">✓</span>
+                              <span>{reason}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Missing Requirements */}
+                      {match.missingRequirements.length > 0 && (
+                        <div>
+                          <h4 className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                            <AlertCircle className="h-4 w-4 text-orange-600" />
+                            What You Need
+                          </h4>
+                          <ul className="space-y-1">
+                            {match.missingRequirements.map((req: string, idx: number) => (
+                              <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
+                                <span className="text-orange-600 mt-1">⚠</span>
+                                <span>{req}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {/* Deadline */}
+                      <div className="flex items-center justify-between pt-3 border-t">
+                        <div className="text-sm">
+                          <span className="text-gray-600">Deadline: </span>
+                          <span className="font-semibold text-gray-900">
+                            {new Date(match.scholarship.deadline).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })}
+                          </span>
+                          <span className="ml-2 text-xs text-orange-600">
+                            ({Math.ceil((new Date(match.scholarship.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days left)
+                          </span>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => toggleSave(match.scholarship.id)}
+                            disabled={savingId === match.scholarship.id}
+                          >
+                            <Heart className={`h-4 w-4 mr-2 ${savedScholarshipIds.has(match.scholarship.id) ? 'fill-red-500 text-red-500' : ''}`} />
+                            {savedScholarshipIds.has(match.scholarship.id) ? 'Saved' : 'Save'}
+                          </Button>
+                          <Link href={`/scholarships/${match.scholarship.id}`}>
+                            <Button size="sm">
+                              View Details
+                              <ArrowRight className="h-4 w-4 ml-2" />
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+
+            {filteredMatches.length === 0 && matches.length === 0 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-12"
+              >
+                <User className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  Complete Your Profile to Get Matches
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  We need more information about you to find the best scholarship matches.
+                  Complete your profile with your GPA, field of study, test scores, and preferences.
+                </p>
+                <Link href="/profile">
+                  <Button>
+                    Complete Profile
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </motion.div>
+            )}
+
+            {filteredMatches.length === 0 && matches.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-12"
+              >
+                <Filter className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  No matches found
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Try adjusting your filters or search term
+                </p>
+                <Button onClick={() => { setFilter("all"); setSearchTerm(""); }}>
+                  Clear Filters
+                </Button>
+              </motion.div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-12 bg-gradient-to-r from-primary to-purple-600 text-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold mb-3">
+            Need Help Applying?
+          </h2>
+          <p className="text-base mb-6 max-w-2xl mx-auto opacity-90">
+            Our experts can guide you through every step of the application process
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/contact">
+              <Button size="lg" variant="secondary">
+                Book Free Consultation
+              </Button>
+            </Link>
+            <Link href="/services">
+              <Button
+                size="lg"
+                variant="outline"
+                className="border-white text-white hover:bg-white/20"
+              >
+                View Our Services
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
