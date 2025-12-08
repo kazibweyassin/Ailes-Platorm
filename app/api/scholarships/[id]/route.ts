@@ -8,6 +8,15 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Check if scholarship exists first
+    const exists = await prisma.scholarship.findUnique({
+      where: { id: params.id }
+    })
+
+    if (!exists) {
+      return NextResponse.json({ error: "Scholarship not found" }, { status: 404 })
+    }
+
     // Increment view count
     const scholarship = await prisma.scholarship.update({
       where: { id: params.id },
@@ -21,10 +30,6 @@ export async function GET(
         }
       }
     })
-
-    if (!scholarship) {
-      return NextResponse.json({ error: "Scholarship not found" }, { status: 404 })
-    }
 
     // Calculate days until deadline
     const daysUntilDeadline = scholarship.deadline 
