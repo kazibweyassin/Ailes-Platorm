@@ -2,9 +2,11 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 
-// Force dynamic rendering
+// Force dynamic rendering - critical for production
 export const dynamic = 'force-dynamic'
+export const dynamicParams = true
 export const runtime = 'nodejs'
+export const revalidate = 0
 
 // GET /api/scholarships/[id] - Get single scholarship
 export async function GET(
@@ -12,23 +14,44 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Await params - required in Next.js 15
     const { id } = await params
     
-    if (!id || typeof id !== 'string') {
-      return NextResponse.json({ error: "Invalid scholarship ID" }, { status: 400 })
+    // Validate ID
+    if (!id || typeof id !== 'string' || id.trim() === '') {
+      return NextResponse.json({ 
+        error: "Invalid scholarship ID",
+        received: id 
+      }, { 
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      })
     }
     
     // Check if scholarship exists first
-    const exists = await prisma.scholarship.findUnique({
-      where: { id }
-    })
+    let exists;
+    try {
+      exists = await prisma.scholarship.findUnique({
+        where: { id }
+      })
+    } catch (dbError: any) {
+      console.error("Database error:", dbError)
+      return NextResponse.json({ 
+        error: "Database connection error",
+        message: process.env.NODE_ENV === 'development' ? dbError?.message : undefined
+      }, { 
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      })
+    }
 
     if (!exists) {
-      return NextResponse.json({ error: "Scholarship not found" }, { 
+      return NextResponse.json({ 
+        error: "Scholarship not found",
+        id: id 
+      }, { 
         status: 404,
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/json' }
       })
     }
 

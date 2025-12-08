@@ -45,15 +45,22 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
       try {
         setLoading(true);
         // Use absolute URL in production to avoid routing issues
-        const apiUrl = typeof window !== 'undefined' 
-          ? `${window.location.origin}/api/scholarships/${id}`
-          : `/api/scholarships/${id}`;
+        const baseUrl = typeof window !== 'undefined' 
+          ? window.location.origin 
+          : '';
+        const apiUrl = `${baseUrl}/api/scholarships/${encodeURIComponent(id)}`;
+        
+        console.log('Fetching scholarship:', apiUrl);
         
         const res = await fetch(apiUrl, {
+          method: 'GET',
           cache: 'no-store',
           headers: {
             'Content-Type': 'application/json',
-          }
+            'Accept': 'application/json',
+          },
+          // Ensure we don't follow redirects that might return HTML
+          redirect: 'error'
         });
         
         // Check if response is JSON

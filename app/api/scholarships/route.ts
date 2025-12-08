@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
+// Force dynamic rendering for production
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 // GET /api/scholarships - Get all scholarships with advanced filtering
 export async function GET(req: Request) {
   try {
