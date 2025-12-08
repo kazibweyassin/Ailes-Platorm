@@ -118,16 +118,30 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
           })
           .catch(err => console.warn('Failed to fetch similar scholarships:', err));
 
-        // Check if already saved - don't block on this
-        fetch(`${baseUrl}/api/saved/scholarships`)
-          .then(res => res.ok ? res.json() : null)
+        // Check if already saved - don't block on this, handle HTML responses
+        fetch(`${baseUrl}/api/saved/scholarships`, {
+          headers: {
+            'Accept': 'application/json',
+          }
+        })
+          .then(async res => {
+            const contentType = res.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+              // Not authenticated or error - silently fail
+              return null;
+            }
+            return res.ok ? res.json() : null;
+          })
           .then(savedData => {
             if (savedData?.scholarships) {
               const saved = savedData.scholarships.some((s: any) => s.id === id);
               setIsSaved(saved);
             }
           })
-          .catch(err => console.warn('Failed to check saved status:', err));
+          .catch(err => {
+            // Silently fail - user might not be logged in
+            console.debug('Saved status check failed (user may not be logged in):', err.message);
+          });
       } catch (err: any) {
         console.error('Error in fetchScholarship:', err);
         setError(err.message || 'Failed to load scholarship');
