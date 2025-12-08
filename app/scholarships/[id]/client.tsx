@@ -103,27 +103,38 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
         }
         
         console.log('Setting scholarship:', data.scholarship.name);
+        console.log('Scholarship data:', JSON.stringify(data.scholarship, null, 2));
         setScholarship(data.scholarship);
+        setError(""); // Clear any previous errors
 
-        // Fetch similar scholarships (same country or field)
-        const similarRes = await fetch(`/api/scholarships?country=${data.scholarship.country}&limit=3`);
-        if (similarRes.ok) {
-          const similarData = await similarRes.json();
-          const filtered = (similarData.scholarships || []).filter((s: any) => s.id !== id).slice(0, 3);
-          setSimilarScholarships(filtered);
-        }
+        // Fetch similar scholarships (same country or field) - don't block on this
+        fetch(`${baseUrl}/api/scholarships?country=${encodeURIComponent(data.scholarship.country || '')}&limit=3`)
+          .then(res => res.ok ? res.json() : null)
+          .then(similarData => {
+            if (similarData?.scholarships) {
+              const filtered = similarData.scholarships.filter((s: any) => s.id !== id).slice(0, 3);
+              setSimilarScholarships(filtered);
+            }
+          })
+          .catch(err => console.warn('Failed to fetch similar scholarships:', err));
 
-        // Check if already saved
-        const savedRes = await fetch('/api/saved/scholarships');
-        if (savedRes.ok) {
-          const savedData = await savedRes.json();
-          const saved = savedData.scholarships?.some((s: any) => s.id === id);
-          setIsSaved(saved);
-        }
+        // Check if already saved - don't block on this
+        fetch(`${baseUrl}/api/saved/scholarships`)
+          .then(res => res.ok ? res.json() : null)
+          .then(savedData => {
+            if (savedData?.scholarships) {
+              const saved = savedData.scholarships.some((s: any) => s.id === id);
+              setIsSaved(saved);
+            }
+          })
+          .catch(err => console.warn('Failed to check saved status:', err));
       } catch (err: any) {
-        setError(err.message);
+        console.error('Error in fetchScholarship:', err);
+        setError(err.message || 'Failed to load scholarship');
+        setScholarship(null);
       } finally {
         setLoading(false);
+        console.log('Loading set to false, scholarship:', scholarship ? scholarship.name : 'null');
       }
     }
     fetchScholarship();
@@ -189,6 +200,8 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
     }
   };
 
+  console.log('Render check - loading:', loading, 'error:', error, 'has scholarship:', !!scholarship);
+  
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -200,13 +213,28 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
     );
   }
 
-  if (error || !scholarship) {
+  if (error) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Scholarship</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <Link href="/scholarships">
+            <Button>Browse Scholarships</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!scholarship) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Scholarship Not Found</h2>
-          <p className="text-gray-600 mb-6">{error || 'This scholarship does not exist.'}</p>
+          <p className="text-gray-600 mb-6">This scholarship does not exist.</p>
           <Link href="/scholarships">
             <Button>Browse Scholarships</Button>
           </Link>
