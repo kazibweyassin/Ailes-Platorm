@@ -31,12 +31,17 @@ import {
 } from "lucide-react";
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export default function ScholarshipDetailPage({ params }: PageProps) {
+export default async function ScholarshipDetailPage({ params }: PageProps) {
+  const { id } = await params;
+  return <ScholarshipDetailClient id={id} />;
+}
+
+function ScholarshipDetailClient({ id }: { id: string }) {
   const router = useRouter();
   const [scholarship, setScholarship] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -50,7 +55,7 @@ export default function ScholarshipDetailPage({ params }: PageProps) {
     async function fetchScholarship() {
       try {
         setLoading(true);
-        const res = await fetch(`/api/scholarships/${params.id}`);
+        const res = await fetch(`/api/scholarships/${id}`);
         if (!res.ok) throw new Error('Scholarship not found');
         
         const data = await res.json();
@@ -60,7 +65,7 @@ export default function ScholarshipDetailPage({ params }: PageProps) {
         const similarRes = await fetch(`/api/scholarships?country=${data.scholarship.country}&limit=3`);
         if (similarRes.ok) {
           const similarData = await similarRes.json();
-          const filtered = (similarData.scholarships || []).filter((s: any) => s.id !== params.id).slice(0, 3);
+          const filtered = (similarData.scholarships || []).filter((s: any) => s.id !== id).slice(0, 3);
           setSimilarScholarships(filtered);
         }
 
@@ -68,7 +73,7 @@ export default function ScholarshipDetailPage({ params }: PageProps) {
         const savedRes = await fetch('/api/saved/scholarships');
         if (savedRes.ok) {
           const savedData = await savedRes.json();
-          const saved = savedData.scholarships?.some((s: any) => s.id === params.id);
+          const saved = savedData.scholarships?.some((s: any) => s.id === id);
           setIsSaved(saved);
         }
       } catch (err: any) {
@@ -78,7 +83,7 @@ export default function ScholarshipDetailPage({ params }: PageProps) {
       }
     }
     fetchScholarship();
-  }, [params.id]);
+  }, [id]);
 
   const handleSave = async () => {
     try {
@@ -86,12 +91,12 @@ export default function ScholarshipDetailPage({ params }: PageProps) {
       const res = await fetch('/api/saved/scholarships', {
         method: isSaved ? 'DELETE' : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ scholarshipId: params.id }),
+        body: JSON.stringify({ scholarshipId: id }),
       });
 
       if (!res.ok) {
         if (res.status === 401) {
-          router.push(`/auth/signin?callbackUrl=/scholarships/${params.id}`);
+          router.push(`/auth/signin?callbackUrl=/scholarships/${id}`);
           return;
         }
         throw new Error('Failed to save scholarship');
@@ -112,14 +117,14 @@ export default function ScholarshipDetailPage({ params }: PageProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          scholarshipId: params.id,
+          scholarshipId: id,
           status: 'IN_PROGRESS'
         }),
       });
 
       if (!res.ok) {
         if (res.status === 401) {
-          router.push(`/auth/signin?callbackUrl=/scholarships/${params.id}`);
+          router.push(`/auth/signin?callbackUrl=/scholarships/${id}`);
           return;
         }
         const data = await res.json();
