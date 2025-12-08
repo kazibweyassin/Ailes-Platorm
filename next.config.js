@@ -9,6 +9,10 @@ const nextConfig = {
       },
     ],
   },
+  // Ensure API routes work correctly in production
+  async rewrites() {
+    return [];
+  },
 };
 
 module.exports = nextConfig;

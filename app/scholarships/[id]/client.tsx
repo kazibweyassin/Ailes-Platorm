@@ -44,10 +44,42 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
     async function fetchScholarship() {
       try {
         setLoading(true);
-        const res = await fetch(`/api/scholarships/${id}`);
-        if (!res.ok) throw new Error('Scholarship not found');
+        // Use absolute URL in production to avoid routing issues
+        const apiUrl = typeof window !== 'undefined' 
+          ? `${window.location.origin}/api/scholarships/${id}`
+          : `/api/scholarships/${id}`;
+        
+        const res = await fetch(apiUrl, {
+          cache: 'no-store',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        // Check if response is JSON
+        const contentType = res.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          const text = await res.text();
+          console.error("Non-JSON response:", text.substring(0, 200));
+          console.error("Response status:", res.status);
+          console.error("Response URL:", res.url);
+          throw new Error('Scholarship not found - Invalid response format');
+        }
+        
+        if (!res.ok) {
+          let errorData;
+          try {
+            errorData = await res.json();
+          } catch {
+            errorData = { error: `Request failed with status ${res.status}` };
+          }
+          throw new Error(errorData.error || 'Scholarship not found');
+        }
         
         const data = await res.json();
+        if (!data || !data.scholarship) {
+          throw new Error('Scholarship data not found in response');
+        }
         setScholarship(data.scholarship);
 
         // Fetch similar scholarships (same country or field)

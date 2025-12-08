@@ -2,6 +2,10 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { auth } from "@/lib/auth"
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 // GET /api/scholarships/[id] - Get single scholarship
 export async function GET(
   req: Request,
@@ -10,13 +14,22 @@ export async function GET(
   try {
     const { id } = await params
     
+    if (!id || typeof id !== 'string') {
+      return NextResponse.json({ error: "Invalid scholarship ID" }, { status: 400 })
+    }
+    
     // Check if scholarship exists first
     const exists = await prisma.scholarship.findUnique({
       where: { id }
     })
 
     if (!exists) {
-      return NextResponse.json({ error: "Scholarship not found" }, { status: 404 })
+      return NextResponse.json({ error: "Scholarship not found" }, { 
+        status: 404,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
     }
 
     // Increment view count
@@ -44,10 +57,23 @@ export async function GET(
         daysUntilDeadline,
         isUrgent: daysUntilDeadline ? daysUntilDeadline <= 30 : false
       }
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error("Scholarship fetch error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    // Ensure we always return JSON, not HTML
+    return NextResponse.json({ 
+      error: error?.message || "Internal server error",
+      details: process.env.NODE_ENV === 'development' ? error?.stack : undefined
+    }, { 
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
   }
 }
 
