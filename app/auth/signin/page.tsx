@@ -168,8 +168,7 @@ function SignInForm() {
                 className="w-full"
                 size="lg"
                 onClick={() => {
-                  // Handle Google OAuth
-                  window.location.href = "/api/auth/signin/google";
+                  signIn("google", { callbackUrl });
                 }}
               >
                 <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -330,7 +331,7 @@ export default function SignUpPage() {
                 className="w-full"
                 size="lg"
                 onClick={() => {
-                  window.location.href = "/api/auth/signin/google";
+                  signIn("google", { callbackUrl: "/dashboard" });
                 }}
               >
                 <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
