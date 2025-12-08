@@ -5,12 +5,14 @@ import { auth } from "@/lib/auth"
 // GET /api/scholarships/[id] - Get single scholarship
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+    
     // Check if scholarship exists first
     const exists = await prisma.scholarship.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!exists) {
@@ -19,7 +21,7 @@ export async function GET(
 
     // Increment view count
     const scholarship = await prisma.scholarship.update({
-      where: { id: params.id },
+      where: { id },
       data: { views: { increment: 1 } },
       include: {
         _count: {
@@ -52,10 +54,11 @@ export async function GET(
 // PATCH /api/scholarships/[id] - Update scholarship (admin only)
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth()
+    const { id } = await params
     
     if (!session || session.user?.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -79,7 +82,7 @@ export async function PATCH(
     if (data.maxAge) data.maxAge = parseInt(data.maxAge)
 
     const scholarship = await prisma.scholarship.update({
-      where: { id: params.id },
+      where: { id },
       data
     })
 
@@ -93,17 +96,18 @@ export async function PATCH(
 // DELETE /api/scholarships/[id] - Delete scholarship (admin only)
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth()
+    const { id } = await params
     
     if (!session || session.user?.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     await prisma.scholarship.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({ message: "Scholarship deleted successfully" })
