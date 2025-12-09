@@ -37,7 +37,6 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
   const [error, setError] = useState("");
   const [isSaved, setIsSaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [isApplying, setIsApplying] = useState(false);
   const [similarScholarships, setSimilarScholarships] = useState<any[]>([]);
 
   useEffect(() => {
@@ -168,10 +167,7 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
     }
   };
 
-  const handleApply = async () => {
-    // Navigate to application form
-    router.push(`/scholarships/${id}/apply`);
-  };
+
 
   if (loading) {
     return (
@@ -314,24 +310,14 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-3 pt-6">
-                <Button 
-                  size="lg" 
-                  className="flex-1 md:flex-none"
-                  onClick={handleApply}
-                  disabled={isApplying}
-                >
-                  {isApplying ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Starting Application...
-                    </>
-                  ) : (
-                    <>
+                {scholarship.applicationLink && (
+                  <Button size="lg" className="flex-1 md:flex-none" asChild>
+                    <a href={scholarship.applicationLink} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="h-4 w-4 mr-2" />
                       Apply Now
-                    </>
-                  )}
-                </Button>
+                    </a>
+                  </Button>
+                )}
                 <Button
                   size="lg"
                   variant="outline"
@@ -346,11 +332,11 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
                   )}
                   {isSaved ? "Saved" : "Save"}
                 </Button>
-                {scholarship.applicationLink && (
+                {scholarship.website && (
                   <Button size="lg" variant="outline" asChild>
-                    <a href={scholarship.applicationLink} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Official Application
+                    <a href={scholarship.website} target="_blank" rel="noopener noreferrer">
+                      <Globe className="h-4 w-4 mr-2" />
+                      Visit Website
                     </a>
                   </Button>
                 )}
@@ -542,15 +528,11 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
                     <CardTitle className="text-lg">Quick Actions</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <Button className="w-full" size="lg" onClick={handleApply} disabled={isApplying}>
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Apply Now
-                    </Button>
                     {scholarship.applicationLink && (
-                      <Button variant="outline" className="w-full" asChild>
+                      <Button className="w-full" size="lg" asChild>
                         <a href={scholarship.applicationLink} target="_blank" rel="noopener noreferrer">
                           <ExternalLink className="h-4 w-4 mr-2" />
-                          Official Application
+                          Apply Now
                         </a>
                       </Button>
                     )}

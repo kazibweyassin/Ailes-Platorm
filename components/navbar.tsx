@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { Menu, X, Heart, LayoutDashboard, User, Shield, LogIn, LogOut } from "lucide-react";
+import { Menu, X, Heart, LayoutDashboard, User, Shield, LogIn, LogOut, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { signOut, useSession } from "next-auth/react";
 
@@ -48,6 +48,12 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
+            <Link href="/find-scholarships">
+              <Button className="bg-gradient-to-r from-primary to-purple-600 text-white hover:shadow-lg">
+                <Sparkles className="mr-2 h-4 w-4" />
+                Find My Scholarships
+              </Button>
+            </Link>
             <Link href="/sponsor">
               <Button variant="outline" className="border-pink-600 text-pink-600 hover:bg-pink-50">
                 <Heart className="mr-2 h-4 w-4" />
@@ -111,6 +117,12 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
+            <Link href="/find-scholarships" onClick={() => setIsOpen(false)}>
+              <Button className="w-full bg-gradient-to-r from-primary to-purple-600 text-white">
+                <Sparkles className="mr-2 h-4 w-4" />
+                Find My Scholarships
+              </Button>
+            </Link>
             <Link href="/sponsor" onClick={() => setIsOpen(false)}>
               <Button variant="outline" className="w-full border-pink-600 text-pink-600 hover:bg-pink-50">
                 <Heart className="mr-2 h-4 w-4" />
