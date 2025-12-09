@@ -81,6 +81,43 @@ export const {
     })
   ],
   callbacks: {
+    async signIn({ user, account, profile }) {
+      // Allow OAuth sign in even if email already exists
+      if (account?.provider === "google") {
+        // Check if user with this email exists
+        const existingUser = await prisma.user.findUnique({
+          where: { email: user.email! }
+        })
+
+        if (existingUser) {
+          // Link the Google account to existing user
+          const existingAccount = await prisma.account.findFirst({
+            where: {
+              userId: existingUser.id,
+              provider: "google"
+            }
+          })
+
+          if (!existingAccount) {
+            // Create account link
+            await prisma.account.create({
+              data: {
+                userId: existingUser.id,
+                type: account.type,
+                provider: account.provider,
+                providerAccountId: account.providerAccountId,
+                access_token: account.access_token,
+                expires_at: account.expires_at,
+                token_type: account.token_type,
+                scope: account.scope,
+                id_token: account.id_token,
+              }
+            })
+          }
+        }
+      }
+      return true
+    },
     async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id
