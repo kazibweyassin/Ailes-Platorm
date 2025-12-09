@@ -23,6 +23,11 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
+  ArrowUpDown,
+  Download,
+  Share2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 export default function ScholarshipsPage() {
@@ -37,6 +42,10 @@ export default function ScholarshipsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [savedScholarshipIds, setSavedScholarshipIds] = useState<Set<string>>(new Set());
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState("deadline"); // deadline, amount, name, views
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalResults, setTotalResults] = useState(0);
 
   // Fetch saved scholarships on mount
   useEffect(() => {
@@ -65,6 +74,8 @@ export default function ScholarshipsPage() {
         if (selectedType !== 'all') params.append('type', selectedType);
         if (forWomenOnly) params.append('forWomen', 'true');
         if (forAfricanOnly) params.append('forAfrican', 'true');
+        params.append('page', currentPage.toString());
+        params.append('limit', '12'); // 12 per page
         
         const res = await fetch(`/api/scholarships?${params}`, {
           cache: 'no-store',
@@ -76,6 +87,8 @@ export default function ScholarshipsPage() {
         
         const data = await res.json();
         setScholarships(data.scholarships || []);
+        setTotalPages(data.pagination?.totalPages || 1);
+        setTotalResults(data.pagination?.total || 0);
         setError("");
       } catch (err) {
         console.error('Error fetching scholarships:', err);
@@ -86,6 +99,11 @@ export default function ScholarshipsPage() {
     }
     
     fetchScholarships();
+  }, [searchTerm, selectedCountry, selectedType, forWomenOnly, forAfricanOnly, currentPage]);
+  
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
   }, [searchTerm, selectedCountry, selectedType, forWomenOnly, forAfricanOnly]);
 
   const toggleSave = async (scholarshipId: string) => {
@@ -122,7 +140,66 @@ export default function ScholarshipsPage() {
     }
   };
 
-  const filteredScholarships = scholarships;
+  // Sort scholarships client-side (or could be done server-side)
+  const sortedScholarships = [...scholarships].sort((a, b) => {
+    switch (sortBy) {
+      case 'amount':
+        return (b.amount || 0) - (a.amount || 0);
+      case 'name':
+        return a.name.localeCompare(b.name);
+      case 'views':
+        return (b.views || 0) - (a.views || 0);
+      case 'deadline':
+      default:
+        const aDays = a.daysUntilDeadline ?? Infinity;
+        const bDays = b.daysUntilDeadline ?? Infinity;
+        return aDays - bDays;
+    }
+  });
+  
+  const filteredScholarships = sortedScholarships;
+  
+  const exportToCSV = () => {
+    const headers = ['Name', 'Provider', 'Amount', 'Currency', 'Country', 'Deadline', 'Type', 'Link'];
+    const rows = filteredScholarships.map(s => [
+      s.name,
+      s.provider,
+      s.amount,
+      s.currency,
+      s.country,
+      new Date(s.deadline).toLocaleDateString(),
+      s.type,
+      `${typeof window !== 'undefined' ? window.location.origin : ''}/scholarships/${s.id}`
+    ]);
+    
+    const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `scholarships-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  
+  const shareResults = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Scholarships on AILES Global',
+          text: `Found ${totalResults} scholarships matching my criteria!`,
+          url: url
+        });
+      } catch (err) {
+        // User cancelled or error
+      }
+    } else {
+      // Fallback: copy to clipboard
+      await navigator.clipboard.writeText(url);
+      alert('Link copied to clipboard!');
+    }
+  };
 
   const countries = Array.from(new Set(scholarships.map((s) => s.country).filter(Boolean)));
 
@@ -186,27 +263,60 @@ export default function ScholarshipsPage() {
             </div>
           ) : (
             <>
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                <div className="flex items-center gap-4 flex-wrap">
                   <h2 className="text-lg font-semibold text-gray-900">
-                    {filteredScholarships.length} Scholarships Found
+                    {totalResults} Scholarships Found
                   </h2>
                   <Button
                     variant="outline"
                     size="sm"
-                onClick={() => setShowFilters(!showFilters)}
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                Filters
-              </Button>
-            </div>
-            <Link href="/scholarships/match">
-              <Button>
-                <Award className="h-4 w-4 mr-2" />
-                AI Match Me
-              </Button>
-            </Link>
-          </div>
+                    onClick={() => setShowFilters(!showFilters)}
+                  >
+                    <Filter className="h-4 w-4 mr-2" />
+                    Filters
+                  </Button>
+                  <div className="flex items-center gap-2">
+                    <ArrowUpDown className="h-4 w-4 text-gray-500" />
+                    <select
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                      className="text-sm border rounded-md px-3 py-1.5"
+                    >
+                      <option value="deadline">Sort by Deadline</option>
+                      <option value="amount">Sort by Amount</option>
+                      <option value="name">Sort by Name</option>
+                      <option value="views">Sort by Popularity</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={exportToCSV}
+                    title="Export to CSV"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Export
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={shareResults}
+                    title="Share results"
+                  >
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Share
+                  </Button>
+                  <Link href="/scholarships/match">
+                    <Button size="sm">
+                      <Award className="h-4 w-4 mr-2" />
+                      AI Match
+                    </Button>
+                  </Link>
+                </div>
+              </div>
 
           {/* Filter Panel */}
           {showFilters && (
@@ -395,7 +505,7 @@ export default function ScholarshipsPage() {
           </div>
 
           {/* Empty State */}
-          {filteredScholarships.length === 0 && (
+          {filteredScholarships.length === 0 && !loading && (
             <div className="text-center py-12">
               <Search className="h-16 w-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -411,10 +521,67 @@ export default function ScholarshipsPage() {
                   setSelectedType("all");
                   setForWomenOnly(false);
                   setForAfricanOnly(false);
+                  setCurrentPage(1);
                 }}
               >
                 Clear All Filters
               </Button>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-8">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </Button>
+              
+              <div className="flex items-center gap-1">
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  let pageNum;
+                  if (totalPages <= 5) {
+                    pageNum = i + 1;
+                  } else if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                  
+                  return (
+                    <Button
+                      key={pageNum}
+                      variant={currentPage === pageNum ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCurrentPage(pageNum)}
+                      className="min-w-[40px]"
+                    >
+                      {pageNum}
+                    </Button>
+                  );
+                })}
+              </div>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              
+              <span className="text-sm text-gray-600 ml-4">
+                Page {currentPage} of {totalPages}
+              </span>
             </div>
           )}
             </>

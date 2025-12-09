@@ -22,114 +22,7 @@ import {
   User,
 } from "lucide-react";
 
-// Mock data - will be replaced with API call
-const mockMatches = [
-  {
-    id: "1",
-    scholarship: {
-      id: "1",
-      name: "Mastercard Foundation Scholars Program",
-      provider: "Mastercard Foundation",
-      amount: 100000,
-      currency: "USD",
-      type: "FULL",
-      deadline: "2025-03-31",
-      country: "USA",
-      forWomen: true,
-      forAfrican: true,
-      fieldOfStudy: ["Computer Science", "Engineering", "Business"],
-      degreeLevel: ["MASTER", "PHD"],
-    },
-    matchScore: 95,
-    matchReasons: [
-      "Perfect match for your country (Nigeria)",
-      "Your GPA (3.8) exceeds minimum requirement (3.5)",
-      "Your field of study (Computer Science) is eligible",
-      "Master's degree level matches your goal",
-      "Specifically for African women",
-    ],
-    missingRequirements: [],
-  },
-  {
-    id: "2",
-    scholarship: {
-      id: "2",
-      name: "Chevening Scholarships",
-      provider: "UK Government",
-      amount: 45000,
-      currency: "GBP",
-      type: "FULL",
-      deadline: "2025-11-02",
-      country: "UK",
-      forWomen: false,
-      forAfrican: false,
-      fieldOfStudy: ["Any"],
-      degreeLevel: ["MASTER"],
-    },
-    matchScore: 88,
-    matchReasons: [
-      "Your GPA (3.8) meets requirements",
-      "IELTS score (7.5) is excellent",
-      "Master's degree level matches",
-      "Leadership experience valued",
-    ],
-    missingRequirements: [
-      "Requires 2+ years work experience",
-    ],
-  },
-  {
-    id: "3",
-    scholarship: {
-      id: "3",
-      name: "DAAD Scholarships",
-      provider: "German Academic Exchange Service",
-      amount: 30000,
-      currency: "EUR",
-      type: "FULL",
-      deadline: "2025-04-30",
-      country: "Germany",
-      forWomen: false,
-      forAfrican: false,
-      fieldOfStudy: ["Engineering", "Science", "Technology"],
-      degreeLevel: ["MASTER", "PHD"],
-    },
-    matchScore: 82,
-    matchReasons: [
-      "Strong academic performance (GPA 3.8)",
-      "Field of study matches (Computer Science)",
-      "Degree level aligned (Master's)",
-    ],
-    missingRequirements: [
-      "German language proficiency recommended (not required)",
-    ],
-  },
-  {
-    id: "4",
-    scholarship: {
-      id: "4",
-      name: "African Women in STEM Scholarship",
-      provider: "Google.org",
-      amount: 50000,
-      currency: "USD",
-      type: "PARTIAL",
-      deadline: "2025-02-15",
-      country: "USA",
-      forWomen: true,
-      forAfrican: true,
-      fieldOfStudy: ["Computer Science", "Engineering", "Mathematics"],
-      degreeLevel: ["BACHELOR", "MASTER"],
-    },
-    matchScore: 98,
-    matchReasons: [
-      "Perfect match - African woman in STEM",
-      "Computer Science is your field",
-      "GPA exceeds requirements",
-      "Age within range",
-      "Deadline approaching (urgent opportunity)",
-    ],
-    missingRequirements: [],
-  },
-];
+// Mock data removed - using real API
 
 export default function ScholarshipMatchPage() {
   const router = useRouter();
@@ -461,7 +354,7 @@ export default function ScholarshipMatchPage() {
             <AnimatePresence mode="popLayout">
               {filteredMatches.map((match, index) => (
                 <motion.div
-                  key={match.id}
+                  key={match.scholarship.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.9 }}

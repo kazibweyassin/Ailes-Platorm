@@ -142,7 +142,52 @@ function calculateMatchScore(user: any, scholarship: any): { score: number; reas
   }
 }
 
-// GET /api/scholarships/match - Get AI-matched scholarships for user
+// POST /api/scholarships/match - Match scholarships with provided profile data
+export async function POST(req: Request) {
+  try {
+    const body = await req.json()
+    const profile = body.profile
+
+    if (!profile) {
+      return NextResponse.json({ error: "Profile data required" }, { status: 400 })
+    }
+
+    // Get all active scholarships
+    const scholarships = await prisma.scholarship.findMany({
+      where: {
+        deadline: {
+          gte: new Date() // Only future deadlines
+        }
+      }
+    })
+
+    // Calculate match scores
+    const matches = scholarships.map((scholarship: any) => {
+      const { score, reasons, missing } = calculateMatchScore(profile, scholarship)
+      return {
+        scholarship,
+        matchScore: score,
+        matchReasons: reasons,
+        missingRequirements: missing
+      }
+    })
+
+    // Sort by match score
+    matches.sort((a: any, b: any) => b.matchScore - a.matchScore)
+
+    return NextResponse.json({ 
+      matches: matches.slice(0, 50), // Return top 50
+      totalMatches: matches.length,
+      perfectMatches: matches.filter((m: any) => m.matchScore === 100).length,
+      goodMatches: matches.filter((m: any) => m.matchScore >= 80).length
+    })
+  } catch (error) {
+    console.error("Scholarship matching error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}
+
+// GET /api/scholarships/match - Get AI-matched scholarships for logged-in user
 export async function GET() {
   try {
     const session = await auth()
