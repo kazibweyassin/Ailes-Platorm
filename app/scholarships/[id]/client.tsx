@@ -169,38 +169,8 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
   };
 
   const handleApply = async () => {
-    try {
-      setIsApplying(true);
-      const res = await fetch('/api/applications', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          scholarshipId: id,
-          status: 'IN_PROGRESS'
-        }),
-      });
-
-      if (!res.ok) {
-        if (res.status === 401) {
-          router.push(`/auth/signin?callbackUrl=/scholarships/${id}`);
-          return;
-        }
-        const data = await res.json();
-        if (data.error === 'Application already exists') {
-          alert('You have already started an application for this scholarship');
-          return;
-        }
-        throw new Error('Failed to create application');
-      }
-
-      alert('Application started! Track your progress in the dashboard.');
-      router.push('/dashboard');
-    } catch (err) {
-      console.error('Error creating application:', err);
-      alert('Failed to start application. Please try again.');
-    } finally {
-      setIsApplying(false);
-    }
+    // Navigate to application form
+    router.push(`/scholarships/${id}/apply`);
   };
 
   if (loading) {
