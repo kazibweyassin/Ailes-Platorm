@@ -74,10 +74,11 @@ export default function ScholarshipMatchPage() {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                nationality: data.country,
+                nationality: data.nationality,
                 currentDegreeLevel: data.degreeLevel,
                 fieldOfStudy: data.fieldOfStudy,
-                gpa: parseFloat(data.gpa) || undefined,
+                preferredDestination: data.destination,
+                fundingType: data.fundingType,
               }),
             });
             // Clear the data after using it

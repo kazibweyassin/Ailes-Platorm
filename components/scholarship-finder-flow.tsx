@@ -11,36 +11,43 @@ export default function ScholarshipFinderFlow() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({
-    country: "",
+    nationality: "",
     degreeLevel: "",
     fieldOfStudy: "",
-    gpa: "",
+    destination: "",
+    fundingType: "",
   });
 
   const questions = [
     {
-      id: "country",
+      id: "nationality",
       question: "Where are you from?",
-      placeholder: "e.g., Kenya, Uganda, Nigeria",
+      placeholder: "e.g., Kenya, Uganda, Nigeria, Ghana",
       type: "text",
+    },
+    {
+      id: "destination",
+      question: "Where do you want to study?",
+      options: ["United States", "United Kingdom", "Canada", "Germany", "Australia", "Europe", "Asia", "Anywhere"],
+      type: "choice",
     },
     {
       id: "degreeLevel",
       question: "What degree are you pursuing?",
-      options: ["Bachelor's", "Master's", "PhD", "Diploma"],
+      options: ["Bachelor's", "Master's", "PhD", "Diploma/Certificate"],
       type: "choice",
     },
     {
       id: "fieldOfStudy",
       question: "What do you want to study?",
-      placeholder: "e.g., Computer Science, Medicine, Business",
+      placeholder: "e.g., Computer Science, Medicine, Engineering, Business",
       type: "text",
     },
     {
-      id: "gpa",
-      question: "What's your current GPA?",
-      placeholder: "e.g., 3.5 (on a 4.0 scale)",
-      type: "number",
+      id: "fundingType",
+      question: "What type of funding do you need?",
+      options: ["Full Funding (Tuition + Living)", "Tuition Only", "Partial Funding", "Any Support"],
+      type: "choice",
     },
   ];
 

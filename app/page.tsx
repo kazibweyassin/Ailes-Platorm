@@ -5,7 +5,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, Globe, Award, Users, Star, MapPin, ChevronDown } from "lucide-react";
+import { ArrowRight, Globe, Award, Users, Star, MapPin, ChevronDown, Sparkles } from "lucide-react";
 import dynamic from "next/dynamic";
 
 const MobileQuickActions = dynamic(() => import("@/components/mobile-quick-actions"), {
@@ -31,10 +31,10 @@ export default function Home() {
                 before university selection - because admission without funding isn't an option.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
-                <Link href="/scholarships/match" className="w-full sm:w-auto">
-                  <Button size="default" className="w-full sm:w-auto text-sm">
+                <Link href="/find-scholarships" className="w-full sm:w-auto">
+                  <Button size="default" className="w-full sm:w-auto text-sm bg-gradient-to-r from-primary to-purple-600">
+                    <Sparkles className="mr-2 h-4 w-4" />
                     Find My Scholarships (AI)
-                    <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
                 <Link href="/scholarships" className="w-full sm:w-auto">
