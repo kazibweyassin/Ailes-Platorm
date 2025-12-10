@@ -219,3 +219,4 @@ npm run db:seed
 
 **Which would you like to tackle first?** I recommend starting with fixing the homepage claims and then adding more scholarships.
 
+

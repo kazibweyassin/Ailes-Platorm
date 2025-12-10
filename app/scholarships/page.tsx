@@ -271,11 +271,11 @@ export default function ScholarshipsPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setShowFilters(!showFilters)}
-                  >
-                    <Filter className="h-4 w-4 mr-2" />
-                    Filters
-                  </Button>
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                Filters
+              </Button>
                   <div className="flex items-center gap-2">
                     <ArrowUpDown className="h-4 w-4 text-gray-500" />
                     <select
@@ -289,7 +289,7 @@ export default function ScholarshipsPage() {
                       <option value="views">Sort by Popularity</option>
                     </select>
                   </div>
-                </div>
+            </div>
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
@@ -309,14 +309,14 @@ export default function ScholarshipsPage() {
                     <Share2 className="h-4 w-4 mr-2" />
                     Share
                   </Button>
-                  <Link href="/scholarships/match">
+            <Link href="/scholarships/match">
                     <Button size="sm">
-                      <Award className="h-4 w-4 mr-2" />
+                <Award className="h-4 w-4 mr-2" />
                       AI Match
-                    </Button>
-                  </Link>
+              </Button>
+            </Link>
                 </div>
-              </div>
+          </div>
 
           {/* Filter Panel */}
           {showFilters && (

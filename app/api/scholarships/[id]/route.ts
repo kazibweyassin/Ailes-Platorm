@@ -32,8 +32,8 @@ export async function GET(
     let exists;
     try {
       exists = await prisma.scholarship.findUnique({
-        where: { id }
-      })
+      where: { id }
+    })
     } catch (dbError: any) {
       console.error("Database error:", dbError)
       return NextResponse.json({ 

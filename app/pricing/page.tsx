@@ -89,13 +89,21 @@ export default function PricingPage() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 bg-success/10 text-success px-4 py-2 rounded-full mb-4">
+            <span className="font-semibold">✨ New: Pay When You Win Option Available</span>
+          </div>
           <h1 className="text-4xl md:text-5xl font-bold text-gray-dark mb-4">
             Choose Your Package
           </h1>
-          <p className="text-lg text-gray-soft max-w-2xl mx-auto">
+          <p className="text-lg text-gray-soft max-w-2xl mx-auto mb-4">
             Transparent pricing with no hidden fees. Start free or choose a package
             that fits your needs.
           </p>
+          <Link href="/pricing/success-based">
+            <Button variant="outline" size="sm">
+              Learn About Success-Based Pricing (Pay Only When You Win)
+            </Button>
+          </Link>
         </div>
 
         {/* Pricing Cards */}
@@ -208,6 +216,7 @@ export default function PricingPage() {
     </div>
   );
 }
+
 
 
 
