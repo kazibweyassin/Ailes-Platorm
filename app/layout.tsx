@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { SessionProvider } from "@/components/session-provider";
+import { GoogleAnalytics } from "@/components/google-analytics";
 import { generateSEO, generateOrganizationSchema, generateWebsiteSchema } from "@/lib/seo";
 import dynamic from "next/dynamic";
 
@@ -65,6 +66,7 @@ export default function RootLayout({
          />
        </head>
       <body>
+        <GoogleAnalytics />
         <SessionProvider>
           <Navbar />
           <main className="min-h-screen pb-16 md:pb-0">{children}</main>
