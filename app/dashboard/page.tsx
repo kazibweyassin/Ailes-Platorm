@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -50,7 +51,7 @@ interface Application {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const { data: session, status } = useSession();
   const [activeTab, setActiveTab] = useState("overview");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -67,32 +68,19 @@ export default function DashboardPage() {
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
 
-  // Check authentication status
+  // Redirect to signin if not authenticated
   useEffect(() => {
-    async function checkAuth() {
-      try {
-        const res = await fetch('/api/auth/session');
-        const session = await res.json();
-        if (!session || !session.user) {
-          router.push('/auth/signin?callbackUrl=/dashboard');
-          setIsAuthenticated(false);
-        } else {
-          setIsAuthenticated(true);
-        }
-      } catch (error) {
-        router.push('/auth/signin?callbackUrl=/dashboard');
-        setIsAuthenticated(false);
-      }
+    if (status === "loading") return; // Wait for session check
+    if (status === "unauthenticated") {
+      router.push('/auth/signin?callbackUrl=/dashboard');
     }
-    checkAuth();
-  }, [router]);
+  }, [status, router]);
 
   useEffect(() => {
-    if (isAuthenticated === false) return;
-    if (isAuthenticated === null) return; // Wait for auth check
+    if (status !== "authenticated") return; // Wait for auth
     
     fetchDashboardData();
-  }, [isAuthenticated]);
+  }, [status]);
 
   const fetchDashboardData = async () => {
     try {
@@ -214,7 +202,15 @@ export default function DashboardPage() {
   }
 
   // Don't render if not authenticated (redirect will happen)
-  if (isAuthenticated === false) {
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (status === "unauthenticated") {
     return null;
   }
 

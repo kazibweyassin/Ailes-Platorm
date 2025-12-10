@@ -49,7 +49,7 @@ export function Navbar() {
               </Link>
             ))}
             <Link href="/find-scholarships">
-              <Button className="bg-gradient-to-r from-primary to-purple-600 text-white hover:shadow-lg">
+              <Button>
                 <Sparkles className="mr-2 h-4 w-4" />
                 Find My Scholarships
               </Button>
@@ -118,7 +118,7 @@ export function Navbar() {
               </Link>
             ))}
             <Link href="/find-scholarships" onClick={() => setIsOpen(false)}>
-              <Button className="w-full bg-gradient-to-r from-primary to-purple-600 text-white">
+              <Button className="w-full">
                 <Sparkles className="mr-2 h-4 w-4" />
                 Find My Scholarships
               </Button>

@@ -32,7 +32,7 @@ export default function Home() {
               </p>
               <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
                 <Link href="/find-scholarships" className="w-full sm:w-auto">
-                  <Button size="default" className="w-full sm:w-auto text-sm bg-gradient-to-r from-primary to-purple-600">
+                  <Button size="default" className="w-full sm:w-auto text-sm">
                     <Sparkles className="mr-2 h-4 w-4" />
                     Find My Scholarships (AI)
                   </Button>

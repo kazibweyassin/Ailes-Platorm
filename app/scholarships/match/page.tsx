@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,7 +27,7 @@ import {
 
 export default function ScholarshipMatchPage() {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(true);
   const [matches, setMatches] = useState<any[]>([]);
   const [filter, setFilter] = useState<"all" | "perfect" | "good" | "fair">("all");
@@ -35,30 +36,17 @@ export default function ScholarshipMatchPage() {
   const [savedScholarshipIds, setSavedScholarshipIds] = useState<Set<string>>(new Set());
   const [savingId, setSavingId] = useState<string | null>(null);
 
-  // Check authentication status
+  // Redirect to signin if not authenticated
   useEffect(() => {
-    async function checkAuth() {
-      try {
-        const res = await fetch('/api/auth/session');
-        const session = await res.json();
-        if (!session || !session.user) {
-          router.push('/auth/signin?callbackUrl=/scholarships/match');
-          setIsAuthenticated(false);
-        } else {
-          setIsAuthenticated(true);
-        }
-      } catch (error) {
-        router.push('/auth/signin?callbackUrl=/scholarships/match');
-        setIsAuthenticated(false);
-      }
+    if (status === "loading") return;
+    if (status === "unauthenticated") {
+      router.push('/auth/signin?callbackUrl=/scholarships/match');
     }
-    checkAuth();
-  }, [router]);
+  }, [status, router]);
 
   // Fetch matches from API
   useEffect(() => {
-    if (isAuthenticated === false) return;
-    if (isAuthenticated === null) return; // Wait for auth check
+    if (status !== "authenticated") return; // Wait for auth
 
     async function fetchMatches() {
       try {
@@ -117,7 +105,7 @@ export default function ScholarshipMatchPage() {
     }
 
     fetchMatches();
-  }, [isAuthenticated, router]);
+  }, [status, router]);
 
   const toggleSave = async (scholarshipId: string) => {
     try {
@@ -180,7 +168,7 @@ export default function ScholarshipMatchPage() {
   };
 
   // Show loading while checking authentication
-  if (isAuthenticated === null) {
+  if (status === "loading") {
     return (
       <div className="min-h-screen bg-gradient-to-br from-primary-light via-white to-purple-50 flex items-center justify-center">
         <div className="text-center">
@@ -192,7 +180,7 @@ export default function ScholarshipMatchPage() {
   }
 
   // Don't render if not authenticated (redirect will happen)
-  if (isAuthenticated === false) {
+  if (status === "unauthenticated") {
     return null;
   }
 
