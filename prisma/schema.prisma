@@ -42,6 +42,13 @@ model User {
   interestedCountries String[]
   preferredIntake String? // Fall, Spring, etc.
   
+  // Premium Subscription
+  subscriptionTier SubscriptionTier @default(FREE)
+  subscriptionStatus SubscriptionStatus @default(INACTIVE)
+  subscriptionStartDate DateTime?
+  subscriptionExpiresAt DateTime?
+  subscriptionTransactionId String?
+  
   // Account management
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -383,4 +390,18 @@ enum DocumentType {
   RECOMMENDATION
   ENGLISH_TEST
   OTHER
+}
+
+enum SubscriptionTier {
+  FREE
+  PRO
+  ELITE
+}
+
+enum SubscriptionStatus {
+  INACTIVE
+  PENDING
+  ACTIVE
+  EXPIRED
+  CANCELLED
 }

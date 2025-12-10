@@ -190,18 +190,6 @@ export default function DashboardPage() {
   };
 
   // Show loading while checking authentication
-  if (isAuthenticated === null) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
-          <p className="text-gray-600">Checking authentication...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Don't render if not authenticated (redirect will happen)
   if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center">
