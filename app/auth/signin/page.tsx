@@ -37,7 +37,8 @@ function SignInForm() {
       if (result?.error) {
         setError(result.error === "CredentialsSignin" ? "Invalid email or password" : result.error);
       } else {
-        router.push(callbackUrl);
+        // Force a hard navigation to ensure session is loaded
+        window.location.href = callbackUrl;
       }
     } catch (err: any) {
       setError("An unexpected error occurred. Please try again.");
