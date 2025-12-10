@@ -85,7 +85,7 @@ export function generateSEO({
       site: '@AilesGlobal',
     },
     verification: {
-      google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+      google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || 'iaKmQyNu5cZoj9I84LsHRYK6jPR6hSEvkbi8JobjJxo',
     },
     metadataBase: new URL(baseUrl),
   }

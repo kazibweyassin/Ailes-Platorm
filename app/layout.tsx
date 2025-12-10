@@ -52,17 +52,18 @@ export default function RootLayout({
   const websiteSchema = generateWebsiteSchema();
 
   return (
-    <html lang="en" className={inter.variable}>
-      <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-        />
-      </head>
+      <html lang="en" className={inter.variable}>
+       <head>
+         <meta name="google-site-verification" content="iaKmQyNu5cZoj9I84LsHRYK6jPR6hSEvkbi8JobjJxo" />
+         <script
+           type="application/ld+json"
+           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+         />
+         <script
+           type="application/ld+json"
+           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+         />
+       </head>
       <body>
         <SessionProvider>
           <Navbar />

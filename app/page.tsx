@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, Globe, Award, Users, Star, MapPin, ChevronDown, Sparkles } from "lucide-react";
 import dynamic from "next/dynamic";
+import { LeadMagnet } from "@/components/lead-magnet";
 
 const MobileQuickActions = dynamic(() => import("@/components/mobile-quick-actions"), {
   ssr: false,
@@ -447,6 +448,15 @@ export default function Home() {
                 </Link>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Email Signup - Lead Magnet */}
+      <section className="py-12 bg-primary-light">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-2xl mx-auto">
+            <LeadMagnet />
           </div>
         </div>
       </section>
