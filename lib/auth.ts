@@ -20,6 +20,7 @@ export const {
   signIn,
   signOut,
 } = NextAuth({
+  trustHost: true, // Trust the host header (important for development)
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
@@ -122,6 +123,21 @@ export const {
       if (user) {
         token.id = user.id
         token.role = (user as any).role
+      }
+
+      // Always fetch the latest role from database to ensure role changes are reflected
+      if (token.id) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.id as string },
+            select: { role: true }
+          })
+          if (dbUser) {
+            token.role = dbUser.role
+          }
+        } catch (error) {
+          console.error("Error fetching user role:", error)
+        }
       }
 
       // Update token when session is updated

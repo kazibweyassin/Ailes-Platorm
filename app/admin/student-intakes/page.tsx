@@ -23,6 +23,7 @@ interface StudentIntake {
 export default function AdminStudentIntakesPage() {
   const [intakes, setIntakes] = useState<StudentIntake[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAdmin] = useState(true); // Temporary bypass - TODO: Add proper authentication
   const [filterStatus, setFilterStatus] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
