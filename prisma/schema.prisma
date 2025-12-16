@@ -405,3 +405,82 @@ enum SubscriptionStatus {
   EXPIRED
   CANCELLED
 }
+
+model StudentIntake {
+  id            String   @id @default(cuid())
+  
+  // Personal Information
+  firstName     String
+  lastName      String
+  email         String
+  phone         String
+  dateOfBirth   DateTime
+  gender        String
+  nationality   String
+  currentCountry String
+  city          String
+  address       String?
+  
+  // Academic Background
+  currentDegree String
+  fieldOfStudy  String
+  university    String
+  gpa           String
+  graduationYear String
+  currentYear   String
+  
+  // Test Scores
+  hasTestScores Boolean   @default(false)
+  toeflScore    String?
+  ieltsScore    String?
+  greScore      String?
+  gmatScore     String?
+  satScore      String?
+  
+  // Study Preferences
+  targetDegree  String
+  targetCountries String
+  targetFields  String
+  preferredIntake String
+  budgetRange   String
+  
+  // Financial Information
+  financialNeed String
+  fundingSource String
+  expectedFunding String
+  
+  // Additional Information
+  workExperience String?
+  researchExperience String?
+  publications  String?
+  awards        String?
+  volunteerWork String?
+  languages     String?
+  
+  // Additional Context
+  additionalInfo String?
+  
+  // Consent and Marketing
+  consentDataUsage Boolean @default(false)
+  marketingEmails Boolean @default(false)
+  
+  // Status tracking
+  status        IntakeStatus @default(NEW)
+  assignedTo    String?      // Admin user who is working on this
+  notes         String?      // Internal notes from admin
+  
+  // Metadata
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@map("student_intakes")
+}
+
+enum IntakeStatus {
+  NEW
+  IN_REVIEW
+  CONTACTED
+  IN_PROGRESS
+  COMPLETED
+  ARCHIVED
+}

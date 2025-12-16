@@ -108,6 +108,31 @@ export default function UniversityMatcher() {
             Tell us about yourself, and we'll match you with the perfect universities
             and programs worldwide.
           </p>
+          
+          {/* CTA for Student Intake */}
+          <div className="mt-8 max-w-2xl mx-auto">
+            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+              <CardContent className="py-6">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div className="text-left">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                      Get Personalized Guidance
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Fill out our comprehensive intake form for tailored scholarship recommendations and university matching
+                    </p>
+                  </div>
+                  <Button 
+                    onClick={() => window.location.href = '/student-intake'}
+                    className="whitespace-nowrap"
+                    size="lg"
+                  >
+                    Complete Intake Form →
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         {/* Progress Steps */}

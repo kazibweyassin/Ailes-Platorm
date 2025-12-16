@@ -15,7 +15,9 @@ interface SEOProps {
 }
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ailesglobal.com'
-const defaultOgImage = `${baseUrl}/og-image.jpg`
+// Use dynamic OG image generator, fallback to static image
+const defaultOgImage = `${baseUrl}/og?title=${encodeURIComponent('Ailes Global')}&description=${encodeURIComponent('Premium Study Abroad & Scholarship Consulting for African Students')}`
+const fallbackOgImage = `${baseUrl}/og-image.jpg`
 
 export function generateSEO({
   title,
@@ -28,7 +30,15 @@ export function generateSEO({
 }: SEOProps): Metadata {
   const fullTitle = title.includes('Ailes Global') ? title : `${title} | Ailes Global`
   const url = canonicalUrl ? `${baseUrl}${canonicalUrl}` : baseUrl
-  const image = ogImage || defaultOgImage
+  
+  // Generate dynamic OG image URL if no custom image provided
+  let image = ogImage
+  if (!image) {
+    // Use dynamic OG image generator with title and description
+    const ogTitle = encodeURIComponent(fullTitle)
+    const ogDescription = encodeURIComponent(description.substring(0, 150)) // Limit description length
+    image = `${baseUrl}/og?title=${ogTitle}&description=${ogDescription}`
+  }
 
   const defaultKeywords = [
     'study abroad',

@@ -63,21 +63,31 @@ export default function ContactPage() {
                   <Phone className="h-5 w-5 text-primary mt-1" />
                   <div>
                     <p className="font-semibold">Phone</p>
-                    <p className="text-sm text-gray-soft">+234 XXX XXX XXXX</p>
+                    <p className="text-sm text-gray-soft">+256 786 367460</p>
+                    <p className="text-sm text-gray-soft">+256 704 833021</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <MapPin className="h-5 w-5 text-primary mt-1" />
                   <div>
-                    <p className="font-semibold">Address</p>
-                    <p className="text-sm text-gray-soft">Lagos, Nigeria</p>
+                    <p className="font-semibold">Uganda Office</p>
+                    <p className="text-sm text-gray-soft">Access Building Rubaga Road</p>
+                    <p className="text-sm text-gray-soft">Kampala, Uganda</p>
+                  </div>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <MapPin className="h-5 w-5 text-primary mt-1" />
+                  <div>
+                    <p className="font-semibold">South Africa Office</p>
+                    <p className="text-sm text-gray-soft">Corner Jan Smuts & Bolton Road</p>
+                    <p className="text-sm text-gray-soft">Rosebank, Johannesburg, South Africa</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <MessageCircle className="h-5 w-5 text-primary mt-1" />
                   <div>
                     <p className="font-semibold">WhatsApp</p>
-                    <p className="text-sm text-gray-soft">+234 XXX XXX XXXX</p>
+                    <p className="text-sm text-gray-soft">+256 786 367460</p>
                   </div>
                 </div>
               </CardContent>

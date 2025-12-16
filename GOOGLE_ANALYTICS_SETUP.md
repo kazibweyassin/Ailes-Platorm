@@ -266,3 +266,6 @@ const handleFormSubmit = () => {
 
 **Your Google Analytics is ready! Deploy and start tracking. 🚀**
 
+
+
+
