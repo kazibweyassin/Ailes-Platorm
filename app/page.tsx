@@ -316,7 +316,7 @@ export default function Home() {
                 name: "AKandwanaho Marvin",
                 country: "Germany",
                 program: "BS in Engineering",
-                scholarship: "Scholarshios",
+                scholarship: "Scholarship",
                 testimonial:
                   "From application to visa, Ailes Global was with me every step. I'm now pursuing my PhD in Germany!",
                 image: "/testimonials/SSEGONJA_SHAFICK_VISA_PHOTO[1].jpg"
