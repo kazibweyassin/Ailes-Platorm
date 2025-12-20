@@ -318,7 +318,7 @@ export default function Home() {
                 program: "BS in Engineering",
                 scholarship: "Scholarship",
                 testimonial:
-                  "From application to visa, Ailes Global was with me every step. I'm now pursuing my PhD in Germany!",
+                  "From application to visa, Ailes Global was with me every step. I'm now pursuing my Bachelors Degree in Germany!",
                 image: "/testimonials/SSEGONJA_SHAFICK_VISA_PHOTO[1].jpg"
               },
             ].map((story, index) => (
