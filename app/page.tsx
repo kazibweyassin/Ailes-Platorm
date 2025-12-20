@@ -295,31 +295,31 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
-                name: "Amina Hassan",
+                name: "Patrick NSAMBA",
                 country: "United States",
                 program: "Master's in Computer Science",
                 scholarship: "Full Scholarship",
                 testimonial:
                   "Ailes Global helped me secure a full scholarship to study in the US. Their guidance was invaluable throughout the entire process.",
-                image: "/testimonials/1563233589-41b3764fc123.jpg"
+                image: "/testimonials/LUTALO_MURSHID_VISA_PHOTO[1].jpg"
               },
               {
-                name: "Chinwe Okafor",
+                name: "Nansamba Olivia",
                 country: "Canada",
                 program: "MBA",
                 scholarship: "Partial Scholarship",
                 testimonial:
                   "The team's expertise and personalized support made my dream of studying in Canada a reality. Highly recommended!",
-                image: "/testimonials/1602657800280-d4f59674983b.jpg"
+                image: "/testimonials/NAMATO_VALLY_VISA_PHOTO[1].jpg"
               },
               {
-                name: "Fatima Diallo",
+                name: "AKandwanaho Marvin",
                 country: "Germany",
-                program: "PhD in Engineering",
-                scholarship: "Research Grant",
+                program: "BS in Engineering",
+                scholarship: "Scholarshios",
                 testimonial:
                   "From application to visa, Ailes Global was with me every step. I'm now pursuing my PhD in Germany!",
-                image: "/testimonials/1657781763968-253a9656bfba.jpg"
+                image: "/testimonials/SSEGONJA_SHAFICK_VISA_PHOTO[1].jpg"
               },
             ].map((story, index) => (
               <Card key={index} className="bg-white hover:shadow-xl transition-shadow">

@@ -1532,6 +1532,7 @@ async function main() {
       featured: true,
       verified: true,
     },
+    
     {
       name: "Morocco Government Scholarships",
       provider: "Moroccan Government",
