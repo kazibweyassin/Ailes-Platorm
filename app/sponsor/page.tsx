@@ -33,6 +33,7 @@ export default function SponsorPage() {
     message: "",
     preferredField: "",
     preferredCountry: "",
+    anonymous: false,
   });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -93,6 +94,7 @@ export default function SponsorPage() {
       name: "Amina Hassan",
       field: "Engineering",
       sponsor: "John Smith",
+      anonymous: true,
       university: "Cambridge, UK",
       scholarship: "£120,000 Gates Cambridge",
       image: "👩‍🔬",
@@ -106,6 +108,11 @@ export default function SponsorPage() {
       image: "👩‍⚕️",
     },
   ];
+
+  const displaySponsorName = (sponsor: string | undefined, anonymous?: boolean) => {
+    if (anonymous) return "Anonymous";
+    return sponsor || "Anonymous";
+  };
 
   const corporatePartners = [
     { name: "Tech Corp", scholars: 15 },
@@ -609,7 +616,7 @@ export default function SponsorPage() {
                 <CardContent className="space-y-3">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Sponsored by:</span>
-                    <span className="font-medium">{story.sponsor}</span>
+                    <span className="font-medium">{displaySponsorName(story.sponsor, (story as any).anonymous)}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">University:</span>
@@ -804,6 +811,19 @@ export default function SponsorPage() {
                       placeholder="Share your motivation for sponsoring..."
                     />
                   </div>
+                </div>
+
+                {/* Anonymity Option */}
+                <div className="mt-4">
+                  <label className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={!!formData.anonymous}
+                      onChange={(e) => setFormData({...formData, anonymous: e.target.checked})}
+                      className="w-4 h-4"
+                    />
+                    <span>Remain anonymous publicly (we will still have your details for verification)</span>
+                  </label>
                 </div>
 
                 {/* Bank Details */}

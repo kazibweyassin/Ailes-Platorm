@@ -323,6 +323,7 @@ model Sponsor {
   // Sponsorship details
   tierName          String   // Application Support, Full Journey, etc.
   amount            Float
+  anonymous         Boolean  @default(false)
   status            SponsorStatus @default(PENDING)
   
   // Scholar preferences

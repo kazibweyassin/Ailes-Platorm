@@ -21,6 +21,7 @@ export async function POST(req: Request) {
       preferredField,
       preferredCountry,
       message,
+      anonymous,
     } = body
 
     // Validate required fields
@@ -47,6 +48,7 @@ export async function POST(req: Request) {
         companyWebsite: companyWebsite || null,
         tierName,
         amount: parseFloat(amount),
+        anonymous: !!anonymous,
         preferredField: preferredField || null,
         preferredCountry: preferredCountry || null,
         message: message || null,
