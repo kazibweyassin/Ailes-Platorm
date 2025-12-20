@@ -946,6 +946,7 @@ export default function SponsorPage() {
                       message: "",
                       preferredField: "",
                       preferredCountry: "",
+                      anonymous: false,
                     });
                   }}
                 >
