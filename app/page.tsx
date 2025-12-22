@@ -24,23 +24,21 @@ export default function Home() {
           <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
             <div className="space-y-4 md:space-y-6">
               <h1 className="text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-dark leading-tight">
-                Find Your <span className="text-primary">Scholarship First</span>,{" "}
-                Then Your University
+                Unlock Global Opportunities Through the Right Pathway
               </h1>
               <p className="text-xs md:text-sm lg:text-base text-gray-soft">
-                Africa's #1 scholarship-first platform. We help you discover fully-funded opportunities
-                before university selection - because admission without funding isn't an option.
+                Personalized strategies for education, scholarships, and global mobility.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
-                <Link href="/find-scholarships" className="w-full sm:w-auto">
+                <Link href="/contact" className="w-full sm:w-auto">
                   <Button size="default" className="w-full sm:w-auto text-sm">
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Find My Scholarships (AI)
+                    <ArrowRight className="mr-2 h-4 w-4" />
+                    Book a Strategy Session
                   </Button>
                 </Link>
-                <Link href="/scholarships" className="w-full sm:w-auto">
+                <Link href="/find-scholarships" className="w-full sm:w-auto">
                   <Button size="default" variant="outline" className="w-full sm:w-auto text-sm">
-                    Browse 500+ Scholarships
+                    Discover My Pathways
                   </Button>
                 </Link>
               </div>
@@ -99,32 +97,37 @@ export default function Home() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-xl md:text-2xl font-bold text-gray-dark mb-2">
-              Why Choose Ailes Global?
+              Global Pathway Services
             </h2>
             <p className="text-xs md:text-sm text-gray-soft max-w-2xl mx-auto">
-              We combine expertise, technology, and personalized support to help you
-              achieve your study abroad dreams.
+              Lead with outcomes: global opportunities, mobility, and career pathways. Study abroad and scholarships are part of our service, but not the main promise.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {[
               {
                 icon: Award,
-                title: "Expert Guidance",
+                title: "Career & Mobility Advisory",
                 description:
-                  "Our team of experienced consultants provides personalized advice tailored to your goals and background.",
+                  "Expert guidance for global careers, mobility, and leadership pathways.",
               },
               {
                 icon: Globe,
-                title: "Global Network",
+                title: "Study Abroad Planning",
                 description:
-                  "Partnerships with top universities worldwide and access to exclusive scholarship opportunities.",
+                  "Personalized strategies for university admissions and international study.",
               },
               {
-                icon: Users,
-                title: "Women-Focused",
+                icon: Sparkles,
+                title: "Scholarship Matching",
                 description:
-                  "Specialized support for female scholars, with programs designed to empower and uplift.",
+                  "AI-powered tools to match you with scholarships and funding opportunities.",
+              },
+              {
+                icon: Sparkles,
+                title: "Leadership & Internship Pathways",
+                description:
+                  "Access to global internships, fellowships, and leadership programs.",
               },
             ].map((feature, index) => (
               <Card key={index} className="border-2 hover:border-primary transition-colors">
@@ -187,10 +190,10 @@ export default function Home() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-3xl font-bold text-gray-dark mb-3">
-              Your Path to Fully-Funded Education
+              Your Path to Global Success
             </h2>
             <p className="text-sm md:text-base text-gray-soft max-w-3xl mx-auto">
-              From scholarship discovery to university admission - we guide you through every step
+              From global opportunity discovery to career and education pathways—your journey starts here.
             </p>
           </div>
           <div className="max-w-4xl mx-auto space-y-4">
@@ -270,10 +273,10 @@ export default function Home() {
           
           {/* CTA */}
           <div className="text-center mt-12">
-            <p className="text-sm text-gray-600 mb-4">Ready to start your journey?</p>
-            <Link href="/scholarships/match">
+            <p className="text-sm text-gray-600 mb-4">Ready to start your global journey?</p>
+            <Link href="/contact">
               <Button size="lg" className="text-base">
-                Find Your Scholarships Now
+                Start Your Global Journey
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
@@ -465,22 +468,21 @@ export default function Home() {
       <section className="py-20 bg-gradient-to-r from-primary to-primary/80 text-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-xl md:text-2xl font-bold mb-3">
-            Ready to Start Your Journey?
+            Ready to Start Your Global Journey?
           </h2>
           <p className="text-sm md:text-base mb-6 max-w-2xl mx-auto opacity-90">
-            Book a free consultation today and take the first step towards your
-            global education dream.
+            Get expert guidance for your next step—education, scholarships, or global mobility.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/contact">
               <Button size="default" variant="secondary" className="w-full sm:w-auto">
-                Book Free Consultation
-                <ArrowRight className="ml-2 h-4 w-4" />
+                Book a Strategy Session
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Link href="/university-matcher">
+            <Link href="/find-scholarships">
               <Button size="default" variant="outline" className="w-full sm:w-auto bg-white/10 border-white text-white hover:bg-white/20">
-                Find Your University
+                Discover My Pathways
               </Button>
             </Link>
           </div>
