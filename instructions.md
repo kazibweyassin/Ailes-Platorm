@@ -14,11 +14,13 @@ You can **copy-paste this whole document as one prompt**.
 
 ## **PROJECT TITLE:**
 
+
 **AILES Global – Premium Study Abroad & Scholarship Consulting Platform**
 
 ---
 
 ## **PROJECT DESCRIPTION:**
+
 
 Build a **modern, premium, high-trust, high-conversion website** for **AILES Global**, a study-abroad and scholarship consulting brand focused on helping African students (especially women) access global opportunities.
 

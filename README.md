@@ -1,3 +1,4 @@
+
 # AILES Global - Premium Study Abroad & Scholarship Consulting Platform
 
 A modern, premium website for AILES Global, helping African students (especially women) access world-class education opportunities globally.
