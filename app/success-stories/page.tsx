@@ -10,99 +10,10 @@ export const metadata: Metadata = generateSEO({
   canonicalUrl: "/success-stories",
 });
 
+import { getAllStories } from '@/lib/success-stories';
+
 export default function SuccessStoriesPage() {
-  const stories = [
-    {
-      name: "Amina Hassan",
-      country: "United States",
-      university: "Harvard University",
-      program: "Master's in Computer Science",
-      scholarship: "Full Scholarship - $120,000",
-      image: "👩‍💼",
-      testimonial:
-        "AILES Global helped me secure a full scholarship to study at Harvard. Their guidance was invaluable throughout the entire process. From university matching to application review, they were with me every step of the way. I couldn't have done it without them!",
-      stats: {
-        gpa: "3.8/4.0",
-        testScore: "GRE: 330",
-        duration: "2 years",
-      },
-    },
-    {
-      name: "Chinwe Okafor",
-      country: "Canada",
-      university: "University of Toronto",
-      program: "MBA",
-      scholarship: "Partial Scholarship - $40,000",
-      image: "👩‍🎓",
-      testimonial:
-        "The team's expertise and personalized support made my dream of studying in Canada a reality. They helped me identify the right programs, craft compelling applications, and navigate the visa process. Highly recommended!",
-      stats: {
-        gpa: "3.6/4.0",
-        testScore: "GMAT: 720",
-        duration: "2 years",
-      },
-    },
-    {
-      name: "Fatima Diallo",
-      country: "Germany",
-      university: "Technical University of Munich",
-      program: "PhD in Engineering",
-      scholarship: "Research Grant - €50,000",
-      image: "👩‍🔬",
-      testimonial:
-        "From application to visa, AILES Global was with me every step. I'm now pursuing my PhD in Engineering at one of Europe's top universities. The scholarship they helped me secure covers all my expenses!",
-      stats: {
-        gpa: "3.9/4.0",
-        testScore: "IELTS: 8.0",
-        duration: "4 years",
-      },
-    },
-    {
-      name: "Kemi Adebayo",
-      country: "United Kingdom",
-      university: "University of Oxford",
-      program: "Master's in Public Policy",
-      scholarship: "Chevening Scholarship",
-      image: "👩‍💻",
-      testimonial:
-        "I never thought I could get into Oxford, but AILES Global believed in me. Their mentorship and support throughout the Chevening application process was exceptional. I'm now studying at one of the world's best universities!",
-      stats: {
-        gpa: "3.7/4.0",
-        testScore: "IELTS: 7.5",
-        duration: "1 year",
-      },
-    },
-    {
-      name: "Zainab Mohammed",
-      country: "Australia",
-      university: "University of Melbourne",
-      program: "Master's in Public Health",
-      scholarship: "Australia Awards Scholarship",
-      image: "👩‍⚕️",
-      testimonial:
-        "The Australia Awards Scholarship application was complex, but AILES Global made it manageable. They helped me highlight my experience and passion for public health. I'm now studying in beautiful Melbourne!",
-      stats: {
-        gpa: "3.8/4.0",
-        testScore: "IELTS: 7.5",
-        duration: "2 years",
-      },
-    },
-    {
-      name: "Sarah Mensah",
-      country: "Netherlands",
-      university: "University of Amsterdam",
-      program: "Master's in Data Science",
-      scholarship: "Holland Scholarship - €5,000",
-      image: "👩‍💼",
-      testimonial:
-        "AILES Global helped me discover amazing opportunities in the Netherlands. The application process was smooth, and the scholarship they helped me secure made it affordable. I'm loving my experience in Amsterdam!",
-      stats: {
-        gpa: "3.6/4.0",
-        testScore: "IELTS: 7.0",
-        duration: "2 years",
-      },
-    },
-  ];
+  const stories = getAllStories();
 
   return (
     <div className="min-h-screen bg-white">

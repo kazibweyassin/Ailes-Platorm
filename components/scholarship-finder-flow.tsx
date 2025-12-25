@@ -1,23 +1,20 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, ArrowLeft, Sparkles, CheckCircle2, Zap, X } from "lucide-react";
-
-import AICopilot from "@/components/ai-copilot";
+import { ArrowRight, ArrowLeft, Sparkles, CheckCircle2, MapPin, DollarSign, Calendar, Loader2, Award } from "lucide-react";
+import Link from "next/link";
 
 export default function ScholarshipFinderFlow() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
-  const [showCopilotOffer, setShowCopilotOffer] = useState(false);
-  const [searchMode, setSearchMode] = useState<'manual' | 'ai'>('ai'); // Default to AI for demo
-  const [isAILoading, setIsAILoading] = useState(false);
-  const [aiResponse, setAiResponse] = useState('');
-  const [simulatedMatches, setSimulatedMatches] = useState<any[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState<any[]>([]);
+  const [showResults, setShowResults] = useState(false);
   const [answers, setAnswers] = useState({
     nationality: "",
     degreeLevel: "",
@@ -25,35 +22,6 @@ export default function ScholarshipFinderFlow() {
     destination: "",
     fundingType: "",
   });
-  const [demoMode, setDemoMode] = useState(false);
-  const lastRequestTimeRef = useRef<number>(0);
-
-  // Demo answers for investor/user demo
-  const demoAnswers = {
-    nationality: "Kenya",
-    degreeLevel: "Master's",
-    fieldOfStudy: "Computer Science",
-    destination: "United Kingdom",
-    fundingType: "Full Funding (Tuition + Living)",
-  };
-
-  // Auto-advance in demo mode
-  useEffect(() => {
-    if (demoMode && currentStep < questions.length) {
-      const stepId = questions[currentStep]?.id as keyof typeof demoAnswers;
-      if (stepId && answers[stepId] !== demoAnswers[stepId]) {
-        setTimeout(() => {
-          setAnswers((prev) => ({ ...prev, [stepId]: demoAnswers[stepId] }));
-        }, 500);
-      } else {
-        setTimeout(() => {
-          if (currentStep < questions.length - 1) setCurrentStep((prev) => prev + 1);
-          else handleComplete();
-        }, 700);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [demoMode, currentStep, answers]);
 
   const questions = [
     {
@@ -90,6 +58,7 @@ export default function ScholarshipFinderFlow() {
 
   const currentQuestion = questions[currentStep];
   const progress = ((currentStep + 1) / questions.length) * 100;
+  const isAnswered = answers[currentQuestion.id as keyof typeof answers];
 
   const handleAnswer = (value: string) => {
     setAnswers({ ...answers, [currentQuestion.id]: value });
@@ -99,8 +68,7 @@ export default function ScholarshipFinderFlow() {
     if (currentStep < questions.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Last question - complete the flow
-      handleComplete();
+      handleFindScholarships();
     }
   };
 
@@ -110,75 +78,225 @@ export default function ScholarshipFinderFlow() {
     }
   };
 
-  const handleComplete = () => {
-    // Store answers in localStorage for after auth
-    localStorage.setItem("scholarshipFinderData", JSON.stringify(answers));
-    
-    // Show Copilot upgrade offer instead of immediate redirect
-    setShowCopilotOffer(true);
+  const handleFindScholarships = async () => {
+    setLoading(true);
+    try {
+      // Build query parameters from answers
+      const params = new URLSearchParams();
+      
+      if (answers.destination && answers.destination !== "Anywhere") {
+        params.append('country', answers.destination);
+      }
+      
+      if (answers.degreeLevel) {
+        // Map to API format
+        const degreeMap: Record<string, string> = {
+          "Bachelor's": "BACHELORS",
+          "Master's": "MASTERS",
+          "PhD": "PHD",
+          "Diploma/Certificate": "DIPLOMA"
+        };
+        params.append('degreeLevel', degreeMap[answers.degreeLevel] || answers.degreeLevel);
+      }
+      
+      if (answers.fieldOfStudy) {
+        params.append('fieldOfStudy', answers.fieldOfStudy);
+      }
+      
+      if (answers.fundingType && answers.fundingType !== "Any Support") {
+        if (answers.fundingType.includes("Full")) {
+          params.append('minAmount', '10000'); // Full funding usually means higher amounts
+        }
+      }
+
+      // Fetch matching scholarships
+      const response = await fetch(`/api/scholarships?${params.toString()}&limit=20`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch scholarships');
+      }
+      
+      const data = await response.json();
+      setResults(data.scholarships || []);
+      setShowResults(true);
+    } catch (error) {
+      console.error('Error finding scholarships:', error);
+      // Still show results page even if there's an error
+      setResults([]);
+      setShowResults(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSkipCopilot = () => {
-    // Redirect to sign in with callback to matcher
-    router.push("/auth/signin?callbackUrl=/scholarships/match");
+  const formatCurrency = (amount: number | null, currency: string = 'USD'): string => {
+    if (!amount) return 'Full Funding';
+    if (amount >= 1000000) return `${currency} ${(amount / 1000000).toFixed(1)}M`;
+    if (amount >= 1000) return `${currency} ${(amount / 1000).toFixed(0)}K`;
+    return `${currency} ${amount.toLocaleString()}`;
   };
 
-  const handleActivateCopilot = () => {
-    // Store that they want Copilot
-    localStorage.setItem("wantsCopilot", "true");
-    // Redirect to Copilot payment page
-    router.push("/copilot/activate");
+  const getDaysUntilDeadline = (deadline: string | null): number | null => {
+    if (!deadline) return null;
+    const deadlineDate = new Date(deadline);
+    const today = new Date();
+    const diffTime = deadlineDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : null;
   };
 
-  const isAnswered = answers[currentQuestion.id as keyof typeof answers];
+  // Show results page
+  if (showResults) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-8">
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setShowResults(false);
+                setCurrentStep(0);
+                setResults([]);
+              }}
+              className="mb-4"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Start Over
+            </Button>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Scholarships Matching Your Profile
+            </h1>
+            <p className="text-gray-600">
+              Found {results.length} {results.length === 1 ? 'scholarship' : 'scholarships'} based on your preferences
+            </p>
+          </div>
 
-  const toggleSearchMode = () => {
-    setSearchMode(prev => prev === 'ai' ? 'manual' : 'ai');
-    setAiResponse('');
-  };
+          {results.length > 0 ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {results.map((scholarship) => {
+                const daysLeft = getDaysUntilDeadline(scholarship.deadline);
+                return (
+                  <Link key={scholarship.id} href={`/scholarships/${scholarship.id}`}>
+                    <Card className="h-full hover:shadow-xl transition-all duration-300 border-2 hover:border-primary cursor-pointer">
+                      <CardHeader>
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <CardTitle className="text-lg leading-tight line-clamp-2">
+                            {scholarship.name}
+                          </CardTitle>
+                          {scholarship.featured && (
+                            <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full whitespace-nowrap flex-shrink-0">
+                              Featured
+                            </span>
+                          )}
+                        </div>
+                        <CardDescription className="text-sm">
+                          {scholarship.provider}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="flex items-center gap-2 text-sm">
+                          <DollarSign className="h-4 w-4 text-success" />
+                          <span className="font-semibold text-success">
+                            {formatCurrency(scholarship.amount, scholarship.currency || 'USD')}
+                          </span>
+                        </div>
+                        {scholarship.country && (
+                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <MapPin className="h-4 w-4" />
+                            <span>{scholarship.country}</span>
+                          </div>
+                        )}
+                        {daysLeft !== null && daysLeft > 0 && (
+                          <div className="flex items-center gap-2 text-sm">
+                            <Calendar className={`h-4 w-4 ${daysLeft <= 30 ? 'text-red-500' : 'text-gray-600'}`} />
+                            <span className={daysLeft <= 30 ? 'text-red-500 font-semibold' : 'text-gray-600'}>
+                              {daysLeft} days left
+                            </span>
+                          </div>
+                        )}
+                        {scholarship.description && (
+                          <p className="text-xs text-gray-600 line-clamp-2">
+                            {scholarship.description}
+                          </p>
+                        )}
+                        <div className="pt-2">
+                          <Button variant="ghost" size="sm" className="w-full text-primary hover:text-primary-dark">
+                            View Details
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <Card className="p-12 text-center">
+              <Award className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                No scholarships found
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Try adjusting your search criteria or browse all scholarships
+              </p>
+              <div className="flex gap-4 justify-center">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowResults(false);
+                    setCurrentStep(0);
+                  }}
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Try Again
+                </Button>
+                <Link href="/scholarships">
+                  <Button>
+                    Browse All Scholarships
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </Link>
+              </div>
+            </Card>
+          )}
 
-  // All functions are now closed, so we can safely return the component JSX
+          {results.length > 0 && (
+            <div className="mt-8 text-center">
+              <p className="text-gray-600 mb-4">
+                Want to see more personalized matches? Sign in to get AI-powered recommendations
+              </p>
+              <div className="flex gap-4 justify-center">
+                <Link href="/auth/signin">
+                  <Button variant="outline">
+                    Sign In for Better Matches
+                  </Button>
+                </Link>
+                <Link href="/scholarships">
+                  <Button>
+                    View All Scholarships
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Show question flow
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {searchMode === 'ai' ? 'AI-Powered Scholarship Finder' : 'Find Your Perfect Scholarship'}
+            Find Your Perfect Scholarship
           </h1>
-          <p className="text-gray-600 mb-4">
-            {searchMode === 'ai' 
-              ? 'Get personalized scholarship recommendations using AI' 
-              : 'Answer a few questions to discover scholarships that match your profile'}
+          <p className="text-gray-600">
+            Answer a few questions to discover scholarships that match your profile
           </p>
-          <div className="inline-flex items-center bg-white rounded-full p-1 border border-gray-200 mb-6">
-            <button
-              onClick={() => setSearchMode('manual')}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                searchMode === 'manual' 
-                  ? 'bg-primary text-white' 
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              Manual Search
-            </button>
-            <button
-              onClick={() => setSearchMode('ai')}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors flex items-center gap-1 ${
-                searchMode === 'ai' 
-                  ? 'bg-primary text-white' 
-                  : 'text-gray-600 hover:bg-gray-100'
-              }`}
-            >
-              <Sparkles className="h-4 w-4" />
-              AI Assistant
-            </button>
-          </div>
-          <button
-            className="text-xs text-primary underline mb-2"
-            onClick={() => setDemoMode((d) => !d)}
-          >
-            {demoMode ? 'Exit Demo Mode' : 'Try Demo Mode (Investor Preview)'}
-          </button>
         </div>
 
         {/* Progress Bar */}
@@ -240,13 +358,12 @@ export default function ScholarshipFinderFlow() {
                 </div>
               ) : (
                 <Input
-                  type={currentQuestion.type === "number" ? "number" : "text"}
+                  type="text"
                   placeholder={currentQuestion.placeholder}
-                  value={answers[currentQuestion.id as keyof typeof answers]}
+                  value={answers[currentQuestion.id as keyof typeof answers] || ""}
                   onChange={(e) => handleAnswer(e.target.value)}
                   className="text-lg p-6"
                   autoFocus
-                  step={currentQuestion.type === "number" ? "0.01" : undefined}
                 />
               )}
             </div>
@@ -257,7 +374,7 @@ export default function ScholarshipFinderFlow() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setCurrentStep((prev) => prev - 1)}
+                  onClick={handleBack}
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back
@@ -265,241 +382,43 @@ export default function ScholarshipFinderFlow() {
               ) : (
                 <div />
               )}
-              {currentStep < questions.length - 1 ? (
-                <Button
-                  type="button"
-                  onClick={() => setCurrentStep((prev) => prev + 1)}
-                  disabled={!answers[questions[currentStep].id as keyof typeof answers]}
-                >
-                  Next
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  disabled={isAILoading || !answers[questions[currentStep].id as keyof typeof answers]}
-                  onClick={async () => {
-                    // Ensure the last question is answered
-                    if (!answers[questions[currentStep].id as keyof typeof answers]) return;
-
-                    if (searchMode === 'ai') {
-                      // Light rate limiting: only prevent if requests are extremely close together
-                      const now = Date.now();
-                      const timeSinceLastRequest = now - lastRequestTimeRef.current;
-                      const minDelay = 500; // 500ms minimum - very lenient
-                      
-                      if (timeSinceLastRequest < minDelay) {
-                        // Just wait silently instead of blocking
-                        await new Promise(resolve => setTimeout(resolve, minDelay - timeSinceLastRequest));
-                      }
-
-                      lastRequestTimeRef.current = Date.now();
-
-                      try {
-                        setIsAILoading(true);
-                        // Persist answers for matcher or AI processing
-                        localStorage.setItem('scholarshipFinderData', JSON.stringify(answers));
-
-                        // Use AI chat API to find matching scholarships
-                        (async () => {
-                          try {
-                            // Build a query message for the AI
-                            const queryParts = [];
-                            if (answers.nationality) queryParts.push(`from ${answers.nationality}`);
-                            if (answers.destination) queryParts.push(`studying in ${answers.destination}`);
-                            if (answers.degreeLevel) queryParts.push(`for ${answers.degreeLevel}`);
-                            if (answers.fieldOfStudy) queryParts.push(`in ${answers.fieldOfStudy}`);
-                            if (answers.fundingType) queryParts.push(`with ${answers.fundingType}`);
-
-                            const queryMessage = `Find scholarships ${queryParts.join(', ')}.`;
-
-                            // Call the AI chat API with the user's profile
-                            const response = await fetch("/api/ai/chat", {
-                              method: "POST",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({ 
-                                message: queryMessage,
-                                context: { 
-                                  finderData: answers
-                                }
-                              }),
-                            });
-
-                            const data = await response.json();
-
-                            if (!response.ok || data.error) {
-                              throw new Error(data.error || 'Failed to get AI response');
-                            }
-
-                            // If AI returned scholarship matches, use them
-                            if (data.type === 'scholarship_matches' && data.matches && data.matches.length > 0) {
-                              const recommendations = data.matches.map((match: any) => match.scholarship);
-                              localStorage.setItem('simulatedScholarshipMatches', JSON.stringify(recommendations));
-                              setSimulatedMatches(recommendations);
-                              setAiResponse(data.reply || `I found ${recommendations.length} scholarships that match your profile.`);
-                            } else {
-                              // Fallback: fetch scholarships manually if AI didn't return matches
-                              const params = new URLSearchParams();
-                              if (answers.destination) params.set('country', answers.destination);
-                              if (answers.fieldOfStudy) params.set('fieldOfStudy', answers.fieldOfStudy);
-                              if (answers.degreeLevel) params.set('degreeLevel', answers.degreeLevel);
-                              params.set('limit', '50');
-
-                              const res = await fetch(`/api/scholarships?${params.toString()}`);
-                              if (res.ok) {
-                                const body = await res.json();
-                                const list: any[] = body.scholarships || [];
-                                const recommendations = list.slice(0, 3);
-                                
-                                localStorage.setItem('simulatedScholarshipMatches', JSON.stringify(recommendations));
-                                setSimulatedMatches(recommendations);
-                                setAiResponse(data.reply || `I found ${recommendations.length} scholarships that match your profile.`);
-                              } else {
-                                setAiResponse(data.reply || 'Sorry, I could not find matching scholarships at the moment.');
-                              }
-                            }
-                          } catch (err: any) {
-                            console.error('Error with AI search:', err);
-                            setAiResponse(err?.message || 'Sorry, I encountered an error. Please try again.');
-                          } finally {
-                            setIsAILoading(false);
-                          }
-                        })();
-                      } catch (err) {
-                        setIsAILoading(false);
-                        console.error('AI search failed', err);
-                        setAiResponse('Sorry, I encountered an error. Please try again.');
-                      }
-                    } else {
-                      // Manual flow completion
-                      handleComplete();
-                    }
-                  }}
-                >
-                  {isAILoading ? (
-                    <>
-                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Finding Matches...
-                    </>
-                  ) : searchMode === 'ai' ? (
-                    <>
-                      <Sparkles className="h-4 w-4 mr-2" />
-                      Find with AI
-                    </>
-                  ) : (
-                    <>
-                      Find Scholarships
-                      <ArrowRight className="h-4 w-4 ml-2" />
-                    </>
-                  )}
-                </Button>
-              )}
+              <Button
+                type="button"
+                onClick={handleNext}
+                disabled={!isAnswered || loading}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Finding...
+                  </>
+                ) : currentStep < questions.length - 1 ? (
+                  <>
+                    Next
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Find Scholarships
+                  </>
+                )}
+              </Button>
             </div>
           </motion.div>
         </AnimatePresence>
 
         {/* Skip Option */}
         <p className="text-center mt-6 text-sm text-gray-600">
-          Already have an account?{" "}
-          <button
-            onClick={() => router.push("/auth/signin")}
+          Want to browse all scholarships instead?{" "}
+          <Link
+            href="/scholarships"
             className="text-primary font-medium hover:underline"
           >
-            Sign in
-          </button>
+            Browse All
+          </Link>
         </p>
       </div>
-      
-      {/* AI Copilot Floating Button */}
-      <AICopilot />
-
-      {/* AI Response with Matches */}
-      {aiResponse && (
-        <div className="max-w-3xl mx-auto mt-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="h-5 w-5 text-primary" />
-                <h3 className="font-bold text-lg">AI Recommendations</h3>
-              </div>
-              <div className="prose prose-sm max-w-none mb-4">
-                <p className="text-gray-700 whitespace-pre-wrap">{aiResponse}</p>
-              </div>
-              
-              {simulatedMatches && simulatedMatches.length > 0 && (
-                <>
-                  <div className="space-y-3 mt-4">
-                    {simulatedMatches.map((m: any, idx: number) => (
-                      <div key={m.id || idx} className="p-4 border-2 border-primary/20 rounded-lg hover:border-primary/40 transition-colors">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="flex-1">
-                            <p className="font-semibold text-lg mb-1">{m.name || 'Scholarship'}</p>
-                            <p className="text-sm text-gray-600 mb-2">
-                              {m.provider && <span className="font-medium">{m.provider}</span>}
-                              {m.country && <span> • {m.country}</span>}
-                              {m.amount && <span> • {m.currency || 'USD'} {m.amount.toLocaleString()}</span>}
-                            </p>
-                            {m.fieldOfStudy && Array.isArray(m.fieldOfStudy) && m.fieldOfStudy.length > 0 && (
-                              <p className="text-xs text-gray-500">Fields: {m.fieldOfStudy.join(', ')}</p>
-                            )}
-                          </div>
-                          <div className="text-right">
-                            {m.deadline && (
-                              <>
-                                <p className="text-xs text-gray-600">Deadline</p>
-                                <p className="font-medium text-sm">
-                                  {new Date(m.deadline).toLocaleDateString()}
-                                </p>
-                                <p className="text-xs text-primary">
-                                  {Math.ceil((new Date(m.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days left
-                                </p>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                        {m.id && (
-                          <div className="mt-3 pt-3 border-t">
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => router.push(`/scholarships/${m.id}`)}
-                              className="w-full"
-                            >
-                              View Details
-                              <ArrowRight className="h-3 w-3 ml-2" />
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-
-              <div className="mt-6 flex justify-end gap-3">
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    setSimulatedMatches(null);
-                    setAiResponse('');
-                  }}
-                >
-                  Close
-                </Button>
-                {simulatedMatches && simulatedMatches.length > 0 && (
-                  <Button onClick={() => router.push('/scholarships/match')}>
-                    View All Matches
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
     </div>
   );
 }

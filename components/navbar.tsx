@@ -19,7 +19,6 @@ export function Navbar() {
     { href: "/university-matcher", label: "Find University" },
     { href: "/services", label: "Services" },
     { href: "/about", label: "About" },
-    { href: "/blog", label: "Blog" },
   ];
 
   return (
@@ -38,37 +37,37 @@ export function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center space-x-4 lg:space-x-6">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-gray-dark hover:text-primary transition-colors"
+                className="text-gray-dark hover:text-primary transition-colors font-medium"
               >
                 {item.label}
               </Link>
             ))}
-              <Link href="/copilot/activate">
-                <Button className="bg-primary hover:bg-primary/90 text-white font-bold px-6 py-2 text-base shadow border-2 border-primary">
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  Try Copilot
-                </Button>
-              </Link>
+            
+            {/* Primary CTA */}
             <Link href="/find-scholarships">
-              <Button>
+              <Button className="bg-primary hover:bg-primary/90 text-white font-semibold px-5 py-2">
                 <Sparkles className="mr-2 h-4 w-4" />
-                Find My Scholarships
+                Find Scholarships
               </Button>
             </Link>
+            
+            {/* Secondary Actions */}
             <Link href="/sponsor">
-              <Button variant="outline" className="border-pink-600 text-pink-600 hover:bg-pink-50">
+              <Button variant="outline" className="border-pink-600 text-pink-600 hover:bg-pink-50 px-4 py-2">
                 <Heart className="mr-2 h-4 w-4" />
-                Sponsor a Scholar
+                Sponsor
               </Button>
             </Link>
+            
+            {/* Admin & Dashboard */}
             {isAdmin && (
               <Link href="/admin">
-                <Button variant="outline" className="border-primary text-primary hover:bg-primary/10">
+                <Button variant="ghost" className="text-gray-dark hover:text-primary px-3 py-2">
                   <Shield className="mr-2 h-4 w-4" />
                   Admin
                 </Button>
@@ -76,24 +75,26 @@ export function Navbar() {
             )}
             {isLoggedIn && (
               <Link href="/dashboard">
-                <Button variant="outline">
+                <Button variant="ghost" className="text-gray-dark hover:text-primary px-3 py-2">
                   <LayoutDashboard className="mr-2 h-4 w-4" />
                   Dashboard
                 </Button>
               </Link>
             )}
+            
+            {/* Auth */}
             {isLoggedIn ? (
               <Button 
                 variant="ghost" 
                 onClick={() => signOut({ callbackUrl: "/" })}
-                className="text-gray-dark hover:text-primary"
+                className="text-gray-dark hover:text-primary px-3 py-2"
               >
                 <LogOut className="mr-2 h-4 w-4" />
                 Sign Out
               </Button>
             ) : (
               <Link href="/auth/signin">
-                <Button variant="ghost" className="text-gray-dark hover:text-primary">
+                <Button variant="ghost" className="text-gray-dark hover:text-primary px-3 py-2">
                   <LogIn className="mr-2 h-4 w-4" />
                   Sign In
                 </Button>
@@ -112,71 +113,75 @@ export function Navbar() {
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden py-4 space-y-3">
+          <div className="md:hidden py-4 space-y-2 border-t border-gray-200">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="block py-2 text-gray-dark hover:text-primary transition-colors"
+                className="block py-3 px-2 text-gray-dark hover:text-primary hover:bg-primary/5 transition-colors rounded-md font-medium"
                 onClick={() => setIsOpen(false)}
               >
                 {item.label}
               </Link>
             ))}
-              <Link href="/copilot/activate" onClick={() => setIsOpen(false)}>
-                <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-6 py-2 text-base shadow border-2 border-yellow-500">
+            
+            <div className="pt-2 space-y-2 border-t border-gray-200">
+              {/* Primary CTA */}
+              <Link href="/find-scholarships" onClick={() => setIsOpen(false)}>
+                <Button className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3">
                   <Sparkles className="mr-2 h-4 w-4" />
-                  Try Copilot
+                  Find Scholarships
                 </Button>
               </Link>
-            <Link href="/find-scholarships" onClick={() => setIsOpen(false)}>
-              <Button className="w-full">
-                <Sparkles className="mr-2 h-4 w-4" />
-                Find My Scholarships
-              </Button>
-            </Link>
-            <Link href="/sponsor" onClick={() => setIsOpen(false)}>
-              <Button variant="outline" className="w-full border-pink-600 text-pink-600 hover:bg-pink-50">
-                <Heart className="mr-2 h-4 w-4" />
-                Sponsor a Scholar
-              </Button>
-            </Link>
-            {isAdmin && (
-              <Link href="/admin" onClick={() => setIsOpen(false)}>
-                <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary/10">
-                  <Shield className="mr-2 h-4 w-4" />
-                  Admin Panel
+              
+              {/* Secondary Actions */}
+              <Link href="/sponsor" onClick={() => setIsOpen(false)}>
+                <Button variant="outline" className="w-full border-pink-600 text-pink-600 hover:bg-pink-50 py-3">
+                  <Heart className="mr-2 h-4 w-4" />
+                  Sponsor a Scholar
                 </Button>
               </Link>
-            )}
-            {isLoggedIn && (
-              <Link href="/dashboard" onClick={() => setIsOpen(false)}>
-                <Button variant="outline" className="w-full">
-                  <LayoutDashboard className="mr-2 h-4 w-4" />
-                  Dashboard
+              
+              {/* Admin & Dashboard */}
+              {isAdmin && (
+                <Link href="/admin" onClick={() => setIsOpen(false)}>
+                  <Button variant="ghost" className="w-full text-gray-dark hover:text-primary hover:bg-primary/5 py-3">
+                    <Shield className="mr-2 h-4 w-4" />
+                    Admin Panel
+                  </Button>
+                </Link>
+              )}
+              {isLoggedIn && (
+                <Link href="/dashboard" onClick={() => setIsOpen(false)}>
+                  <Button variant="ghost" className="w-full text-gray-dark hover:text-primary hover:bg-primary/5 py-3">
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    Dashboard
+                  </Button>
+                </Link>
+              )}
+              
+              {/* Auth */}
+              {isLoggedIn ? (
+                <Button 
+                  variant="ghost" 
+                  className="w-full text-gray-dark hover:text-primary hover:bg-primary/5 py-3"
+                  onClick={() => {
+                    setIsOpen(false);
+                    signOut({ callbackUrl: "/" });
+                  }}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
                 </Button>
-              </Link>
-            )}
-            {isLoggedIn ? (
-              <Button 
-                variant="outline" 
-                className="w-full text-gray-dark hover:text-primary"
-                onClick={() => {
-                  setIsOpen(false);
-                  signOut({ callbackUrl: "/" });
-                }}
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Sign Out
-              </Button>
-            ) : (
-              <Link href="/auth/signin" onClick={() => setIsOpen(false)}>
-                <Button variant="outline" className="w-full text-gray-dark hover:text-primary">
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Sign In
-                </Button>
-              </Link>
-            )}
+              ) : (
+                <Link href="/auth/signin" onClick={() => setIsOpen(false)}>
+                  <Button variant="ghost" className="w-full text-gray-dark hover:text-primary hover:bg-primary/5 py-3">
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Sign In
+                  </Button>
+                </Link>
+              )}
+            </div>
           </div>
         )}
       </div>

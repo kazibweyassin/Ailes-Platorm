@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { generateSEO } from '@/lib/seo';
-import ScholarshipApplicationForm from '@/components/scholarship-application-form';
+import ApplicationFormClient from './client';
 
 export const metadata: Metadata = generateSEO({
   title: 'Student Application Form - AILES Global',
@@ -20,7 +20,7 @@ export default function ApplicationFormPage() {
             Fill out this form to start your study abroad journey. Once completed, you can download it as a PDF to use for your application process.
           </p>
         </div>
-        <ScholarshipApplicationForm />
+        <ApplicationFormClient />
       </div>
     </div>
   );
