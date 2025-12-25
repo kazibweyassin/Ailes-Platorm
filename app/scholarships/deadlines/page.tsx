@@ -105,7 +105,7 @@ export default function DeadlinesPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-light via-white to-purple-50 py-12">
+      <section className="bg-primary-light py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

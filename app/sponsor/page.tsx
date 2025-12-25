@@ -17,6 +17,9 @@ import {
   TrendingUp,
   Users,
   Download,
+  Clock,
+  FileText,
+  Shield,
 } from "lucide-react";
 import { jsPDF } from "jspdf";
 
@@ -293,6 +296,10 @@ export default function SponsorPage() {
     console.log('Selected tier:', selectedTier);
 
     try {
+      if (!selectedTier) {
+        throw new Error('Please select a sponsorship tier');
+      }
+      
       const payload = {
         ...formData,
         sponsorType,
@@ -334,7 +341,7 @@ export default function SponsorPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 py-16 md:py-24">
+      <section className="bg-primary-light py-16 md:py-24">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm mb-6">
@@ -359,8 +366,49 @@ export default function SponsorPage() {
                 </Button>
               </Link>
             </div>
+              {/* Copilot CTA and explainer */}
+              <div className="my-8 flex flex-col items-center gap-4">
+                <Link href="/copilot/activate">
+                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-white font-bold px-8 py-4 text-lg shadow-lg border-2 border-primary">
+                    Try AI Copilot
+                  </Button>
+                </Link>
+                <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 max-w-xl mx-auto text-left">
+                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 max-w-xl mx-auto text-left">
+                    <h3 className="font-bold mb-4 text-primary text-2xl flex items-center gap-2">
+                      <Sparkles className="h-6 w-6 text-primary" /> Why pay for Copilot?
+                    </h3>
+                    <ul className="space-y-4">
+                    <li className="flex items-start gap-3">
+                      <Clock className="h-6 w-6 text-primary mt-1" />
+                      <span><span className="font-semibold text-gray-900">Save 40+ hours</span> of manual work</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <FileText className="h-6 w-6 text-primary mt-1" />
+                      <span><span className="font-semibold text-gray-900">AI-powered</span> application writing (25+ custom drafts)</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <Shield className="h-6 w-6 text-primary mt-1" />
+                      <span><span className="font-semibold text-gray-900">Expert-reviewed</span> templates and guidance</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <Award className="h-6 w-6 text-primary mt-1" />
+                      <span><span className="font-semibold text-gray-900">Exclusive access</span> to vetted sponsor scholarships</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <Sparkles className="h-6 w-6 text-primary mt-1" />
+                      <span><span className="font-semibold text-gray-900">Priority support</span> & WhatsApp reminders</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <Download className="h-6 w-6 text-primary mt-1" />
+                      <span><span className="font-semibold text-gray-900">One-time payment</span>, no hidden fees</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
           </div>
         </div>
+      </div>
       </section>
 
       {/* Impact Stats */}
@@ -670,7 +718,7 @@ export default function SponsorPage() {
       )}
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-primary to-purple-600 text-white">
+      <section className="py-16 bg-primary text-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">
             Ready to Change a Life?
@@ -901,7 +949,7 @@ export default function SponsorPage() {
             </CardHeader>
             <CardContent className="text-center space-y-4">
               {/* Transaction Number */}
-              <div className="bg-gradient-to-r from-primary to-purple-600 text-white rounded-lg p-4">
+              <div className="bg-primary text-white rounded-lg p-4">
                 <p className="text-sm font-medium mb-2">Your Transaction Number</p>
                 <p className="text-2xl font-bold tracking-wide">{transactionNumber}</p>
                 <p className="text-xs mt-2 opacity-90">Use this as payment reference</p>

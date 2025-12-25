@@ -12,8 +12,8 @@ import {
 } from "lucide-react";
 
 interface ApplicationFormProps {
-  scholarshipId: string;
-  scholarshipTitle: string;
+  scholarshipId?: string;
+  scholarshipTitle?: string;
 }
 
 interface FormData {
@@ -147,7 +147,7 @@ export default function ScholarshipApplicationForm({ scholarshipId, scholarshipT
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          scholarshipId,
+          ...(scholarshipId ? { scholarshipId } : {}),
           ...formData,
           status: "SUBMITTED",
         }),

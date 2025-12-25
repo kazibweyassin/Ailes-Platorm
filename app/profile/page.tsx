@@ -257,7 +257,7 @@ export default function ProfilePage() {
                 {/* Profile Picture */}
                 <div className="text-center mb-6">
                   <div className="relative inline-block">
-                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center text-white text-3xl font-bold">
+                    <div className="w-24 h-24 rounded-full bg-primary flex items-center justify-center text-white text-3xl font-bold">
                       {profile.firstName[0]}{profile.lastName[0]}
                     </div>
                     {editing && (

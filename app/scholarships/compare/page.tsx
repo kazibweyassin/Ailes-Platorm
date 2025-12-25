@@ -122,7 +122,7 @@ export default function ComparePage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-light via-white to-purple-50 py-12 print:hidden">
+      <section className="bg-primary-light py-12 print:hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -566,7 +566,7 @@ export default function ComparePage() {
                       {compareScholarships.map((s) => (
                         <td key={s.id} className="p-4 border-l text-sm">
                           {s.forAfrican ? (
-                            <CheckCircle2 className="h-5 w-5 text-purple-500" />
+                            <CheckCircle2 className="h-5 w-5 text-primary" />
                           ) : (
                             <span className="text-gray-400">All</span>
                           )}

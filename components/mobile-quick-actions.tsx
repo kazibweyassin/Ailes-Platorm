@@ -37,7 +37,7 @@ function MobileQuickActions() {
       href: "/financial-planning",
       icon: Calculator,
       label: "Cost Calculator",
-      color: "bg-purple-100 text-purple-600",
+      color: "bg-primary/10 text-primary",
     },
     {
       href: "/ai-assistant",

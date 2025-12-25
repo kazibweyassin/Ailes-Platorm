@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Sandbox - Simple Form</title>
+    <style>
+      body { font-family: system-ui, sans-serif; padding: 2rem; }
+      form { max-width: 600px; margin: 0 auto; }
+      label { display:block; margin-top: 1rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Sandbox - Simple Scholarship Form</h1>
+    <form id="apply">
+      <label for="fname">First Name</label>
+      <input id="fname" name="first" type="text" placeholder="Jane" />
+
+      <label for="lname">Last Name</label>
+      <input id="lname" name="last" type="text" placeholder="Doe" />
+
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" placeholder="jane@example.com" />
+
+      <label for="gpa">GPA</label>
+      <input id="gpa" name="gpa" type="text" placeholder="3.8" />
+
+      <label for="cv">Upload CV</label>
+      <input id="cv" name="resume_file" type="file" />
+
+      <div style="margin-top:1.5rem;">
+        <button type="submit">Submit</button>
+      </div>
+    </form>
+  </body>
+</html>

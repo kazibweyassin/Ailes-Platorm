@@ -1,0 +1,5 @@
+[
+  {"selector":"#fname","profileKey":"firstName","inputType":"text","exampleValue":"Jane","confidence":0.95,"step":0},
+  {"selector":"#gpa","profileKey":"gpa","inputType":"text","exampleValue":"3.8","confidence":0.9,"step":0},
+  {"selector":"#cv","profileKey":"resume","inputType":"file","exampleValue":"https://example.com/resume.pdf","confidence":0.98,"step":0}
+]

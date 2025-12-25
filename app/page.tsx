@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,11 +15,30 @@ const MobileQuickActions = dynamic(() => import("@/components/mobile-quick-actio
 
 export default function Home() {
   const [expandedStep, setExpandedStep] = useState<number | null>(0);
+  const [scholarshipCount, setScholarshipCount] = useState<number | null>(null);
+
+  // Fetch actual scholarship count
+  useEffect(() => {
+    const fetchCount = async () => {
+      try {
+        const response = await fetch('/api/scholarships?limit=1');
+        const data = await response.json();
+        if (data.pagination?.total) {
+          setScholarshipCount(data.pagination.total);
+        }
+      } catch (error) {
+        console.error('Error fetching scholarship count:', error);
+        // Fallback to a safe default
+        setScholarshipCount(0);
+      }
+    };
+    fetchCount();
+  }, []);
 
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-primary-light via-white to-primary-light/30 py-12 md:py-20 lg:py-32">
+      <section className="relative bg-primary-light py-12 md:py-20 lg:py-32">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
             <div className="space-y-4 md:space-y-6">
@@ -40,13 +59,36 @@ export default function Home() {
                 </Link>
                 <Link href="/scholarships" className="w-full sm:w-auto">
                   <Button size="default" variant="outline" className="w-full sm:w-auto text-sm">
-                    Browse 500+ Scholarships
+                    {scholarshipCount !== null 
+                      ? `Browse ${scholarshipCount}+ Scholarships` 
+                      : 'Browse Scholarships'}
+                  </Button>
+                </Link>
+                {/* Copilot Paid CTA */}
+                <Link href="/copilot/activate" className="w-full sm:w-auto">
+                  <Button size="default" className="w-full sm:w-auto text-sm bg-primary hover:bg-primary/90 text-white font-bold border-2 border-primary shadow-lg">
+                    🚀 Unlock AI Copilot
                   </Button>
                 </Link>
               </div>
+              {/* Why pay? explainer */}
+              <div className="mt-4 bg-primary/5 border-l-4 border-primary p-4 rounded shadow-sm max-w-xl">
+                <div className="font-semibold text-primary mb-1">Why use Copilot?</div>
+                <ul className="list-disc pl-5 text-sm text-gray-700 space-y-1">
+                  <li>Get 25+ custom scholarship applications, motivation letters, and deadline reminders</li>
+                  <li>Save 40+ hours of manual work</li>
+                  <li>Boost your chances of winning funding</li>
+                  <li>Access to exclusive scholarships from our sponsors (via our Sponsor-a-Scholar program)</li>
+                  <li>100% money-back guarantee if not satisfied</li>
+                </ul>
+              </div>
               <div className="grid grid-cols-3 gap-4 md:flex md:items-center md:gap-6 pt-4">
                 <div className="text-center md:text-left">
-                  <p className="text-base md:text-lg font-bold text-primary">500+</p>
+                  <p className="text-base md:text-lg font-bold text-primary">
+                    {scholarshipCount !== null 
+                      ? `${scholarshipCount}+` 
+                      : '...'}
+                  </p>
                   <p className="text-[10px] md:text-xs text-gray-soft">Scholarships</p>
                 </div>
                 <div className="text-center md:text-left">
@@ -183,7 +225,7 @@ export default function Home() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 bg-gradient-to-b from-white to-primary-light/30">
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-2xl md:text-3xl font-bold text-gray-dark mb-3">
@@ -368,7 +410,7 @@ export default function Home() {
       </section>
 
       {/* Sponsor a Scholar Section */}
-      <section className="py-20 bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
+      <section className="py-20 bg-primary-light">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Image Side */}
@@ -379,7 +421,7 @@ export default function Home() {
                 fill
                 className="object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-pink-900/70 via-purple-900/40 to-transparent"></div>
+              <div className="absolute inset-0 bg-black/50"></div>
               <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
                 <div className="space-y-3">
                   <div className="flex items-center space-x-2">
@@ -421,8 +463,8 @@ export default function Home() {
                 </Card>
                 <Card className="text-center">
                   <CardContent className="pt-6">
-                    <div className="w-12 h-12 bg-purple-100 rounded-full mx-auto mb-3 flex items-center justify-center">
-                      <Award className="h-6 w-6 text-purple-600" />
+                    <div className="w-12 h-12 bg-primary/10 rounded-full mx-auto mb-3 flex items-center justify-center">
+                      <Award className="h-6 w-6 text-primary" />
                     </div>
                     <h3 className="font-semibold mb-2">$2.5M+</h3>
                     <p className="text-sm text-gray-600">In scholarships secured</p>
@@ -462,7 +504,7 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-primary to-primary/80 text-white">
+      <section className="py-20 bg-primary text-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-xl md:text-2xl font-bold mb-3">
             Ready to Start Your Journey?
@@ -484,6 +526,32 @@ export default function Home() {
               </Button>
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="container mx-auto px-4 py-8">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="text-2xl font-bold mb-4">How Scholarship Copilot Works</h2>
+          <ol className="text-left space-y-2 text-gray-700 mb-6 list-decimal list-inside">
+            <li>Answer a few questions about your background and goals.</li>
+            <li>Let our AI match you to the best scholarships worldwide.</li>
+            <li>Preview your application package (motivation letter, filled forms, etc.).</li>
+            <li>Review and approve before anything is submitted.</li>
+            <li>Let Copilot handle the paperwork—saving you 40+ hours!</li>
+          </ol>
+          <div className="bg-white rounded-xl shadow p-6 mb-8 text-left">
+            <h3 className="font-semibold text-lg mb-2">Frequently Asked Questions</h3>
+            <ul className="space-y-3 text-gray-700 text-sm">
+              <li><strong>How does Copilot work?</strong> Answer a few questions, let AI match you to scholarships, and automate your applications with a single click.</li>
+              <li><strong>Is my data safe?</strong> Yes. We never share your information and require your consent before any submission.</li>
+              <li><strong>Can I review before applying?</strong> Absolutely! You review and approve every application before it’s sent.</li>
+              <li><strong>What if I need help?</strong> See contact info below or join our WhatsApp support group.</li>
+            </ul>
+          </div>
+          <div className="text-gray-600 text-sm mb-4">
+            <p>Questions? Email <a href="mailto:support@ailesglobal.com" className="text-primary underline">support@ailesglobal.com</a> or WhatsApp <a href="https://wa.me/256700123456" className="text-primary underline">+256 700 123 456</a></p>
+          </div>
+          <div className="text-xs text-gray-400">&copy; {new Date().getFullYear()} Ailes Global. All rights reserved.</div>
         </div>
       </section>
     </div>

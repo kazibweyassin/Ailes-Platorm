@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Sandbox - Multi-step Form</title>
+    <style>
+      body { font-family: system-ui, sans-serif; padding: 2rem; }
+      .step { display: none; }
+      .step.active { display: block; }
+      label { display:block; margin-top: 1rem; }
+      .nav { margin-top: 1rem; }
+    </style>
+    <script>
+      function showStep(i){
+        document.querySelectorAll('.step').forEach((el,idx)=>{
+          el.classList.toggle('active', idx===i);
+        });
+        window.currentStep = i;
+      }
+      document.addEventListener('DOMContentLoaded', ()=>{
+        showStep(0);
+        document.getElementById('next').addEventListener('click', (e)=>{ e.preventDefault(); showStep(1); });
+        document.getElementById('back').addEventListener('click', (e)=>{ e.preventDefault(); showStep(0); });
+      });
+    </script>
+  </head>
+  <body>
+    <h1>Sandbox - Multi-step Scholarship Form</h1>
+    <form id="apply">
+      <div class="step" data-step="0">
+        <label>Given name</label>
+        <input name="given_name" placeholder="Jane" />
+
+        <label>Surname</label>
+        <input name="surname" placeholder="Doe" />
+
+        <div class="nav">
+          <button id="next">Next</button>
+        </div>
+      </div>
+
+      <div class="step" data-step="1">
+        <label>Personal Statement</label>
+        <textarea name="ps" rows="6" placeholder="I am applying because..."></textarea>
+
+        <label>Resume</label>
+        <input type="file" id="hidden-cv" style="display:block" />
+
+        <div class="nav">
+          <button id="back">Back</button>
+          <button type="submit">Submit</button>
+        </div>
+      </div>
+    </form>
+  </body>
+</html>

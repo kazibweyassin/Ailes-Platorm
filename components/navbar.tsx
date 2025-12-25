@@ -48,6 +48,12 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
+              <Link href="/copilot/activate">
+                <Button className="bg-primary hover:bg-primary/90 text-white font-bold px-6 py-2 text-base shadow border-2 border-primary">
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Try Copilot
+                </Button>
+              </Link>
             <Link href="/find-scholarships">
               <Button>
                 <Sparkles className="mr-2 h-4 w-4" />
@@ -62,7 +68,7 @@ export function Navbar() {
             </Link>
             {isAdmin && (
               <Link href="/admin">
-                <Button variant="outline" className="border-purple-600 text-purple-600 hover:bg-purple-50">
+                <Button variant="outline" className="border-primary text-primary hover:bg-primary/10">
                   <Shield className="mr-2 h-4 w-4" />
                   Admin
                 </Button>
@@ -117,6 +123,12 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
+              <Link href="/copilot/activate" onClick={() => setIsOpen(false)}>
+                <Button className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-6 py-2 text-base shadow border-2 border-yellow-500">
+                  <Sparkles className="mr-2 h-4 w-4" />
+                  Try Copilot
+                </Button>
+              </Link>
             <Link href="/find-scholarships" onClick={() => setIsOpen(false)}>
               <Button className="w-full">
                 <Sparkles className="mr-2 h-4 w-4" />
@@ -131,7 +143,7 @@ export function Navbar() {
             </Link>
             {isAdmin && (
               <Link href="/admin" onClick={() => setIsOpen(false)}>
-                <Button variant="outline" className="w-full border-purple-600 text-purple-600 hover:bg-purple-50">
+                <Button variant="outline" className="w-full border-primary text-primary hover:bg-primary/10">
                   <Shield className="mr-2 h-4 w-4" />
                   Admin Panel
                 </Button>

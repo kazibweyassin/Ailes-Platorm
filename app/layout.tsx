@@ -7,6 +7,7 @@ import { SessionProvider } from "@/components/session-provider";
 import { GoogleAnalytics } from "@/components/google-analytics";
 import { generateSEO, generateOrganizationSchema, generateWebsiteSchema } from "@/lib/seo";
 import dynamic from "next/dynamic";
+import AICopilot from "@/components/ai-copilot";
 
 const MobileBottomNav = dynamic(() => import("@/components/mobile-bottom-nav"), {
   ssr: false,
@@ -67,6 +68,7 @@ export default function RootLayout({
        </head>
       <body>
         <GoogleAnalytics />
+        <AICopilot />
         <SessionProvider>
           <Navbar />
           <main className="min-h-screen pb-16 md:pb-0">{children}</main>

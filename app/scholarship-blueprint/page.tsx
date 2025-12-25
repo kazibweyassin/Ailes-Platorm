@@ -48,7 +48,7 @@ export default function ScholarshipBlueprintPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-blue-600 via-primary to-purple-600 text-white py-20 px-4">
+      <section className="bg-primary text-white py-20 px-4">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center">
             {/* Badge */}
@@ -224,8 +224,8 @@ export default function ScholarshipBlueprintPage() {
             <Card className="shadow-lg">
               <CardContent className="p-8">
                 <div className="flex items-start gap-4">
-                  <div className="bg-purple-100 p-3 rounded-lg">
-                    <Award className="h-8 w-8 text-purple-600" />
+                  <div className="bg-primary/10 p-3 rounded-lg">
+                    <Award className="h-8 w-8 text-primary" />
                   </div>
                   <div className="flex-1">
                     <h3 className="text-2xl font-bold mb-3">
@@ -330,7 +330,7 @@ export default function ScholarshipBlueprintPage() {
           </div>
 
           {/* Total Value */}
-          <div className="mt-12 text-center bg-gradient-to-r from-primary to-purple-600 text-white rounded-2xl p-8">
+          <div className="mt-12 text-center bg-primary text-white rounded-2xl p-8">
             <p className="text-lg mb-2">Total Value:</p>
             <p className="text-4xl font-bold line-through opacity-70">$313</p>
             <p className="text-2xl mt-4 mb-2">Your Investment Today:</p>
@@ -566,7 +566,7 @@ export default function ScholarshipBlueprintPage() {
                     <Button
                       type="submit"
                       size="lg"
-                      className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-700 text-white font-bold text-lg py-6"
+                      className="w-full bg-primary hover:bg-primary/90 text-white font-bold text-lg py-6"
                     >
                       I've Sent Payment - Get My Blueprint
                       <ArrowRight className="ml-2 h-5 w-5" />
@@ -690,7 +690,7 @@ export default function ScholarshipBlueprintPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-16 px-4 bg-gradient-to-br from-primary via-purple-600 to-blue-600 text-white">
+      <section className="py-16 px-4 bg-primary text-white">
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
             Ready to Find Your Perfect Scholarship?

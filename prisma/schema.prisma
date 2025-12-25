@@ -61,6 +61,8 @@ model User {
   savedUniversities SavedUniversity[]
   documents     Document[]
   scholarshipMatches ScholarshipMatch[]
+
+  copilotRequests CopilotRequest[]
   
   @@map("users")
 }
@@ -342,6 +344,30 @@ model Sponsor {
 enum SponsorType {
   INDIVIDUAL
   CORPORATE
+}
+
+// CopilotRequest: stores user Copilot activation, payment, mapping, and consent
+model CopilotRequest {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  finderData    Json     // Profile answers from ScholarshipFinderFlow
+  paymentName   String
+  paymentEmail  String
+  paymentPhone  String
+  paymentWhatsapp String
+  paymentMethod String
+  paymentStatus String   @default("pending")
+  paymentTimestamp DateTime?
+  status        String   @default("pending") // pending, processing, completed, failed
+  mapping       Json?    // AI mapping result
+  documents     Json?    // Generated documents metadata
+  consentGiven  Boolean  @default(false)
+  auditLog      Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("copilot_requests")
 }
 
 enum SponsorStatus {

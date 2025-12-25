@@ -170,7 +170,7 @@ export default function ScholarshipMatchPage() {
   // Show loading while checking authentication
   if (status === "loading") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-light via-white to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-primary-light flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
           <p className="text-gray-600">Checking authentication...</p>
@@ -186,7 +186,7 @@ export default function ScholarshipMatchPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-light via-white to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-primary-light flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -230,7 +230,7 @@ export default function ScholarshipMatchPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-light via-white to-purple-50 py-12">
+      <section className="bg-primary-light py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {error && (
             <div className="max-w-4xl mx-auto mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
@@ -387,7 +387,7 @@ export default function ScholarshipMatchPage() {
                               </span>
                             )}
                             {match.scholarship.forAfrican && (
-                              <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full">
+                              <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full">
                                 For Africans
                               </span>
                             )}
@@ -530,7 +530,7 @@ export default function ScholarshipMatchPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-12 bg-gradient-to-r from-primary to-purple-600 text-white">
+      <section className="py-12 bg-primary text-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl md:text-3xl font-bold mb-3">
             Need Help Applying?

@@ -45,6 +45,7 @@ export function Footer() {
               <li><Link href="/services" className="text-gray-300 hover:text-primary transition-colors">Services</Link></li>
               <li><Link href="/scholarships" className="text-gray-300 hover:text-primary transition-colors">Scholarships</Link></li>
               <li><Link href="/success-stories" className="text-gray-300 hover:text-primary transition-colors">Success Stories</Link></li>
+              <li><Link href="/refund-policy" className="text-gray-300 hover:text-primary transition-colors">Refund & Cancellation Policy</Link></li>
             </ul>
           </div>
 

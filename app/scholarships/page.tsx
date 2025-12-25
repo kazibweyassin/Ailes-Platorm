@@ -217,7 +217,7 @@ export default function ScholarshipsPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-light via-white to-purple-50 py-12">
+      <section className="bg-primary-light py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -423,7 +423,7 @@ export default function ScholarshipsPage() {
                           {scholarship.name}
                         </CardTitle>
                         {scholarship.featured && (
-                          <span className="text-xs px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full whitespace-nowrap">
+                          <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full whitespace-nowrap">
                             Featured
                           </span>
                         )}
@@ -438,7 +438,7 @@ export default function ScholarshipsPage() {
                           </span>
                         )}
                         {scholarship.forAfrican && (
-                          <span className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded-full">
+                          <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full">
                             African
                           </span>
                         )}
