@@ -828,7 +828,7 @@ export default function HomeClient() {
 
             <div className="mt-12 text-center">
               <p className="text-sm text-gray-600 mb-4">
-                Questions? Email <a href="mailto:support@ailesglobal.com" className="text-primary underline hover:text-primary-dark">support@ailesglobal.com</a> or WhatsApp <a href="https://wa.me/256700123456" className="text-primary underline hover:text-primary-dark">+256 700 123 456</a>
+                Questions? Email <a href="mailto:support@ailesglobal.com" className="text-primary underline hover:text-primary-dark">support@ailesglobal.com</a> or WhatsApp <a href="https://wa.me/256786367460" className="text-primary underline hover:text-primary-dark">+256 786 367460</a>
               </p>
             </div>
           </div>

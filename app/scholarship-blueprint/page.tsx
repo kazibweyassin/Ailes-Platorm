@@ -453,7 +453,7 @@ export default function ScholarshipBlueprintPage() {
                       </label>
                       <Input
                         type="tel"
-                        placeholder="+256 700 123 456"
+                        placeholder="+256 786 367460"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         required
@@ -468,7 +468,7 @@ export default function ScholarshipBlueprintPage() {
                       </label>
                       <Input
                         type="tel"
-                        placeholder="+256 700 123 456"
+                        placeholder="+256 786 367460"
                         value={formData.whatsapp}
                         onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
                         required
@@ -534,7 +534,7 @@ export default function ScholarshipBlueprintPage() {
                       {formData.paymentMethod === "mtn" && (
                         <div className="space-y-2 text-sm">
                           <p className="font-medium">Send UGX 75,000 ($20) to:</p>
-                          <p className="text-lg font-bold text-primary">+256 700 123 456</p>
+                          <p className="text-lg font-bold text-primary">+256 786 367460</p>
                           <p className="text-gray-600">Account Name: Ailes Global</p>
                         </div>
                       )}
@@ -635,7 +635,7 @@ export default function ScholarshipBlueprintPage() {
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                   <p className="text-sm text-gray-700">
                     <strong>Need faster verification?</strong> WhatsApp your payment screenshot to{" "}
-                    <span className="text-primary font-bold">+256 700 123 456</span>
+                    <span className="text-primary font-bold">+256 786 367460</span>
                   </p>
                 </div>
               </CardContent>
@@ -659,7 +659,7 @@ export default function ScholarshipBlueprintPage() {
               },
               {
                 q: "When will I receive my blueprint?",
-                a: "Within 2 hours of payment verification! We work 7 days a week. For fastest service, WhatsApp your payment screenshot to +256 700 123 456.",
+                a: "Within 2 hours of payment verification! We work 7 days a week. For fastest service, WhatsApp your payment screenshot to +256 786 367460.",
               },
               {
                 q: "What if I don't find any good scholarships?",

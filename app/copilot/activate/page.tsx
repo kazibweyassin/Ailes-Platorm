@@ -619,7 +619,7 @@ export default function ActivateCopilotPage() {
                       </label>
                       <Input
                         type="tel"
-                        placeholder="+256 700 123 456"
+                        placeholder="+256 786 367460"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         className="h-12"
@@ -635,7 +635,7 @@ export default function ActivateCopilotPage() {
                       </label>
                       <Input
                         type="tel"
-                        placeholder="+256 700 123 456"
+                        placeholder="+256 786 367460"
                         value={formData.whatsapp}
                         onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
                         className="h-12"
@@ -683,7 +683,7 @@ export default function ActivateCopilotPage() {
                         {formData.paymentMethod === "mtn" && (
                           <div>
                             <p className="text-gray-700 mb-1">Send payment to:</p>
-                            <p className="text-lg font-bold text-primary">+256 700 123 456</p>
+                            <p className="text-lg font-bold text-primary">+256 786 367460</p>
                             <p className="text-xs text-gray-600">Name: Ailes Global</p>
                           </div>
                         )}
