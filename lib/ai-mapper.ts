@@ -70,4 +70,5 @@ function extractJSON(text: string) {
   return null;
 }
 
-export default { generateMapping };
+const aiMapper = { generateMapping };
+export default aiMapper;

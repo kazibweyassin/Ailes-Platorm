@@ -190,7 +190,7 @@ export function generateStudentApplicationPDF(formData: StudentFormData): void {
   addField('Relationship', formData.emergencyContactRelation);
 
   // Footer
-  const totalPages = doc.getNumberOfPages();
+  const totalPages = (doc as any).getNumberOfPages();
   for (let i = 1; i <= totalPages; i++) {
     doc.setPage(i);
     doc.setFontSize(8);
@@ -411,7 +411,7 @@ export async function generateStudentIntakePDF(intake: any): Promise<Buffer> {
   }
 
   // Footer on all pages
-  const totalPages = doc.getNumberOfPages();
+  const totalPages = (doc as any).getNumberOfPages();
   for (let i = 1; i <= totalPages; i++) {
     doc.setPage(i);
     doc.setFontSize(8);
