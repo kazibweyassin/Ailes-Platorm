@@ -71,20 +71,22 @@ export default function SuccessStoriesPage() {
                     <Quote className="h-5 w-5 text-primary mb-2" />
                     <p className="text-sm text-gray-soft italic">"{story.testimonial}"</p>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 pt-2 border-t">
-                    <div>
-                      <p className="text-xs text-gray-soft">GPA</p>
-                      <p className="text-sm font-semibold">{story.stats.gpa}</p>
+                  {story.stats && (
+                    <div className="grid grid-cols-3 gap-2 pt-2 border-t">
+                      <div>
+                        <p className="text-xs text-gray-soft">GPA</p>
+                        <p className="text-sm font-semibold">{story.stats.gpa || "N/A"}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-soft">Test Score</p>
+                        <p className="text-sm font-semibold">{story.stats.testScore || "N/A"}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-soft">Duration</p>
+                        <p className="text-sm font-semibold">{story.stats.duration || "N/A"}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-xs text-gray-soft">Test Score</p>
-                      <p className="text-sm font-semibold">{story.stats.testScore}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-soft">Duration</p>
-                      <p className="text-sm font-semibold">{story.stats.duration}</p>
-                    </div>
-                  </div>
+                  )}
                 </CardContent>
               </Card>
             ))}
