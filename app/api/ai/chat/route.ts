@@ -1,17 +1,74 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { prisma } from '@/lib/prisma';
 
-// Initialize OpenAI client (will be created when needed)
-function getOpenAIClient() {
-  // Check for both OPENAI_API_KEY and OPENAI_KEY (for backward compatibility)
-  const apiKey = process.env.OPENAI_API_KEY || process.env.OPENAI_KEY;
-  if (!apiKey) {
-    throw new Error('OPENAI_API_KEY is not configured. Please add it to your .env.local file.');
+// Initialize AI client - supports both OpenAI and Google Gemini (free tier)
+function getAIClient() {
+  // Try OpenAI first
+  const openaiKey = process.env.OPENAI_API_KEY || process.env.OPENAI_KEY;
+  if (openaiKey) {
+    return { type: 'openai', client: new OpenAI({ apiKey: openaiKey }) };
   }
-  return new OpenAI({
-    apiKey: apiKey,
-  });
+  
+  // Fallback to Google Gemini (free tier)
+  const geminiKey = process.env.GEMINI_API_KEY;
+  if (geminiKey) {
+    return { type: 'gemini', client: new GoogleGenerativeAI(geminiKey) };
+  }
+  
+  // No AI available - return null for template fallback
+  return null;
+}
+
+// Template-based responses when no AI is available
+function getTemplateResponse(message: string, context: any): string {
+  const lowerMessage = message.toLowerCase();
+  
+  // Scholarship search queries
+  if (/find|search|looking for|scholarship|opportunity|available/i.test(message)) {
+    return `I'd be happy to help you find scholarships! Here are some ways to get started:
+
+1. **Browse Scholarships**: Visit our [Scholarships page](/scholarships) to see all available opportunities
+2. **Use Our Finder**: Try our [Scholarship Finder](/find-scholarships) to get personalized matches
+3. **Filter by Criteria**: You can filter by country, field of study, degree level, and more
+
+Would you like me to help you with a specific scholarship application, or do you have questions about the application process?`;
+  }
+  
+  // Application help
+  if (/application|apply|essay|document|requirement/i.test(message)) {
+    return `I can help you with scholarship applications! Here's what I can assist with:
+
+- **Application Requirements**: Understanding what documents you need
+- **Essay Writing**: Tips and guidance for writing compelling essays
+- **Deadlines**: Tracking important dates
+- **Document Preparation**: Organizing your application materials
+
+What specific part of the application process would you like help with?`;
+  }
+  
+  // General greeting
+  if (/hello|hi|hey|help|start/i.test(message)) {
+    return `Hello! I'm here to help you with scholarships and study abroad opportunities. I can help you:
+
+- Find scholarships that match your profile
+- Understand application requirements
+- Get tips for writing strong applications
+- Answer questions about studying abroad
+
+What would you like to know?`;
+  }
+  
+  // Default response
+  return `I'm here to help with scholarships and study abroad questions! 
+
+You can:
+- Browse scholarships at [/scholarships](/scholarships)
+- Use our AI-powered finder at [/find-scholarships](/find-scholarships)
+- Get application help and tips
+
+What specific question can I help you with?`;
 }
 
 // Retry function with exponential backoff (more aggressive retries)
@@ -195,15 +252,8 @@ export async function POST(req: Request) {
 
     const { message, context } = body;
     
-    // Validate the API key (check both OPENAI_API_KEY and OPENAI_KEY)
-    const apiKey = process.env.OPENAI_API_KEY || process.env.OPENAI_KEY;
-    if (!apiKey) {
-      console.error('OPENAI_API_KEY is not configured');
-      return NextResponse.json(
-        { error: 'OpenAI API key not configured. Please add OPENAI_API_KEY to your .env.local file.' },
-        { status: 500 }
-      );
-    }
+    // Get AI client (OpenAI, Gemini, or null for template fallback)
+    const aiClient = getAIClient();
 
     // Validate the message
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
@@ -280,20 +330,34 @@ export async function POST(req: Request) {
 
             const systemPrompt = `You are a helpful scholarship advisor. The user asked about finding scholarships. I've found ${topMatches.length} matching scholarships from our database. Present them in a friendly, helpful way. Include the match scores and encourage them to click the links to view details.`;
             
-            const openai = getOpenAIClient();
-            const aiResponse = await retryWithBackoff(async () => {
-              return await openai.chat.completions.create({
-                model: process.env.OPENAI_MODEL || "gpt-4o-mini",
-                messages: [
-                  { role: "system", content: systemPrompt },
-                  { role: "user", content: `Here are ${topMatches.length} scholarships that match the user's profile:\n\n${matchesText}\n\nProvide a helpful response introducing these matches.` }
-                ],
-                temperature: 0.7,
-                max_tokens: 800,
-              });
-            });
-
-            const aiReply = aiResponse.choices[0]?.message?.content || "I found some matching scholarships for you!";
+            let aiReply = "I found some matching scholarships for you!";
+            
+            if (aiClient) {
+              try {
+                if (aiClient.type === 'openai') {
+                  const aiResponse = await retryWithBackoff(async () => {
+                    return await aiClient.client.chat.completions.create({
+                      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+                      messages: [
+                        { role: "system", content: systemPrompt },
+                        { role: "user", content: `Here are ${topMatches.length} scholarships that match the user's profile:\n\n${matchesText}\n\nProvide a helpful response introducing these matches.` }
+                      ],
+                      temperature: 0.7,
+                      max_tokens: 800,
+                    });
+                  });
+                  aiReply = aiResponse.choices[0]?.message?.content || aiReply;
+                } else if (aiClient.type === 'gemini') {
+                  const model = aiClient.client.getGenerativeModel({ model: "gemini-pro" });
+                  const prompt = `${systemPrompt}\n\nHere are ${topMatches.length} scholarships that match the user's profile:\n\n${matchesText}\n\nProvide a helpful response introducing these matches.`;
+                  const result = await model.generateContent(prompt);
+                  aiReply = result.response.text() || aiReply;
+                }
+              } catch (aiError) {
+                console.error('AI error, using fallback:', aiError);
+                // Fall through to template response
+              }
+            }
             
             return NextResponse.json({ 
               reply: aiReply,
@@ -354,18 +418,36 @@ export async function POST(req: Request) {
       }
     ];
 
-    // Generate AI response using modern API with retry logic
-    const openai = getOpenAIClient();
-    const response = await retryWithBackoff(async () => {
-      return await openai.chat.completions.create({
-        model: process.env.OPENAI_MODEL || "gpt-4o-mini",
-        messages,
-        temperature: 0.7,
-        max_tokens: 1000,
-      });
-    });
-
-    const reply = response.choices[0]?.message?.content || "I'm not sure how to respond to that.";
+    // Generate AI response or use template fallback
+    let reply = "I'm not sure how to respond to that.";
+    
+    if (aiClient) {
+      try {
+        if (aiClient.type === 'openai') {
+          const response = await retryWithBackoff(async () => {
+            return await aiClient.client.chat.completions.create({
+              model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+              messages,
+              temperature: 0.7,
+              max_tokens: 1000,
+            });
+          });
+          reply = response.choices[0]?.message?.content || reply;
+        } else if (aiClient.type === 'gemini') {
+          const model = aiClient.client.getGenerativeModel({ model: "gemini-pro" });
+          const prompt = `${systemPrompt}\n\nUser: ${message}`;
+          const result = await model.generateContent(prompt);
+          reply = result.response.text() || reply;
+        }
+      } catch (aiError) {
+        console.error('AI error, using template fallback:', aiError);
+        // Fall through to template response
+        reply = getTemplateResponse(message, context);
+      }
+    } else {
+      // No AI available - use template responses
+      reply = getTemplateResponse(message, context);
+    }
 
     // Return the AI's response
     return NextResponse.json({ 
