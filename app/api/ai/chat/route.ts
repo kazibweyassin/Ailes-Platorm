@@ -1,25 +1,6 @@
 import { NextResponse } from 'next/server';
-import OpenAI from 'openai';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { prisma } from '@/lib/prisma';
-
-// Initialize AI client - supports both OpenAI and Google Gemini (free tier)
-function getAIClient() {
-  // Try OpenAI first
-  const openaiKey = process.env.OPENAI_API_KEY || process.env.OPENAI_KEY;
-  if (openaiKey) {
-    return { type: 'openai', client: new OpenAI({ apiKey: openaiKey }) };
-  }
-  
-  // Fallback to Google Gemini (free tier)
-  const geminiKey = process.env.GEMINI_API_KEY;
-  if (geminiKey) {
-    return { type: 'gemini', client: new GoogleGenerativeAI(geminiKey) };
-  }
-  
-  // No AI available - return null for template fallback
-  return null;
-}
+import { getAIClient, AIClient } from '@/lib/ai-client';
 
 // Template-based responses when no AI is available
 function getTemplateResponse(message: string, context: any): string {
@@ -254,6 +235,10 @@ export async function POST(req: Request) {
     
     // Get AI client (OpenAI, Gemini, or null for template fallback)
     const aiClient = getAIClient();
+    console.log('[Chat API] AI Client type:', aiClient?.type || 'none (template fallback)');
+    console.log('[Chat API] Environment check - OPENAI_API_KEY:', process.env.OPENAI_API_KEY ? 'SET' : 'NOT SET');
+    console.log('[Chat API] Environment check - OPENAI_KEY:', process.env.OPENAI_KEY ? 'SET' : 'NOT SET');
+    console.log('[Chat API] Environment check - GEMINI_API_KEY:', process.env.GEMINI_API_KEY ? 'SET' : 'NOT SET');
 
     // Validate the message
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
@@ -348,15 +333,28 @@ export async function POST(req: Request) {
                   });
                   aiReply = aiResponse.choices[0]?.message?.content || aiReply;
                 } else if (aiClient.type === 'gemini') {
-                  const model = aiClient.client.getGenerativeModel({ model: "gemini-pro" });
-                  const prompt = `${systemPrompt}\n\nHere are ${topMatches.length} scholarships that match the user's profile:\n\n${matchesText}\n\nProvide a helpful response introducing these matches.`;
-                  const result = await model.generateContent(prompt);
-                  aiReply = result.response.text() || aiReply;
+                  try {
+                    const model = aiClient.client.getGenerativeModel({ model: "gemini-pro" });
+                    const prompt = `${systemPrompt}\n\nHere are ${topMatches.length} scholarships that match the user's profile:\n\n${matchesText}\n\nProvide a helpful response introducing these matches.`;
+                    console.log('[Chat] Using Gemini to generate scholarship match response');
+                    const result = await model.generateContent(prompt);
+                    const text = result.response.text();
+                    if (text) {
+                      aiReply = text;
+                      console.log('[Chat] Gemini scholarship match response received');
+                    }
+                  } catch (geminiError: any) {
+                    console.error('[Chat] Gemini error for scholarship matches:', geminiError);
+                    // Fall through to template response
+                  }
                 }
               } catch (aiError) {
                 console.error('AI error, using fallback:', aiError);
                 // Fall through to template response
               }
+            } else {
+              // Use template response if no AI available
+              aiReply = getTemplateResponse(message, context);
             }
             
             return NextResponse.json({ 
@@ -406,18 +404,6 @@ export async function POST(req: Request) {
       systemPrompt += `- Destination: ${context.finderData.destination || 'Not specified'}\n`;
     }
 
-    // Build messages array
-    const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-      {
-        role: "system",
-        content: systemPrompt
-      },
-      {
-        role: "user",
-        content: message
-      }
-    ];
-
     // Generate AI response or use template fallback
     let reply = "I'm not sure how to respond to that.";
     
@@ -427,17 +413,38 @@ export async function POST(req: Request) {
           const response = await retryWithBackoff(async () => {
             return await aiClient.client.chat.completions.create({
               model: process.env.OPENAI_MODEL || "gpt-4o-mini",
-              messages,
+              messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: message }
+              ],
               temperature: 0.7,
               max_tokens: 1000,
             });
           });
           reply = response.choices[0]?.message?.content || reply;
         } else if (aiClient.type === 'gemini') {
-          const model = aiClient.client.getGenerativeModel({ model: "gemini-pro" });
-          const prompt = `${systemPrompt}\n\nUser: ${message}`;
-          const result = await model.generateContent(prompt);
-          reply = result.response.text() || reply;
+          try {
+            const model = aiClient.client.getGenerativeModel({ model: "gemini-pro" });
+            const prompt = `${systemPrompt}\n\nUser: ${message}`;
+            console.log('[Chat] Using Gemini to generate response');
+            const result = await model.generateContent(prompt);
+            const text = result.response.text();
+            if (text) {
+              reply = text;
+              console.log('[Chat] Gemini response received successfully');
+            } else {
+              console.warn('[Chat] Gemini returned empty response');
+              reply = getTemplateResponse(message, context);
+            }
+          } catch (geminiError: any) {
+            console.error('[Chat] Gemini error:', geminiError);
+            console.error('[Chat] Gemini error details:', {
+              message: geminiError.message,
+              status: geminiError.status,
+              code: geminiError.code
+            });
+            reply = getTemplateResponse(message, context);
+          }
         }
       } catch (aiError) {
         console.error('AI error, using template fallback:', aiError);
@@ -465,40 +472,44 @@ export async function POST(req: Request) {
       type: error.constructor.name
     });
     
-    // Handle OpenAI API errors
-    if (error instanceof OpenAI.APIError) {
-      console.error('OpenAI API error:', error.status, error.message, error.code);
+    // Handle AI API errors (works for both OpenAI and Gemini)
+    const errorStatus = (error as any)?.status || (error as any)?.response?.status;
+    const errorCode = (error as any)?.code;
+    const errorMessage = error.message || String(error);
+    
+    if (errorStatus || errorCode) {
+      console.error('AI API error:', errorStatus, errorMessage, errorCode);
       let userMessage = 'Error from AI service. Please try again.';
       
-      if (error.status === 401) {
-        userMessage = 'API authentication failed. Please check your OpenAI API key configuration.';
-      } else if (error.status === 402 || error.status === 403) {
-        // Payment or billing issues
-        if (error.message?.toLowerCase().includes('payment') || error.message?.toLowerCase().includes('billing') || error.message?.toLowerCase().includes('insufficient')) {
-          userMessage = 'OpenAI API requires a valid payment method and credits. Please add a payment method to your OpenAI account at https://platform.openai.com/account/billing';
+      if (errorStatus === 401) {
+        userMessage = 'API authentication failed. Please check your API key configuration.';
+      } else if (errorStatus === 402 || errorStatus === 403) {
+        // Payment or billing issues (mainly for OpenAI)
+        if (errorMessage?.toLowerCase().includes('payment') || errorMessage?.toLowerCase().includes('billing') || errorMessage?.toLowerCase().includes('insufficient')) {
+          userMessage = 'API requires a valid payment method. For free AI, use GEMINI_API_KEY instead of OPENAI_API_KEY.';
         } else {
-          userMessage = 'OpenAI API access denied. Please check your account billing and API key settings.';
+          userMessage = 'API access denied. Please check your account billing and API key settings.';
         }
-      } else if (error.status === 429) {
-        // Extract retry-after header if available
-        const retryAfter = error.headers?.['retry-after'] || error.headers?.['x-ratelimit-reset'];
+      } else if (errorStatus === 429 || errorCode === 'rate_limit_exceeded') {
+        // Rate limit errors
+        const retryAfter = (error as any)?.headers?.['retry-after'] || (error as any)?.headers?.['x-ratelimit-reset'];
         if (retryAfter) {
           const waitTime = parseInt(retryAfter);
           userMessage = `Rate limit exceeded. Please wait ${waitTime} seconds before trying again.`;
         } else {
-          userMessage = 'Rate limit exceeded. Please wait a moment and try again. The system will automatically retry.';
+          userMessage = 'Rate limit exceeded. Please wait a moment and try again.';
         }
-      } else if (error.status === 500 || error.status === 503) {
+      } else if (errorStatus === 500 || errorStatus === 503) {
         userMessage = 'AI service is temporarily unavailable. Please try again later.';
       }
       
       return NextResponse.json(
         { 
           error: userMessage, 
-          details: error.message,
-          status: error.status 
+          details: errorMessage,
+          status: errorStatus 
         },
-        { status: error.status || 500 }
+        { status: errorStatus || 500 }
       );
     }
 

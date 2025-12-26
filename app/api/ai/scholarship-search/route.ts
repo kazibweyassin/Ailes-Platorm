@@ -1,23 +1,21 @@
 import { NextResponse } from 'next/server';
-import OpenAI from 'openai';
-
-// Support both OPENAI_API_KEY and OPENAI_KEY
-const apiKey = process.env.OPENAI_API_KEY || process.env.OPENAI_KEY;
-const openai = apiKey ? new OpenAI({ apiKey }) : null;
+import { getAIClient, generateAIResponse } from '@/lib/ai-client';
 
 export async function POST(request: Request) {
   try {
     const { nationality, degreeLevel, fieldOfStudy, destination, fundingType } = await request.json();
 
-    if (!apiKey || !openai) {
+    const aiClient = getAIClient();
+    if (!aiClient) {
       return NextResponse.json(
-        { error: 'OpenAI API key not configured' },
+        { error: 'AI API key not configured. Please set OPENAI_API_KEY or GEMINI_API_KEY in your environment variables.' },
         { status: 500 }
       );
     }
 
-    // Create a prompt for the AI
-    const prompt = `You are an expert scholarship advisor. Provide a detailed response to the following scholarship search query:
+    // Create prompts for the AI
+    const systemPrompt = "You are a helpful scholarship advisor that provides accurate and personalized scholarship recommendations. Format your responses in clean markdown with proper headings and lists.";
+    const userPrompt = `You are an expert scholarship advisor. Provide a detailed response to the following scholarship search query:
 
 Student Profile:
 - Nationality: ${nationality || 'Not specified'}
@@ -34,23 +32,10 @@ Please provide:
 
 Format the response in clean, readable markdown.`;
 
-    const response = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: "You are a helpful scholarship advisor that provides accurate and personalized scholarship recommendations. Format your responses in clean markdown with proper headings and lists."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
+    const content = await generateAIResponse(systemPrompt, userPrompt, {
       temperature: 0.7,
-      max_tokens: 1500,
+      maxTokens: 1500,
     });
-
-    const content = response.choices[0]?.message?.content || 'Sorry, I could not generate a response at this time.';
 
     return NextResponse.json({ 
       response: content

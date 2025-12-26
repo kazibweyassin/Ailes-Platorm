@@ -1,22 +1,21 @@
-import OpenAI from 'openai';
-
-// Support both OPENAI_API_KEY and OPENAI_KEY
-const apiKey = process.env.OPENAI_API_KEY || process.env.OPENAI_KEY;
-const openai = apiKey ? new OpenAI({ apiKey }) : null;
+import { getAIClient, generateAIResponse } from './ai-client';
 
 /**
  * Generate application documents (motivation letter, CV, etc.) for a Copilot request.
  * Uses AI to create personalized, high-quality application materials.
  */
 export async function generateDocuments(finderData: any, mapping: any): Promise<any> {
-  if (!apiKey || !openai) {
+  const aiClient = getAIClient();
+  
+  if (!aiClient) {
     // Fallback to basic template if no API key
     return generateBasicDocuments(finderData, mapping);
   }
 
   try {
     // Generate personalized motivation letter using AI
-    const motivationLetterPrompt = `Write a compelling scholarship motivation letter for a student with the following profile:
+    const systemPrompt = "You are an expert scholarship application writer. Write compelling, authentic, and personalized motivation letters that help students win scholarships.";
+    const userPrompt = `Write a compelling scholarship motivation letter for a student with the following profile:
 - Name: ${finderData.name || finderData.paymentName || "Student"}
 - Nationality: ${finderData.nationality || "Not specified"}
 - Field of Study: ${finderData.fieldOfStudy || "Not specified"}
@@ -36,23 +35,10 @@ Write a professional, persuasive motivation letter (500-700 words) that:
 
 Format as a formal letter with proper greeting and closing.`;
 
-    const motivationResponse = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content: "You are an expert scholarship application writer. Write compelling, authentic, and personalized motivation letters that help students win scholarships."
-        },
-        {
-          role: "user",
-          content: motivationLetterPrompt
-        }
-      ],
+    const motivationLetter = await generateAIResponse(systemPrompt, userPrompt, {
       temperature: 0.7,
-      max_tokens: 1500,
-    });
-
-    const motivationLetter = motivationResponse.choices[0]?.message?.content || generateBasicMotivationLetter(finderData);
+      maxTokens: 1500,
+    }).catch(() => generateBasicMotivationLetter(finderData));
 
     // Generate filled form preview
     const filledFormPreview = mapping?.map((m: any) => {

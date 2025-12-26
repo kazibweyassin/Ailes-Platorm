@@ -71,8 +71,11 @@ export default function DashboardPage() {
   // Redirect to signin if not authenticated
   useEffect(() => {
     if (status === "loading") return; // Wait for session check
+    
+    // Only redirect if we're definitely unauthenticated (not just loading)
     if (status === "unauthenticated") {
-      router.push('/auth/signin?callbackUrl=/dashboard');
+      const currentPath = window.location.pathname;
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(currentPath)}`);
     }
   }, [status, router]);
 

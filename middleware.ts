@@ -20,6 +20,11 @@ const adminRoutes = [
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   
+  // Skip middleware for auth routes and API auth routes
+  if (pathname.startsWith("/auth") || pathname.startsWith("/api/auth")) {
+    return NextResponse.next()
+  }
+  
   // Check if route is protected
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
   const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))

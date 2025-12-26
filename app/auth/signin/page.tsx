@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,13 +36,30 @@ function SignInForm() {
 
       if (result?.error) {
         setError(result.error === "CredentialsSignin" ? "Invalid email or password" : result.error);
-      } else {
-        // Force a hard navigation to ensure session is loaded
-        window.location.href = callbackUrl;
+        setLoading(false);
+        return;
+      }
+
+      // If successful, refresh session and redirect
+      if (result?.ok) {
+        // Wait a moment for the session cookie to be set
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        // Refresh the session to ensure it's available
+        const session = await getSession();
+        
+        if (session) {
+          // Use router.push for client-side navigation (preserves session)
+          router.push(callbackUrl);
+          router.refresh(); // Refresh the router to ensure latest data
+        } else {
+          // If session still not available, use hard redirect as fallback
+          window.location.href = callbackUrl;
+        }
       }
     } catch (err: any) {
+      console.error("Sign-in error:", err);
       setError("An unexpected error occurred. Please try again.");
-    } finally {
       setLoading(false);
     }
   };

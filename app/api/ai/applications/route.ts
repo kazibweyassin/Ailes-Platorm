@@ -1,23 +1,17 @@
 import { NextResponse } from 'next/server';
-import OpenAI from 'openai';
-
-// Support both OPENAI_API_KEY and OPENAI_KEY
-const apiKey = process.env.OPENAI_API_KEY || process.env.OPENAI_KEY;
-const openai = apiKey ? new OpenAI({ apiKey }) : null;
+import { getAIClient, generateAIResponse, AIClient } from '@/lib/ai-client';
 
 export async function POST(request: Request) {
   try {
     const { action, application, message } = await request.json();
 
-  if (!apiKey || !openai) {
+  const aiClient = getAIClient();
+  if (!aiClient) {
     return NextResponse.json(
-      { error: 'OpenAI API key not configured' },
+      { error: 'AI API key not configured. Please set OPENAI_API_KEY or GEMINI_API_KEY in your environment variables.' },
       { status: 500 }
     );
   }
-
-  // TypeScript guard: openai is not null here
-  const client = openai;
 
   switch (action) {
     case 'generate_essay':
@@ -47,83 +41,46 @@ export async function POST(request: Request) {
 }
 
 async function generateEssay(application: any, prompt: string) {
-  if (!openai) {
-    throw new Error('OpenAI client not initialized');
-  }
+  const systemPrompt = `You are a scholarship essay writing assistant. Help the student write a compelling essay for their ${application.scholarshipName} application.`;
+  const userPrompt = prompt || "Please help me write a strong personal statement for this scholarship.";
   
-  const response = await openai.chat.completions.create({
-    model: process.env.OPENAI_MODEL || "gpt-4o-mini",
-    messages: [
-      {
-        role: "system",
-        content: `You are a scholarship essay writing assistant. Help the student write a compelling essay for their ${application.scholarshipName} application.`
-      },
-      {
-        role: "user",
-        content: prompt || "Please help me write a strong personal statement for this scholarship."
-      }
-    ],
+  const content = await generateAIResponse(systemPrompt, userPrompt, {
     temperature: 0.7,
-    max_tokens: 1500,
+    maxTokens: 1500,
   });
 
   return NextResponse.json({
-    content: response.choices[0]?.message?.content || "I couldn't generate an essay at this time.",
+    content: content || "I couldn't generate an essay at this time.",
     type: 'essay_generated'
   });
 }
 
 async function reviewEssay(application: any, essay: string) {
-  if (!openai) {
-    throw new Error('OpenAI client not initialized');
-  }
+  const systemPrompt = `You are a scholarship essay reviewer. Provide detailed feedback on this essay for the ${application.scholarshipName} application. Focus on content, structure, grammar, and alignment with scholarship requirements.`;
+  const userPrompt = `Please review this essay and provide feedback:\n\n${essay}`;
   
-  const response = await openai.chat.completions.create({
-    model: process.env.OPENAI_MODEL || "gpt-4o-mini",
-    messages: [
-      {
-        role: "system",
-        content: `You are a scholarship essay reviewer. Provide detailed feedback on this essay for the ${application.scholarshipName} application. Focus on content, structure, grammar, and alignment with scholarship requirements.`
-      },
-      {
-        role: "user",
-        content: `Please review this essay and provide feedback:\n\n${essay}`
-      }
-    ],
+  const feedback = await generateAIResponse(systemPrompt, userPrompt, {
     temperature: 0.5,
-    max_tokens: 1500,
+    maxTokens: 1500,
   });
 
   return NextResponse.json({
-    feedback: response.choices[0]?.message?.content || "I couldn't provide feedback at this time.",
+    feedback: feedback || "I couldn't provide feedback at this time.",
     type: 'essay_reviewed'
   });
 }
 
 async function checkRequirements(application: any) {
-  if (!openai) {
-    throw new Error('OpenAI client not initialized');
-  }
+  const systemPrompt = `Analyze the scholarship requirements and the student's application to identify any missing or incomplete items.`;
+  const userPrompt = `Scholarship: ${application.scholarshipName}\n\nApplication details: ${JSON.stringify(application, null, 2)}`;
   
-  // In a real implementation, this would check against actual scholarship requirements
-  const response = await openai.chat.completions.create({
-    model: process.env.OPENAI_MODEL || "gpt-4o-mini",
-    messages: [
-      {
-        role: "system",
-        content: `Analyze the scholarship requirements and the student's application to identify any missing or incomplete items.`
-      },
-      {
-        role: "user",
-        content: `Scholarship: ${application.scholarshipName}\n\nApplication details: ${JSON.stringify(application, null, 2)}`
-      }
-    ],
+  const requirements = await generateAIResponse(systemPrompt, userPrompt, {
     temperature: 0.3,
-    max_tokens: 1000,
+    maxTokens: 1000,
   });
 
   return NextResponse.json({
-    requirements: response.choices[0]?.message?.content || "Unable to verify requirements at this time.",
+    requirements: requirements || "Unable to verify requirements at this time.",
     type: 'requirements_checked'
   });
 }
