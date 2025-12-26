@@ -1,26 +1,27 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-const RATE_LIMIT = 10; // max 10 requests per 10 min per IP
-const WINDOW_MS = 10 * 60 * 1000;
-const ipHits: Record<string, { count: number; first: number }> = {};
+// Rate limiting disabled for testing
+// const RATE_LIMIT = 10; // max 10 requests per 10 min per IP
+// const WINDOW_MS = 10 * 60 * 1000;
+// const ipHits: Record<string, { count: number; first: number }> = {};
 
 // POST /api/copilot/requests - Create a new Copilot request
 export async function POST(req: Request) {
   try {
     const session = await auth();
     
-    // Rate limiting by IP
+    // Rate limiting disabled for testing
     const ip = req.headers.get("x-forwarded-for") || "unknown";
-    const now = Date.now();
-    if (!ipHits[ip] || now - ipHits[ip].first > WINDOW_MS) {
-      ipHits[ip] = { count: 1, first: now };
-    } else {
-      ipHits[ip].count++;
-      if (ipHits[ip].count > RATE_LIMIT) {
-        return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
-      }
-    }
+    // const now = Date.now();
+    // if (!ipHits[ip] || now - ipHits[ip].first > WINDOW_MS) {
+    //   ipHits[ip] = { count: 1, first: now };
+    // } else {
+    //   ipHits[ip].count++;
+    //   if (ipHits[ip].count > RATE_LIMIT) {
+    //     return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+    //   }
+    // }
 
     const data = await req.json();
     

@@ -55,15 +55,15 @@ function AIDemoWidget() {
     e.preventDefault();
     if (!demoInput.trim() || isLoading) return;
 
-    // Light rate limiting: only prevent if requests are extremely close together
-    const now = Date.now();
-    const timeSinceLastRequest = now - lastRequestTimeRef.current;
-    const minDelay = 500; // 500ms minimum - very lenient for demo
-    
-    if (timeSinceLastRequest < minDelay) {
-      // Just wait silently instead of blocking
-      await new Promise(resolve => setTimeout(resolve, minDelay - timeSinceLastRequest));
-    }
+    // Rate limiting disabled for testing
+    // const now = Date.now();
+    // const timeSinceLastRequest = now - lastRequestTimeRef.current;
+    // const minDelay = 500; // 500ms minimum - very lenient for demo
+    // 
+    // if (timeSinceLastRequest < minDelay) {
+    //   // Just wait silently instead of blocking
+    //   await new Promise(resolve => setTimeout(resolve, minDelay - timeSinceLastRequest));
+    // }
 
     lastRequestTimeRef.current = Date.now();
 

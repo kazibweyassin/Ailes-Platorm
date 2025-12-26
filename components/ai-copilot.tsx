@@ -194,15 +194,15 @@ export default function AICopilot() {
     // Handle empty input unless it's a command
     if ((!input.trim() && !input.startsWith('/')) || isProcessing) return;
 
-    // Light rate limiting: only prevent if requests are extremely close together (500ms)
-    const now = Date.now();
-    const timeSinceLastRequest = now - lastRequestTimeRef.current;
-    const minDelay = 500; // 500ms minimum - very lenient
-    
-    if (timeSinceLastRequest < minDelay) {
-      // Just wait silently instead of blocking
-      await new Promise(resolve => setTimeout(resolve, minDelay - timeSinceLastRequest));
-    }
+    // Rate limiting disabled for testing
+    // const now = Date.now();
+    // const timeSinceLastRequest = now - lastRequestTimeRef.current;
+    // const minDelay = 500; // 500ms minimum - very lenient
+    // 
+    // if (timeSinceLastRequest < minDelay) {
+    //   // Just wait silently instead of blocking
+    //   await new Promise(resolve => setTimeout(resolve, minDelay - timeSinceLastRequest));
+    // }
 
     // Only enforce cooldown if we've actually hit a rate limit (not preemptively)
     // Removed preemptive cooldown check
