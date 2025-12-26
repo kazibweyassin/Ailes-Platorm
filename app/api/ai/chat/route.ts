@@ -389,7 +389,14 @@ export async function POST(req: Request) {
       let userMessage = 'Error from AI service. Please try again.';
       
       if (error.status === 401) {
-        userMessage = 'API authentication failed. Please contact support.';
+        userMessage = 'API authentication failed. Please check your OpenAI API key configuration.';
+      } else if (error.status === 402 || error.status === 403) {
+        // Payment or billing issues
+        if (error.message?.toLowerCase().includes('payment') || error.message?.toLowerCase().includes('billing') || error.message?.toLowerCase().includes('insufficient')) {
+          userMessage = 'OpenAI API requires a valid payment method and credits. Please add a payment method to your OpenAI account at https://platform.openai.com/account/billing';
+        } else {
+          userMessage = 'OpenAI API access denied. Please check your account billing and API key settings.';
+        }
       } else if (error.status === 429) {
         // Extract retry-after header if available
         const retryAfter = error.headers?.['retry-after'] || error.headers?.['x-ratelimit-reset'];
