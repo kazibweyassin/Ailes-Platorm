@@ -20,6 +20,7 @@ export const {
   signIn,
   signOut,
 } = NextAuth({
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET, // Explicitly set secret
   trustHost: true, // Trust the host header (important for development)
   adapter: PrismaAdapter(prisma),
   session: {

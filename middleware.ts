@@ -76,10 +76,40 @@ export async function middleware(request: NextRequest) {
     console.error('Middleware: AUTH_SECRET or NEXTAUTH_SECRET is not set!')
   }
   
-  const token = await getToken({ 
+  // Try to get token - NextAuth v5 should auto-detect cookie name
+  // But we can also try explicitly specifying it if auto-detection fails
+  let token = await getToken({ 
     req: request,
     secret: authSecret
   })
+  
+  // If token is null but cookie exists, try with explicit cookie name (NextAuth v5 fallback)
+  if (!token) {
+    const sessionCookie = request.cookies.get('__Secure-authjs.session-token') || 
+                          request.cookies.get('authjs.session-token')
+    if (sessionCookie) {
+      // Try again with explicit cookie name (some NextAuth v5 versions need this)
+      try {
+        token = await getToken({ 
+          req: request,
+          secret: authSecret,
+          cookieName: '__Secure-authjs.session-token'
+        })
+      } catch (e) {
+        // If that fails, try without Secure prefix
+        try {
+          token = await getToken({ 
+            req: request,
+            secret: authSecret,
+            cookieName: 'authjs.session-token'
+          })
+        } catch (e2) {
+          // Last resort - use default name
+          console.error('Failed to get token with any cookie name:', e2)
+        }
+      }
+    }
+  }
   
   // Enhanced debug logging (always log if token not found, helps diagnose production issues)
   if (!token) {
