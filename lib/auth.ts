@@ -14,14 +14,25 @@ declare module "next-auth" {
   }
 }
 
+// Validate required environment variables
+const authSecret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
+if (!authSecret) {
+  console.error('⚠️  AUTH_SECRET or NEXTAUTH_SECRET is not set!');
+  console.error('   This will cause "Configuration" errors in NextAuth.');
+  console.error('   Please set AUTH_SECRET or NEXTAUTH_SECRET in your environment variables.');
+}
+
 export const {
   handlers: { GET, POST },
   auth,
   signIn,
   signOut,
 } = NextAuth({
-  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET, // Explicitly set secret
-  trustHost: true, // Trust the host header (important for development)
+  // Required: Secret for encrypting tokens
+  secret: authSecret,
+  // Required: Base URL for callbacks
+  basePath: "/api/auth",
+  trustHost: true, // Trust the host header (important for development and production)
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
