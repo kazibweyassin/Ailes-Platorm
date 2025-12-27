@@ -197,12 +197,22 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="ml-3 text-gray-600">Checking authentication...</p>
       </div>
     );
   }
 
+  // If unauthenticated, the useEffect will handle redirect
+  // But show a message while redirecting
   if (status === "unauthenticated") {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-gray-600">Redirecting to sign in...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

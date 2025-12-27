@@ -59,39 +59,13 @@ function SignInForm() {
 
       // If successful, refresh session and redirect
       if (result?.ok) {
-        // Wait a moment for the session cookie to be set
-        await new Promise(resolve => setTimeout(resolve, 300));
+        // Force a hard page reload to ensure session cookie is properly set
+        // This ensures both client and server see the same session state
+        const safeUrl = callbackUrl.startsWith("/") ? callbackUrl : "/dashboard";
         
-        // Refresh the session to ensure it's available
-        const session = await getSession();
-        
-        if (session) {
-          // Ensure callbackUrl is valid before redirecting
-          const safeUrl = callbackUrl.startsWith("/") ? callbackUrl : "/dashboard";
-          
-          try {
-            // Use router.push for client-side navigation (preserves session)
-            router.push(safeUrl);
-            router.refresh(); // Refresh the router to ensure latest data
-          } catch (redirectError) {
-            console.error("Redirect error:", redirectError);
-            // Fallback to hard redirect
-            window.location.href = safeUrl;
-          }
-        } else {
-          // If session still not available, wait a bit more and try again
-          await new Promise(resolve => setTimeout(resolve, 500));
-          const retrySession = await getSession();
-          
-          if (retrySession) {
-            const safeUrl = callbackUrl.startsWith("/") ? callbackUrl : "/dashboard";
-            router.push(safeUrl);
-          } else {
-            // Last resort: hard redirect
-            const safeUrl = callbackUrl.startsWith("/") ? callbackUrl : "/dashboard";
-            window.location.href = safeUrl;
-          }
-        }
+        // Use window.location for a full page reload to sync session state
+        // This ensures the session cookie is read by both client and middleware
+        window.location.href = safeUrl;
       }
     } catch (err: any) {
       console.error("Sign-in error:", err);
