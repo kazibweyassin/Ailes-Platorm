@@ -136,10 +136,10 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
         setScholarship(null);
       } finally {
         setLoading(false);
-        console.log('Loading set to false, scholarship:', scholarship ? scholarship.name : 'null');
       }
     }
     fetchScholarship();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const handleSave = async () => {

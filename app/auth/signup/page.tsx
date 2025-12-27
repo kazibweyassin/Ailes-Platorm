@@ -11,14 +11,18 @@ import { User, Mail, Lock, Phone, Globe, AlertCircle, Loader2, CheckCircle2 } fr
 import { z } from "zod";
 
 // Client-side validation schema (matches server-side)
-const signUpSchema = z.object({
+// Base schema without refine for field-level validation
+const signUpBaseSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").trim(),
   email: z.string().email("Invalid email address").trim().toLowerCase(),
   password: z.string().min(6, "Password must be at least 6 characters"),
   confirmPassword: z.string(),
   phone: z.string().optional(),
   country: z.string().optional(),
-}).refine((data) => data.password === data.confirmPassword, {
+});
+
+// Full schema with password match validation
+const signUpSchema = signUpBaseSchema.refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
 });
@@ -60,13 +64,13 @@ export default function SignUpPage() {
   // Validate single field
   const validateField = (name: keyof typeof formData, value: string) => {
     try {
-      // Create a partial schema for the field being validated
+      // Use base schema for individual field validation (without refine)
       if (name === "name") {
-        signUpSchema.shape.name.parse(value);
+        signUpBaseSchema.shape.name.parse(value);
       } else if (name === "email") {
-        signUpSchema.shape.email.parse(value);
+        signUpBaseSchema.shape.email.parse(value);
       } else if (name === "password") {
-        signUpSchema.shape.password.parse(value);
+        signUpBaseSchema.shape.password.parse(value);
         // Also validate confirmPassword if it exists
         if (formData.confirmPassword) {
           signUpSchema.parse({ ...formData, password: value, confirmPassword: formData.confirmPassword });
