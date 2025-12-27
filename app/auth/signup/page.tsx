@@ -8,6 +8,30 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Mail, Lock, Phone, Globe, AlertCircle, Loader2, CheckCircle2 } from "lucide-react";
+import { z } from "zod";
+
+// Client-side validation schema (matches server-side)
+const signUpSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters").trim(),
+  email: z.string().email("Invalid email address").trim().toLowerCase(),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string(),
+  phone: z.string().optional(),
+  country: z.string().optional(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
+
+type FormErrors = {
+  name?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+  phone?: string;
+  country?: string;
+  _form?: string; // For general form errors
+};
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -19,9 +43,10 @@ export default function SignUpPage() {
     phone: "",
     country: "",
   });
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const checkPasswordStrength = (password: string) => {
     let strength = 0;
@@ -32,50 +57,181 @@ export default function SignUpPage() {
     setPasswordStrength(strength);
   };
 
+  // Validate single field
+  const validateField = (name: keyof typeof formData, value: string) => {
+    try {
+      // Create a partial schema for the field being validated
+      if (name === "name") {
+        signUpSchema.shape.name.parse(value);
+      } else if (name === "email") {
+        signUpSchema.shape.email.parse(value);
+      } else if (name === "password") {
+        signUpSchema.shape.password.parse(value);
+        // Also validate confirmPassword if it exists
+        if (formData.confirmPassword) {
+          signUpSchema.parse({ ...formData, password: value, confirmPassword: formData.confirmPassword });
+        }
+      } else if (name === "confirmPassword") {
+        signUpSchema.parse({ ...formData, confirmPassword: value });
+      }
+      // Clear error for this field
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[name];
+        return newErrors;
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const fieldError = error.errors.find((e) => e.path.includes(name));
+        if (fieldError) {
+          setErrors((prev) => ({
+            ...prev,
+            [name]: fieldError.message,
+          }));
+        }
+      }
+    }
+  };
+
+  // Validate entire form
+  const validateForm = (): boolean => {
+    try {
+      signUpSchema.parse(formData);
+      setErrors({});
+      return true;
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const newErrors: FormErrors = {};
+        error.errors.forEach((err) => {
+          const path = err.path[0] as keyof FormErrors;
+          if (path) {
+            newErrors[path] = err.message;
+          }
+        });
+        setErrors(newErrors);
+      }
+      return false;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setErrors({});
+    
+    // Mark all fields as touched
+    setTouched({
+      name: true,
+      email: true,
+      password: true,
+      confirmPassword: true,
+      phone: true,
+      country: true,
+    });
 
-    // Validation
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters");
+    // Validate form
+    if (!validateForm()) {
       return;
     }
 
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          phone: formData.phone,
-          country: formData.country,
-        }),
-      });
+      // Add timeout to fetch request
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-      const data = await res.json();
+      let res: Response;
+      try {
+        res = await fetch("/api/auth/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+            phone: formData.phone,
+            country: formData.country,
+          }),
+          signal: controller.signal,
+        });
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+        
+        // Handle network errors
+        if (fetchError.name === 'AbortError') {
+          throw new Error("Request timed out. Please check your connection and try again.");
+        }
+        if (fetchError.message?.includes('Failed to fetch') || fetchError.message?.includes('NetworkError')) {
+          throw new Error("Network error. Please check your internet connection and try again.");
+        }
+        throw new Error("Failed to connect to server. Please try again later.");
+      }
+      clearTimeout(timeoutId);
+
+      // Check if response is JSON before parsing
+      const contentType = res.headers.get("content-type");
+      let data: any;
+      
+      if (contentType && contentType.includes("application/json")) {
+        try {
+          data = await res.json();
+        } catch (jsonError) {
+          throw new Error("Invalid response from server. Please try again.");
+        }
+      } else {
+        // Server returned non-JSON (HTML error page, etc.)
+        const text = await res.text();
+        console.error('Non-JSON response:', text.substring(0, 200));
+        throw new Error(`Server error (${res.status}). Please try again later.`);
+      }
 
       if (!res.ok) {
         console.error('Signup error response:', data);
-        const errorMsg = data.details 
-          ? `${data.error}: ${JSON.stringify(data.details)}` 
-          : data.error || "Failed to create account";
-        throw new Error(errorMsg);
+        
+        // Map server-side Zod errors to form fields
+        if (data.details && Array.isArray(data.details)) {
+          const fieldErrors: FormErrors = {};
+          data.details.forEach((detail: any) => {
+            const field = detail.path?.[0] as keyof FormErrors;
+            if (field && field !== "_form") {
+              fieldErrors[field] = detail.message || `${field} is invalid`;
+            }
+          });
+          
+          if (Object.keys(fieldErrors).length > 0) {
+            setErrors(fieldErrors);
+            setLoading(false);
+            return;
+          }
+        }
+        
+        // General error
+        const errorMsg = data.error || "Failed to create account";
+        setErrors({ _form: errorMsg });
+        setLoading(false);
+        return;
       }
 
-      // Auto sign in after signup
-      router.push("/auth/signin?registered=true");
+      // Show success message briefly before redirect
+      setErrors({}); // Clear any previous errors
+      
+      // Auto sign in after signup with error handling
+      try {
+        await router.push("/auth/signin?registered=true");
+      } catch (redirectError) {
+        // If redirect fails, show success message and manual link
+        console.error('Redirect error:', redirectError);
+        setErrors({ _form: "Account created successfully! Please sign in manually." });
+        // Still allow user to navigate manually
+        setTimeout(() => {
+          window.location.href = "/auth/signin?registered=true";
+        }, 2000);
+      }
     } catch (err: any) {
-      setError(err.message);
+      // Provide user-friendly error messages
+      const errorMessage = err.message || "An unexpected error occurred. Please try again.";
+      setErrors({ _form: errorMessage });
+      console.error('Signup error:', err);
     } finally {
       setLoading(false);
     }
@@ -117,11 +273,11 @@ export default function SignUpPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Error Message */}
-              {error && (
+              {/* General Error Message */}
+              {errors._form && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
                   <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-red-600">{error}</p>
+                  <p className="text-sm text-red-600">{errors._form}</p>
                 </div>
               )}
 
@@ -136,14 +292,27 @@ export default function SignUpPage() {
                     id="name"
                     type="text"
                     placeholder="John Doe"
-                    className="pl-10"
+                    className={`pl-10 ${errors.name ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""}`}
                     value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setFormData({ ...formData, name: e.target.value });
+                      if (touched.name) {
+                        validateField("name", e.target.value);
+                      }
+                    }}
+                    onBlur={() => {
+                      setTouched((prev) => ({ ...prev, name: true }));
+                      validateField("name", formData.name);
+                    }}
                     required
                   />
                 </div>
+                {errors.name && touched.name && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="h-4 w-4" />
+                    {errors.name}
+                  </p>
+                )}
               </div>
 
               {/* Email Field */}
@@ -157,14 +326,27 @@ export default function SignUpPage() {
                     id="email"
                     type="email"
                     placeholder="you@example.com"
-                    className="pl-10"
+                    className={`pl-10 ${errors.email ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""}`}
                     value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setFormData({ ...formData, email: e.target.value });
+                      if (touched.email) {
+                        validateField("email", e.target.value);
+                      }
+                    }}
+                    onBlur={() => {
+                      setTouched((prev) => ({ ...prev, email: true }));
+                      validateField("email", formData.email);
+                    }}
                     required
                   />
                 </div>
+                {errors.email && touched.email && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="h-4 w-4" />
+                    {errors.email}
+                  </p>
+                )}
               </div>
 
               {/* Password Field */}
@@ -178,15 +360,32 @@ export default function SignUpPage() {
                     id="password"
                     type="password"
                     placeholder="••••••••"
-                    className="pl-10"
+                    className={`pl-10 ${errors.password ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""}`}
                     value={formData.password}
                     onChange={(e) => {
                       setFormData({ ...formData, password: e.target.value });
                       checkPasswordStrength(e.target.value);
+                      if (touched.password) {
+                        validateField("password", e.target.value);
+                      }
+                      // Also re-validate confirmPassword if it's been touched
+                      if (touched.confirmPassword && formData.confirmPassword) {
+                        validateField("confirmPassword", formData.confirmPassword);
+                      }
+                    }}
+                    onBlur={() => {
+                      setTouched((prev) => ({ ...prev, password: true }));
+                      validateField("password", formData.password);
                     }}
                     required
                   />
                 </div>
+                {errors.password && touched.password && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="h-4 w-4" />
+                    {errors.password}
+                  </p>
+                )}
                 {formData.password && (
                   <div className="space-y-1">
                     <div className="flex gap-1">
@@ -221,18 +420,32 @@ export default function SignUpPage() {
                     id="confirmPassword"
                     type="password"
                     placeholder="••••••••"
-                    className="pl-10"
+                    className={`pl-10 ${errors.confirmPassword ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""}`}
                     value={formData.confirmPassword}
-                    onChange={(e) =>
-                      setFormData({ ...formData, confirmPassword: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setFormData({ ...formData, confirmPassword: e.target.value });
+                      if (touched.confirmPassword) {
+                        validateField("confirmPassword", e.target.value);
+                      }
+                    }}
+                    onBlur={() => {
+                      setTouched((prev) => ({ ...prev, confirmPassword: true }));
+                      validateField("confirmPassword", formData.confirmPassword);
+                    }}
                     required
                   />
                   {formData.confirmPassword &&
-                    formData.password === formData.confirmPassword && (
+                    formData.password === formData.confirmPassword &&
+                    !errors.confirmPassword && (
                       <CheckCircle2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-green-600" />
                     )}
                 </div>
+                {errors.confirmPassword && touched.confirmPassword && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="h-4 w-4" />
+                    {errors.confirmPassword}
+                  </p>
+                )}
               </div>
 
               {/* Phone Field (Optional) */}
@@ -246,13 +459,30 @@ export default function SignUpPage() {
                     id="phone"
                     type="tel"
                     placeholder="+254 700 000 000"
-                    className="pl-10"
+                    className={`pl-10 ${errors.phone ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""}`}
                     value={formData.phone}
-                    onChange={(e) =>
-                      setFormData({ ...formData, phone: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setFormData({ ...formData, phone: e.target.value });
+                      // Clear error when user types
+                      if (errors.phone) {
+                        setErrors((prev) => {
+                          const newErrors = { ...prev };
+                          delete newErrors.phone;
+                          return newErrors;
+                        });
+                      }
+                    }}
+                    onBlur={() => {
+                      setTouched((prev) => ({ ...prev, phone: true }));
+                    }}
                   />
                 </div>
+                {errors.phone && touched.phone && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="h-4 w-4" />
+                    {errors.phone}
+                  </p>
+                )}
               </div>
 
               {/* Country Field (Optional) */}
@@ -266,13 +496,30 @@ export default function SignUpPage() {
                     id="country"
                     type="text"
                     placeholder="Kenya"
-                    className="pl-10"
+                    className={`pl-10 ${errors.country ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""}`}
                     value={formData.country}
-                    onChange={(e) =>
-                      setFormData({ ...formData, country: e.target.value })
-                    }
+                    onChange={(e) => {
+                      setFormData({ ...formData, country: e.target.value });
+                      // Clear error when user types
+                      if (errors.country) {
+                        setErrors((prev) => {
+                          const newErrors = { ...prev };
+                          delete newErrors.country;
+                          return newErrors;
+                        });
+                      }
+                    }}
+                    onBlur={() => {
+                      setTouched((prev) => ({ ...prev, country: true }));
+                    }}
                   />
                 </div>
+                {errors.country && touched.country && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="h-4 w-4" />
+                    {errors.country}
+                  </p>
+                )}
               </div>
 
               {/* Terms and Conditions */}
