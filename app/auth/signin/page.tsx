@@ -12,7 +12,24 @@ import { Mail, Lock, AlertCircle, Loader2 } from "lucide-react";
 function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+  // Decode and validate callbackUrl
+  const rawCallbackUrl = searchParams.get("callbackUrl");
+  let callbackUrl = "/dashboard";
+  
+  if (rawCallbackUrl) {
+    try {
+      // Decode the URL if it's encoded
+      const decoded = decodeURIComponent(rawCallbackUrl);
+      // Validate it's a relative path (security)
+      if (decoded.startsWith("/") && !decoded.startsWith("//")) {
+        callbackUrl = decoded;
+      }
+    } catch (e) {
+      // If decoding fails, use default
+      console.error("Invalid callbackUrl:", rawCallbackUrl);
+    }
+  }
+  
   const registered = searchParams.get("registered");
 
   const [formData, setFormData] = useState({
@@ -43,24 +60,48 @@ function SignInForm() {
       // If successful, refresh session and redirect
       if (result?.ok) {
         // Wait a moment for the session cookie to be set
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 300));
         
         // Refresh the session to ensure it's available
         const session = await getSession();
         
         if (session) {
-          // Use router.push for client-side navigation (preserves session)
-          router.push(callbackUrl);
-          router.refresh(); // Refresh the router to ensure latest data
+          // Ensure callbackUrl is valid before redirecting
+          const safeUrl = callbackUrl.startsWith("/") ? callbackUrl : "/dashboard";
+          
+          try {
+            // Use router.push for client-side navigation (preserves session)
+            router.push(safeUrl);
+            router.refresh(); // Refresh the router to ensure latest data
+          } catch (redirectError) {
+            console.error("Redirect error:", redirectError);
+            // Fallback to hard redirect
+            window.location.href = safeUrl;
+          }
         } else {
-          // If session still not available, use hard redirect as fallback
-          window.location.href = callbackUrl;
+          // If session still not available, wait a bit more and try again
+          await new Promise(resolve => setTimeout(resolve, 500));
+          const retrySession = await getSession();
+          
+          if (retrySession) {
+            const safeUrl = callbackUrl.startsWith("/") ? callbackUrl : "/dashboard";
+            router.push(safeUrl);
+          } else {
+            // Last resort: hard redirect
+            const safeUrl = callbackUrl.startsWith("/") ? callbackUrl : "/dashboard";
+            window.location.href = safeUrl;
+          }
         }
       }
     } catch (err: any) {
       console.error("Sign-in error:", err);
       setError("An unexpected error occurred. Please try again.");
       setLoading(false);
+    } finally {
+      // Ensure loading is set to false even if something goes wrong
+      if (loading) {
+        setLoading(false);
+      }
     }
   };
 
