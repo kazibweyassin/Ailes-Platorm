@@ -4,6 +4,7 @@ import { Calendar, Clock, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { Metadata } from "next";
 import { generateSEO } from "@/lib/seo";
+import EmailCapturePopup from "@/components/email-capture-popup";
 
 export const metadata: Metadata = generateSEO({
   title: "Study Abroad Blog & Resources - Scholarship Tips & University Guides",
@@ -182,6 +183,7 @@ export default function BlogPage() {
           </Card>
         </div>
       </div>
+      <EmailCapturePopup />
     </div>
   );
 }

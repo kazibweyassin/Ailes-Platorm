@@ -13,6 +13,15 @@ const nextConfig = {
   async rewrites() {
     return [];
   },
+  // Optimize build to reduce memory usage
+  swcMinify: true,
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+  // Reduce memory usage during build
+  experimental: {
+    optimizeCss: false, // Disable CSS optimization to save memory
+  },
 };
 
 module.exports = nextConfig;

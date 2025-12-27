@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
+    "build:safe": "node --max-old-space-size=4096 node_modules/.bin/next build",
+    "build:prisma": "prisma generate",
+    "build:next": "next build",
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate",

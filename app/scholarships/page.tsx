@@ -29,6 +29,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import EmailCapturePopup from "@/components/email-capture-popup";
 
 export default function ScholarshipsPage() {
   const [scholarships, setScholarships] = useState<any[]>([]);
@@ -606,6 +607,7 @@ export default function ScholarshipsPage() {
           </Link>
         </div>
       </section>
+      <EmailCapturePopup />
     </div>
   );
 }

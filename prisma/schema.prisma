@@ -511,3 +511,13 @@ enum IntakeStatus {
   COMPLETED
   ARCHIVED
 }
+
+model EmailCapture {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  source    String?  // scroll-trigger-popup, newsletter, etc.
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("email_captures")
+}
