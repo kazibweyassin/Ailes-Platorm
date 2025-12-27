@@ -68,11 +68,49 @@ export async function middleware(request: NextRequest) {
   }
 
   // Get session token
+  // NextAuth v5 automatically detects cookie names (__Secure-authjs.session-token in production)
+  // The secret must match what NextAuth is using
+  const authSecret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET
+  
+  if (!authSecret) {
+    console.error('Middleware: AUTH_SECRET or NEXTAUTH_SECRET is not set!')
+  }
+  
   const token = await getToken({ 
     req: request,
-    secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET 
+    secret: authSecret
   })
-
+  
+  // Enhanced debug logging (always log if token not found, helps diagnose production issues)
+  if (!token) {
+    const cookieNames = request.cookies.getAll().map(c => c.name)
+    const sessionCookie = request.cookies.get('__Secure-authjs.session-token') || 
+                          request.cookies.get('authjs.session-token') ||
+                          request.cookies.get('next-auth.session-token')
+    
+    console.log('🔴 Middleware: No token found')
+    console.log('📋 Available cookies:', cookieNames)
+    console.log('🍪 Session cookie exists:', !!sessionCookie)
+    console.log('🌐 Request URL:', request.url)
+    console.log('🏠 Request host:', request.headers.get('host'))
+    console.log('🔑 Secret set:', !!authSecret)
+    
+    // If cookie exists but token is null, it's likely a secret mismatch
+    if (sessionCookie) {
+      console.error('⚠️  Session cookie exists but getToken() returned null!')
+      console.error('   This usually means:')
+      console.error('   1. AUTH_SECRET mismatch - encryption/decryption secret doesn\'t match')
+      console.error('   2. Cookie is corrupted or expired')
+      console.error('   3. Cookie domain/path mismatch')
+    } else {
+      console.error('⚠️  No session cookie found in request!')
+      console.error('   This usually means:')
+      console.error('   1. Cookie domain mismatch (www vs non-www)')
+      console.error('   2. Cookie path mismatch')
+      console.error('   3. Cookie was not set properly')
+    }
+  }
+  
   // Redirect to signin if not authenticated
   if (!token) {
     const signInUrl = new URL("/auth/signin", request.url)
