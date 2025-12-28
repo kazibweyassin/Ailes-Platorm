@@ -18,6 +18,12 @@ import {
   AlertCircle,
   Loader2,
   Users,
+  ChevronDown,
+  ChevronUp,
+  DollarSign,
+  Award,
+  Briefcase,
+  Globe,
 } from "lucide-react";
 
 export default function AdminScholarsPage() {
@@ -27,6 +33,7 @@ export default function AdminScholarsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [expandedScholar, setExpandedScholar] = useState<string | null>(null);
 
   useEffect(() => {
     async function checkAuth() {
@@ -310,9 +317,125 @@ export default function AdminScholarsPage() {
 
                   {scholar.personalStory && (
                     <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 mb-4">
-                      <strong>Story:</strong> {scholar.personalStory.substring(0, 200)}...
+                      <strong>Story:</strong> {expandedScholar === scholar.id ? scholar.personalStory : `${scholar.personalStory.substring(0, 200)}...`}
                     </div>
                   )}
+
+                  {/* Expandable Full Details */}
+                  <div className="mb-4">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setExpandedScholar(expandedScholar === scholar.id ? null : scholar.id)}
+                      className="w-full justify-between"
+                    >
+                      <span>{expandedScholar === scholar.id ? 'Hide' : 'Show'} Full Details</span>
+                      {expandedScholar === scholar.id ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
+                    </Button>
+
+                    {expandedScholar === scholar.id && (
+                      <div className="mt-4 space-y-4 bg-gray-50 rounded-lg p-4 text-sm">
+                        {/* Personal Details */}
+                        <div>
+                          <h4 className="font-semibold mb-2 flex items-center gap-2">
+                            <Users className="h-4 w-4" />
+                            Personal Information
+                          </h4>
+                          <div className="grid md:grid-cols-2 gap-2 text-gray-700">
+                            <div><strong>Date of Birth:</strong> {new Date(scholar.dateOfBirth).toLocaleDateString()}</div>
+                            <div><strong>Gender:</strong> {scholar.gender}</div>
+                            <div><strong>City:</strong> {scholar.city}</div>
+                            {scholar.address && <div><strong>Address:</strong> {scholar.address}</div>}
+                          </div>
+                        </div>
+
+                        {/* Academic Details */}
+                        <div>
+                          <h4 className="font-semibold mb-2 flex items-center gap-2">
+                            <BookOpen className="h-4 w-4" />
+                            Academic Information
+                          </h4>
+                          <div className="grid md:grid-cols-2 gap-2 text-gray-700">
+                            <div><strong>Current Year:</strong> {scholar.currentYear}</div>
+                            <div><strong>Graduation Year:</strong> {scholar.graduationYear}</div>
+                            {scholar.hasTestScores && (
+                              <>
+                                {scholar.ieltsScore && <div><strong>IELTS:</strong> {scholar.ieltsScore}</div>}
+                                {scholar.toeflScore && <div><strong>TOEFL:</strong> {scholar.toeflScore}</div>}
+                                {scholar.greScore && <div><strong>GRE:</strong> {scholar.greScore}</div>}
+                                {scholar.gmatScore && <div><strong>GMAT:</strong> {scholar.gmatScore}</div>}
+                                {scholar.satScore && <div><strong>SAT:</strong> {scholar.satScore}</div>}
+                              </>
+                            )}
+                            <div><strong>Preferred Intake:</strong> {scholar.preferredIntake}</div>
+                          </div>
+                        </div>
+
+                        {/* Financial Information */}
+                        <div>
+                          <h4 className="font-semibold mb-2 flex items-center gap-2">
+                            <DollarSign className="h-4 w-4" />
+                            Financial Information
+                          </h4>
+                          <div className="space-y-2 text-gray-700">
+                            <div><strong>Financial Need:</strong> {scholar.financialNeed}</div>
+                            <div><strong>Current Funding Source:</strong> {scholar.fundingSource}</div>
+                            <div><strong>Expected Funding:</strong> {scholar.expectedFunding}</div>
+                            <div><strong>Budget Range:</strong> {scholar.budgetRange}</div>
+                          </div>
+                        </div>
+
+                        {/* Additional Information */}
+                        {(scholar.workExperience || scholar.researchExperience || scholar.publications || scholar.awards || scholar.volunteerWork || scholar.languages) && (
+                          <div>
+                            <h4 className="font-semibold mb-2 flex items-center gap-2">
+                              <Award className="h-4 w-4" />
+                              Additional Information
+                            </h4>
+                            <div className="space-y-2 text-gray-700">
+                              {scholar.workExperience && (
+                                <div>
+                                  <strong>Work Experience:</strong>
+                                  <p className="mt-1 text-gray-600">{scholar.workExperience}</p>
+                                </div>
+                              )}
+                              {scholar.researchExperience && (
+                                <div>
+                                  <strong>Research Experience:</strong>
+                                  <p className="mt-1 text-gray-600">{scholar.researchExperience}</p>
+                                </div>
+                              )}
+                              {scholar.publications && (
+                                <div>
+                                  <strong>Publications:</strong> {scholar.publications}
+                                </div>
+                              )}
+                              {scholar.awards && (
+                                <div>
+                                  <strong>Awards:</strong> {scholar.awards}
+                                </div>
+                              )}
+                              {scholar.volunteerWork && (
+                                <div>
+                                  <strong>Volunteer Work:</strong>
+                                  <p className="mt-1 text-gray-600">{scholar.volunteerWork}</p>
+                                </div>
+                              )}
+                              {scholar.languages && (
+                                <div>
+                                  <strong>Languages:</strong> {scholar.languages}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
 
                   {scholar.sponsorships && scholar.sponsorships.length > 0 && (
                     <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
@@ -341,16 +464,6 @@ export default function AdminScholarsPage() {
                     >
                       <Mail className="h-4 w-4 mr-2" />
                       Email
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        // View full details - could create a detail page
-                        alert(`Full details for ${scholar.firstName} ${scholar.lastName}\n\nEmail: ${scholar.email}\nPhone: ${scholar.phone}\nField: ${scholar.fieldOfStudy}\nStatus: ${scholar.status}`);
-                      }}
-                    >
-                      View Details
                     </Button>
                   </div>
 

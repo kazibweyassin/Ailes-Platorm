@@ -12,6 +12,7 @@ export default function ScholarApplyPage() {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     // Personal Information
@@ -67,6 +68,7 @@ export default function ScholarApplyPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMessage(null);
 
     try {
       const res = await fetch('/api/scholars', {
@@ -85,8 +87,10 @@ export default function ScholarApplyPage() {
 
       setSubmitted(true);
     } catch (err) {
-      alert('Failed to submit application. Please try again.');
-      console.error(err);
+      console.error('Submission error:', err);
+      setErrorMessage((err as Error).message || 'Failed to submit application. Please try again.');
+      // Scroll to top to show error
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setLoading(false);
     }
@@ -188,6 +192,11 @@ export default function ScholarApplyPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 sm:space-y-6">
+              {errorMessage && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-800">{errorMessage}</p>
+                </div>
+              )}
               {/* Step 1: Personal Information */}
               {step === 1 && (
                 <div className="space-y-3 sm:space-y-4">
