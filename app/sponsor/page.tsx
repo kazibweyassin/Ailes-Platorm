@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,12 +14,14 @@ import {
   CheckCircle2,
   ArrowRight,
   Sparkles,
-  TrendingUp,
   Users,
   Download,
-  Clock,
-  FileText,
+  ChevronDown,
+  Plus,
+  Minus,
   Shield,
+  TrendingUp,
+  DollarSign,
 } from "lucide-react";
 import { jsPDF } from "jspdf";
 
@@ -27,6 +29,8 @@ export default function SponsorPage() {
   const [sponsorType, setSponsorType] = useState<"individual" | "corporate">("individual");
   const [showForm, setShowForm] = useState(false);
   const [selectedTier, setSelectedTier] = useState<any>(null);
+  const [customAmount, setCustomAmount] = useState("");
+  const [expandedStep, setExpandedStep] = useState<number | null>(0);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -41,93 +45,172 @@ export default function SponsorPage() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [transactionNumber, setTransactionNumber] = useState("");
+  const [formStep, setFormStep] = useState(1);
+  const [expandedFAQ, setExpandedFAQ] = useState<number | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Load form data from localStorage on mount
+  useEffect(() => {
+    const savedFormData = localStorage.getItem('sponsorFormData');
+    if (savedFormData) {
+      try {
+        const parsed = JSON.parse(savedFormData);
+        setFormData(parsed);
+      } catch (e) {
+        console.error('Error loading saved form data:', e);
+      }
+    }
+  }, []);
+
+  // Save form data to localStorage whenever it changes
+  useEffect(() => {
+    if (showForm) {
+      localStorage.setItem('sponsorFormData', JSON.stringify(formData));
+    }
+  }, [formData, showForm]);
+  const [stats, setStats] = useState<{
+    sponsoredScholars: number | null;
+    totalFunding: number | null;
+    successRate: number | null;
+  }>({
+    sponsoredScholars: null,
+    totalFunding: null,
+    successRate: null,
+  });
+
+  // Fetch dynamic statistics
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('/api/stats');
+        const data = await response.json();
+        setStats({
+          sponsoredScholars: data.sponsoredScholars ?? null,
+          totalFunding: data.totalFunding ?? null,
+          successRate: data.successRate ?? null,
+        });
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+        // Keep null values if fetch fails
+      }
+    };
+    fetchStats();
+  }, []);
+
+  // Helper function to format currency for stats (with + suffix)
+  const formatStatsCurrency = (amount: number | null): string => {
+    if (amount === null) return '...';
+    if (amount >= 1000000) {
+      return `$${(amount / 1000000).toFixed(1)}M+`;
+    }
+    if (amount >= 1000) {
+      return `$${(amount / 1000).toFixed(0)}K+`;
+    }
+    return `$${amount.toLocaleString()}+`;
+  };
 
   const sponsorshipTiers = [
     {
-      name: "Application Support",
+      name: "Partial Scholarship",
       amount: 500,
       icon: Award,
       benefits: [
-        "Cover application fees for 5 universities",
-        "English test preparation materials",
-        "Document translation services",
-        "Email support throughout process",
+        "Fund partial tuition for one semester",
+        "Support a scholar's university education",
+        "Cover essential academic expenses",
+        "Make higher education accessible",
       ],
-      impact: "Help a student apply to their dream schools",
+      impact: "Help cover tuition costs for a semester",
     },
     {
-      name: "Full Journey",
+      name: "Full Year Scholarship",
       amount: 2000,
       icon: GraduationCap,
       benefits: [
-        "Everything in Application Support",
-        "Premium consultation package",
-        "SOP/Essay editing (unlimited rounds)",
-        "Visa application assistance",
-        "Pre-departure orientation",
+        "Fund full year of university tuition",
+        "Support complete academic journey",
+        "Cover tuition and essential fees",
+        "Direct impact on scholar's education",
       ],
-      impact: "Fully support a student from search to departure",
+      impact: "Fund a full year of university education",
       popular: true,
     },
     {
-      name: "Multi-Scholar",
+      name: "Complete Degree Scholarship",
       amount: 5000,
       icon: Users,
       benefits: [
-        "Sponsor 3 complete student journeys",
-        "Recognition on our website",
-        "Annual impact report",
-        "Direct communication with scholars",
-        "Corporate social responsibility certificate",
+        "Fund complete degree program",
+        "Support entire university journey",
+        "Cover full tuition for degree",
+        "Transform a scholar's future",
       ],
-      impact: "Change multiple lives, build your legacy",
+      impact: "Fund complete university degree program",
     },
   ];
 
-  const successStories = [
-    {
-      name: "Grace Okonkwo",
-      field: "Computer Science",
-      sponsor: "Tech Corp Ltd",
-      university: "MIT, USA",
-      scholarship: "$200,000 Full Scholarship",
-      image: "👩‍💻",
-    },
-    {
-      name: "Amina Hassan",
-      field: "Engineering",
-      sponsor: "John Smith",
-      anonymous: true,
-      university: "Cambridge, UK",
-      scholarship: "£120,000 Gates Cambridge",
-      image: "👩‍🔬",
-    },
-    {
-      name: "Fatima Diallo",
-      field: "Medicine",
-      sponsor: "Global Health Foundation",
-      university: "Johns Hopkins, USA",
-      scholarship: "$180,000 Full Funding",
-      image: "👩‍⚕️",
-    },
-  ];
 
-  const displaySponsorName = (sponsor: string | undefined, anonymous?: boolean) => {
-    if (anonymous) return "Anonymous";
-    return sponsor || "Anonymous";
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      companyName: "",
+      companyWebsite: "",
+      message: "",
+      preferredField: "",
+      preferredCountry: "",
+      anonymous: false,
+    });
+    setFormStep(1);
+    setSelectedTier(null);
+    setCustomAmount("");
+    setErrorMessage(null);
+    localStorage.removeItem('sponsorFormData');
   };
-
-  const corporatePartners = [
-    { name: "Tech Corp", scholars: 15 },
-    { name: "Global Bank", scholars: 12 },
-    { name: "Energy Solutions", scholars: 8 },
-    { name: "Pharma International", scholars: 6 },
-  ];
 
   const handleSelectTier = (tier: any) => {
     setSelectedTier(tier);
+    setCustomAmount("");
+    setFormStep(1);
+    setErrorMessage(null);
     setShowForm(true);
   };
+
+  const handleCustomAmount = () => {
+    if (!customAmount || parseFloat(customAmount) <= 0) {
+      setErrorMessage('Please enter a valid amount');
+      return;
+    }
+    setSelectedTier(null);
+    setFormStep(1);
+    setErrorMessage(null);
+    setShowForm(true);
+  };
+
+  const nextStep = () => {
+    if (formStep === 1) {
+      // Validate step 1
+      if (!formData.name || !formData.email || !formData.phone) {
+        setErrorMessage('Please fill in all required fields');
+        return;
+      }
+      // Basic email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        setErrorMessage('Please enter a valid email address');
+        return;
+      }
+    }
+    setErrorMessage(null);
+    setFormStep(formStep + 1);
+  };
+
+  const prevStep = () => {
+    setFormStep(formStep - 1);
+  };
+
+  const totalSteps = 3;
 
   const generatePaymentPDF = () => {
     const doc = new jsPDF();
@@ -189,11 +272,14 @@ export default function SponsorPage() {
     }
     
     // Selected Tier Info (if available)
-    if (selectedTier) {
+    const donationAmount = customAmount ? parseFloat(customAmount || "0") : selectedTier?.amount || 0;
+    const tierName = customAmount ? "Custom Amount" : selectedTier?.name || "Donation";
+    
+    if (donationAmount > 0) {
       doc.setFontSize(12);
       doc.setFont('helvetica', 'normal');
-      doc.text(`Sponsorship Tier: ${selectedTier.name}`, 20, currentY);
-      doc.text(`Amount: $${selectedTier.amount.toLocaleString()}`, 20, currentY + 10);
+      doc.text(`Sponsorship Type: ${tierName}`, 20, currentY);
+      doc.text(`Amount: $${donationAmount.toLocaleString()}`, 20, currentY + 10);
       
       doc.setDrawColor(200, 200, 200);
       doc.line(20, currentY + 17, 190, currentY + 17);
@@ -296,15 +382,17 @@ export default function SponsorPage() {
     console.log('Selected tier:', selectedTier);
 
     try {
-      if (!selectedTier) {
-        throw new Error('Please select a sponsorship tier');
+      const amount = customAmount ? parseFloat(customAmount) : selectedTier?.amount;
+      
+      if (!amount || amount <= 0) {
+        throw new Error('Please select a tier or enter a custom amount');
       }
       
       const payload = {
         ...formData,
         sponsorType,
-        tierName: selectedTier.name,
-        amount: selectedTier.amount,
+        tierName: customAmount ? `Custom Amount` : selectedTier.name,
+        amount: amount,
       };
       
       console.log('Sending payload:', payload);
@@ -330,9 +418,11 @@ export default function SponsorPage() {
       const txnNumber = `AILES-${data.sponsor.id.substring(0, 8).toUpperCase()}`;
       setTransactionNumber(txnNumber);
       setSubmitted(true);
+      setShowForm(false);
+      resetForm(); // Clear form data after successful submission
     } catch (err) {
       console.error('Submission error:', err);
-      alert('Failed to submit sponsorship. Please try again. Error: ' + (err as Error).message);
+      setErrorMessage('Failed to submit sponsorship. Please try again. ' + (err as Error).message);
     } finally {
       setLoading(false);
     }
@@ -340,96 +430,71 @@ export default function SponsorPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="bg-primary-light py-16 md:py-24">
+      {/* Hero Section - Main CTA */}
+      <section className="relative bg-primary-light py-16 md:py-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm mb-6">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">Change a Life Today</span>
+            <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+              <Sparkles className="h-4 w-4 text-slate-700" />
+              <span className="text-sm font-medium text-slate-700">Change a Life Today</span>
             </div>
-            <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
-              Sponsor a <span className="text-primary">Female Scholar</span>
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight text-gray-dark">
+              Sponsor a <span className="text-primary">Top-Performing Scholar</span>
             </h1>
-            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-              Help a talented African woman access world-class education. 100% of your
-              sponsorship goes directly to supporting her scholarship journey.
+            <p className="text-base md:text-lg mb-3 text-gray-soft max-w-3xl mx-auto">
+              Help high-achieving African students who cannot afford tuition access world-class education
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="text-base">
-                <Heart className="mr-2 h-5 w-5" />
-                Sponsor Now
+            <p className="text-sm md:text-base mb-8 text-gray-soft max-w-2xl mx-auto">
+              100% of your sponsorship goes directly to funding tuition for talented students who lack financial means
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+              <Button 
+                size="lg" 
+                className="text-lg px-10 py-7 bg-primary text-white hover:bg-primary/90 font-semibold shadow-xl hover:shadow-2xl transition-all transform hover:scale-105"
+                onClick={() => {
+                  const tiers = document.querySelector('[data-tiers]');
+                  if (tiers) {
+                    tiers.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+              >
+                <Heart className="mr-2 h-6 w-6" />
+                Start Sponsoring Now
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Link href="#how-it-works">
-                <Button size="lg" variant="outline" className="text-base">
-                  Learn More
+              <Link href="/scholar-apply">
+                <Button 
+                  size="lg" 
+                  variant="outline"
+                  className="text-lg px-10 py-7 border-2 border-primary text-primary bg-white hover:bg-primary-light transition-all"
+                >
+                  <GraduationCap className="mr-2 h-6 w-6" />
+                  Apply as a Scholar
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
             </div>
-              {/* Copilot CTA and explainer */}
-              <div className="my-8 flex flex-col items-center gap-4">
-                <Link href="/copilot/activate">
-                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-white font-bold px-8 py-4 text-lg shadow-lg border-2 border-primary">
-                    Try AI Copilot
-                  </Button>
-                </Link>
-                <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 max-w-xl mx-auto text-left">
-                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 max-w-xl mx-auto text-left">
-                    <h3 className="font-bold mb-4 text-primary text-2xl flex items-center gap-2">
-                      <Sparkles className="h-6 w-6 text-primary" /> Why pay for Copilot?
-                    </h3>
-                    <ul className="space-y-4">
-                    <li className="flex items-start gap-3">
-                      <Clock className="h-6 w-6 text-primary mt-1" />
-                      <span><span className="font-semibold text-gray-900">Save 40+ hours</span> of manual work</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <FileText className="h-6 w-6 text-primary mt-1" />
-                      <span><span className="font-semibold text-gray-900">AI-powered</span> application writing (25+ custom drafts)</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <Shield className="h-6 w-6 text-primary mt-1" />
-                      <span><span className="font-semibold text-gray-900">Expert-reviewed</span> templates and guidance</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <Award className="h-6 w-6 text-primary mt-1" />
-                      <span><span className="font-semibold text-gray-900">Exclusive access</span> to vetted sponsor scholarships</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <Sparkles className="h-6 w-6 text-primary mt-1" />
-                      <span><span className="font-semibold text-gray-900">Priority support</span> & WhatsApp reminders</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <Download className="h-6 w-6 text-primary mt-1" />
-                      <span><span className="font-semibold text-gray-900">One-time payment</span>, no hidden fees</span>
-                    </li>
-                  </ul>
+            
+            {/* Trust Stats */}
+            <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto pt-8 border-t border-primary/20">
+              <div>
+                <div className="text-3xl md:text-4xl font-bold mb-1 text-primary">
+                  {stats.sponsoredScholars !== null ? stats.sponsoredScholars : '...'}
                 </div>
+                <div className="text-sm text-gray-soft">Scholars Sponsored</div>
               </div>
-          </div>
-        </div>
-      </div>
-      </section>
-
-      {/* Impact Stats */}
-      <section className="py-12 bg-primary text-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <p className="text-3xl md:text-4xl font-bold mb-2">127</p>
-              <p className="text-sm md:text-base opacity-90">Female Scholars Sponsored</p>
-            </div>
-            <div>
-              <p className="text-3xl md:text-4xl font-bold mb-2">$2.5M+</p>
-              <p className="text-sm md:text-base opacity-90">In Scholarships Secured</p>
-            </div>
-            <div>
-              <p className="text-3xl md:text-4xl font-bold mb-2">45</p>
-              <p className="text-sm md:text-base opacity-90">Corporate Partners</p>
-            </div>
-            <div>
-              <p className="text-3xl md:text-4xl font-bold mb-2">92%</p>
-              <p className="text-sm md:text-base opacity-90">Success Rate</p>
+              <div>
+                <div className="text-3xl md:text-4xl font-bold mb-1 text-primary">
+                  {stats.successRate !== null ? `${stats.successRate}%` : '...'}
+                </div>
+                <div className="text-sm text-gray-soft">Success Rate</div>
+              </div>
+              <div>
+                <div className="text-3xl md:text-4xl font-bold mb-1 text-primary">
+                  {formatStatsCurrency(stats.totalFunding)}
+                </div>
+                <div className="text-sm text-gray-soft">Scholarships Secured</div>
+              </div>
             </div>
           </div>
         </div>
@@ -437,15 +502,15 @@ export default function SponsorPage() {
 
       {/* Sponsorship Type Toggle */}
       <section className="py-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-md mx-auto mb-12">
-            <div className="flex gap-4 p-2 bg-gray-100 rounded-lg">
-              <button
-                onClick={() => setSponsorType("individual")}
-                className={`flex-1 py-3 px-4 rounded-md text-sm font-medium transition-all ${
-                  sponsorType === "individual"
-                    ? "bg-white shadow-sm text-primary"
-                    : "text-gray-600 hover:text-gray-900"
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-md mx-auto mb-12">
+              <div className="flex gap-4 p-2 bg-gray-100 rounded-lg">
+                <button
+                  onClick={() => setSponsorType("individual")}
+                  className={`flex-1 py-3 px-4 rounded-md text-sm font-medium transition-all ${
+                    sponsorType === "individual"
+                      ? "bg-white shadow-sm text-slate-700"
+                      : "text-gray-600 hover:text-gray-900"
                 }`}
               >
                 <User className="h-4 w-4 inline mr-2" />
@@ -455,26 +520,26 @@ export default function SponsorPage() {
                 onClick={() => setSponsorType("corporate")}
                 className={`flex-1 py-3 px-4 rounded-md text-sm font-medium transition-all ${
                   sponsorType === "corporate"
-                    ? "bg-white shadow-sm text-primary"
-                    : "text-gray-600 hover:text-gray-900"
-                }`}
-              >
-                <Building2 className="h-4 w-4 inline mr-2" />
-                Corporate
-              </button>
+                    ? "bg-white shadow-sm text-slate-700"
+                      : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  <Building2 className="h-4 w-4 inline mr-2" />
+                  Corporate
+                </button>
+              </div>
             </div>
-          </div>
 
           {/* Sponsorship Tiers */}
-          <div className="max-w-6xl mx-auto">
+          <div className="max-w-6xl mx-auto" data-tiers>
             <div className="text-center mb-12">
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-                Choose Your Impact Level
+                Create a University Scholarship
               </h2>
               <p className="text-base text-gray-600">
                 {sponsorType === "corporate"
-                  ? "Corporate sponsorships include tax benefits and public recognition"
-                  : "Every contribution makes a real difference in a young woman's life"}
+                  ? "Fund university scholarships for top-performing African students who cannot afford tuition. Your donation directly pays for their university education. Or enter any amount below."
+                  : "Your donation creates a scholarship for high-achieving students who lack financial means. Choose a suggested amount or enter any amount to help bridge the gap between talent and opportunity."}
               </p>
             </div>
 
@@ -483,22 +548,22 @@ export default function SponsorPage() {
                 <Card
                   key={index}
                   className={`relative ${
-                    tier.popular ? "border-2 border-primary shadow-lg" : ""
+                    tier.popular ? "border-2 border-slate-700 shadow-lg" : ""
                   }`}
                 >
                   {tier.popular && (
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <span className="bg-primary text-white px-4 py-1 rounded-full text-xs font-medium">
+                      <span className="bg-slate-700 text-white px-4 py-1 rounded-full text-xs font-medium">
                         Most Popular
                       </span>
                     </div>
                   )}
                   <CardHeader className="text-center pb-4">
-                    <div className="mx-auto mb-4 w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center">
-                      <tier.icon className="h-8 w-8 text-primary" />
+                    <div className="mx-auto mb-4 w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+                      <tier.icon className="h-8 w-8 text-slate-700" />
                     </div>
                     <CardTitle className="text-xl mb-2">{tier.name}</CardTitle>
-                    <div className="text-3xl font-bold text-primary mb-2">
+                    <div className="text-3xl font-bold text-slate-700 mb-2">
                       ${tier.amount.toLocaleString()}
                     </div>
                     <CardDescription className="text-sm">
@@ -519,12 +584,52 @@ export default function SponsorPage() {
                       variant={tier.popular ? "default" : "outline"}
                       onClick={() => handleSelectTier(tier)}
                     >
-                      Select ${tier.amount.toLocaleString()}
+                      Donate ${tier.amount.toLocaleString()}
                     </Button>
                   </CardContent>
                 </Card>
               ))}
             </div>
+
+            {/* Custom Amount Option */}
+            <Card className="mt-8 border-2 border-dashed border-slate-300 hover:border-slate-500 transition-colors">
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <div className="mx-auto mb-4 w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+                    <Heart className="h-8 w-8 text-slate-700" />
+                  </div>
+                  <CardTitle className="text-xl mb-2">Fund Any Amount</CardTitle>
+                  <CardDescription className="mb-6">
+                    Create a scholarship with any amount. Your donation directly funds university tuition for top-performing students who cannot afford it.
+                  </CardDescription>
+                  <div className="max-w-md mx-auto">
+                    <div className="flex gap-2 mb-4">
+                      <div className="flex-1">
+                        <Input
+                          type="number"
+                          placeholder="Enter amount"
+                          value={customAmount}
+                          onChange={(e) => setCustomAmount(e.target.value)}
+                          className="text-center text-lg"
+                          min="1"
+                          step="1"
+                        />
+                      </div>
+                      <Button
+                        onClick={handleCustomAmount}
+                        disabled={!customAmount || parseFloat(customAmount) <= 0}
+                        className="px-8"
+                      >
+                        Create Scholarship
+                      </Button>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      Minimum: $1. All donations go directly to funding tuition for high-achieving students who cannot afford it.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {sponsorType === "corporate" && (
               <Card className="mt-8 bg-blue-50 border-blue-200">
@@ -578,170 +683,361 @@ export default function SponsorPage() {
         </div>
       </section>
 
-      {/* How It Works */}
+      {/* How It Works - Accordion */}
       <section id="how-it-works" className="py-16 bg-gray-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-                How Sponsorship Works
+            <div className="text-center mb-8">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
+                How Scholarship Funding Works
               </h2>
-              <p className="text-base text-gray-600">
-                Transparent, direct, and impactful - see exactly where your contribution goes
+              <p className="text-sm text-gray-600">
+                Your donation directly funds university education - transparent and impactful
               </p>
             </div>
 
-            <div className="space-y-8">
+            <div className="grid md:grid-cols-2 gap-3">
               {[
                 {
                   step: "1",
-                  title: "Choose Your Sponsorship",
+                  title: "Create Your Scholarship",
                   description:
-                    "Select a sponsorship tier that fits your budget and impact goals. One-time or recurring options available.",
+                    "Choose an amount to fund a university scholarship. Your donation directly pays for a scholar's university tuition and education expenses.",
                 },
                 {
                   step: "2",
                   title: "We Match You With a Scholar",
                   description:
-                    "Based on your preferences, we connect you with a talented female student who needs support. You'll receive her profile and story.",
+                    "Based on your preferences, we connect you with a top-performing student who has demonstrated academic excellence but cannot afford tuition. You'll receive their profile, academic achievements, and university goals.",
                 },
                 {
                   step: "3",
-                  title: "Direct Support & Updates",
+                  title: "Fund Their University Education",
                   description:
-                    "100% of your sponsorship goes to her scholarship journey. You'll receive regular updates on her progress and success.",
+                    "100% of your donation goes directly to funding their university tuition. You'll receive regular updates on their academic progress and achievements.",
                 },
                 {
                   step: "4",
-                  title: "Celebrate Success Together",
+                  title: "Celebrate Their Success",
                   description:
-                    "When she secures her scholarship and admission, you'll be the first to know. Many sponsors form lasting mentorship relationships.",
+                    "Watch them thrive at university! You'll receive updates on their achievements, graduation, and the lasting impact your scholarship made.",
                 },
               ].map((item, index) => (
-                <div key={index} className="flex gap-6">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold text-lg">
-                      {item.step}
+                <Card
+                  key={index}
+                  className={`transition-all duration-300 border-2 cursor-pointer h-full ${
+                    expandedStep === index
+                      ? "border-slate-700 shadow-lg"
+                      : "border-gray-200 hover:border-slate-300"
+                  }`}
+                  onClick={() => setExpandedStep(expandedStep === index ? null : index)}
+                >
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                          {item.step}
+                        </div>
+                        <CardTitle className="text-sm font-semibold text-gray-900">
+                          {item.title}
+                        </CardTitle>
+                      </div>
+                      <ChevronDown
+                        className={`h-4 w-4 text-gray-400 transition-transform duration-300 flex-shrink-0 ${
+                          expandedStep === index ? "transform rotate-180" : ""
+                        }`}
+                      />
                     </div>
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                      {item.title}
-                    </h3>
-                    <p className="text-gray-600">{item.description}</p>
-                  </div>
-                </div>
+                  </CardHeader>
+                  {expandedStep === index && (
+                    <CardContent className="pt-0 animate-in slide-in-from-top-2 duration-300">
+                      <p className="text-xs text-gray-600 pl-11">{item.description}</p>
+                    </CardContent>
+                  )}
+                </Card>
               ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Success Stories */}
-      <section className="py-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-              Sponsored Scholar Success Stories
-            </h2>
-            <p className="text-base text-gray-600">
-              Real students, real sponsors, real impact
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {successStories.map((story, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="text-center mb-4">
-                    <div className="text-5xl mb-3">{story.image}</div>
-                    <CardTitle className="text-lg mb-1">{story.name}</CardTitle>
-                    <CardDescription className="text-sm">
-                      {story.field}
-                    </CardDescription>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">Sponsored by:</span>
-                    <span className="font-medium">{displaySponsorName(story.sponsor, (story as any).anonymous)}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600">University:</span>
-                    <span className="font-medium">{story.university}</span>
-                  </div>
-                  <div className="pt-3 border-t">
-                    <div className="flex items-center gap-2 text-green-600">
-                      <Award className="h-4 w-4" />
-                      <span className="text-sm font-semibold">
-                        {story.scholarship}
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Corporate Partners */}
+      {/* Corporate Partnership CTA */}
       {sponsorType === "corporate" && (
         <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-                Our Corporate Partners
-              </h2>
-              <p className="text-base text-gray-600">
-                Leading companies investing in Africa's future
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-4 gap-6 max-w-4xl mx-auto">
-              {corporatePartners.map((partner, index) => (
-                <Card key={index} className="text-center">
-                  <CardContent className="pt-6">
-                    <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-3 flex items-center justify-center">
-                      <Building2 className="h-8 w-8 text-gray-500" />
+            <div className="max-w-4xl mx-auto">
+              <Card className="border-2 border-slate-200">
+                <CardContent className="pt-8 pb-8">
+                  <div className="text-center mb-8">
+                    <div className="w-20 h-20 bg-slate-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+                      <Building2 className="h-10 w-10 text-slate-700" />
                     </div>
-                    <h3 className="font-semibold mb-1">{partner.name}</h3>
-                    <p className="text-sm text-gray-600">
-                      {partner.scholars} scholars sponsored
+                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+                      Become a Corporate Partner
+                    </h2>
+                    <p className="text-base text-gray-600 max-w-2xl mx-auto">
+                      Join us in transforming lives through education. Partner with AILES Global to support top-performing African students who cannot afford tuition.
                     </p>
-                  </CardContent>
-                </Card>
-              ))}
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-6 mb-8">
+                    <div className="flex items-start gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-slate-700 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h3 className="font-semibold text-gray-900 mb-1">CSR Impact</h3>
+                        <p className="text-sm text-gray-600">
+                          Tax-deductible contributions that directly fund student tuition
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-slate-700 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h3 className="font-semibold text-gray-900 mb-1">Recognition</h3>
+                        <p className="text-sm text-gray-600">
+                          Featured on our partners page and annual impact reports
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-slate-700 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h3 className="font-semibold text-gray-900 mb-1">Direct Impact</h3>
+                        <p className="text-sm text-gray-600">
+                          Connect with scholars and see your contribution transform lives
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-slate-700 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <h3 className="font-semibold text-gray-900 mb-1">Custom Programs</h3>
+                        <p className="text-sm text-gray-600">
+                          Tailored partnership opportunities to match your company's goals
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-center">
+                    <Link href="/contact">
+                      <Button size="lg" className="bg-slate-700 hover:bg-slate-800 text-white">
+                        <Building2 className="mr-2 h-5 w-5" />
+                        Discuss Partnership Opportunities
+                        <ArrowRight className="ml-2 h-5 w-5" />
+                      </Button>
+                    </Link>
+                    <p className="text-sm text-gray-500 mt-4">
+                      Or continue below to make a corporate sponsorship donation
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </section>
       )}
 
-      {/* CTA Section */}
-      <section className="py-16 bg-primary text-white">
+      {/* Visual Impact Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+                Where Your Donation Goes
+              </h2>
+              <p className="text-base text-gray-600 max-w-2xl mx-auto">
+                100% of your sponsorship directly funds tuition for top-performing students. See the impact of your contribution.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8 mb-12">
+              <Card className="text-center border-2 border-slate-100">
+                <CardContent className="pt-6">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <DollarSign className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-lg mb-2">Direct Tuition Payment</h3>
+                  <p className="text-sm text-gray-600">
+                    Your donation goes directly to the university to pay for the scholar's tuition fees. No intermediaries, no overhead.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="text-center border-2 border-slate-100">
+                <CardContent className="pt-6">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <TrendingUp className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-lg mb-2">Academic Progress Tracking</h3>
+                  <p className="text-sm text-gray-600">
+                    Receive regular updates on your scholar's academic achievements, grades, and progress toward graduation.
+                  </p>
+                </CardContent>
+              </Card>
+
+              <Card className="text-center border-2 border-slate-100">
+                <CardContent className="pt-6">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <Shield className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-lg mb-2">Full Transparency</h3>
+                  <p className="text-sm text-gray-600">
+                    Access detailed reports showing exactly how your funds were used, with receipts and university confirmations.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Impact Stories */}
+            <div className="bg-primary-light rounded-2xl p-8 md:p-12">
+              <div className="text-center mb-8">
+                <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
+                  Success Stories
+                </h3>
+                <p className="text-gray-600">
+                  Real impact from sponsors like you
+                </p>
+              </div>
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card className="bg-white">
+                  <CardContent className="pt-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                        <GraduationCap className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold mb-2">Sarah from Kenya</h4>
+                        <p className="text-sm text-gray-600 mb-2">
+                          "Thanks to my sponsor, I'm now studying Computer Science at a top university. Without this scholarship, I couldn't have afforded tuition."
+                        </p>
+                        <p className="text-xs text-gray-500">Sponsored: 2023 • Currently: Year 2</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-white">
+                  <CardContent className="pt-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                        <Award className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold mb-2">Amina from Nigeria</h4>
+                        <p className="text-sm text-gray-600 mb-2">
+                          "My sponsor's support changed everything. I'm maintaining a 3.8 GPA in Medicine and on track to graduate next year."
+                        </p>
+                        <p className="text-xs text-gray-500">Sponsored: 2022 • Currently: Year 3</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+                Frequently Asked Questions
+              </h2>
+              <p className="text-base text-gray-600">
+                Everything you need to know about sponsoring a scholar
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {[
+                {
+                  question: "How does the payment process work?",
+                  answer: "After you submit your sponsorship application, you'll receive bank details and a transaction number. Transfer your donation amount to our bank account using the transaction number as reference. Once we receive and verify your payment (usually within 1-2 business days), we'll match you with a scholar and send confirmation."
+                },
+                {
+                  question: "How are scholars matched with sponsors?",
+                  answer: "We match sponsors with scholars based on your preferences (field of study, country, etc.) and the scholar's needs. Our team reviews applications to ensure we match top-performing students who genuinely cannot afford tuition. You'll receive the scholar's profile, academic achievements, and story before the match is finalized."
+                },
+                {
+                  question: "Is my donation tax-deductible?",
+                  answer: "Yes, for corporate sponsors, donations are typically tax-deductible as CSR contributions. Individual sponsors should consult their tax advisor. We provide official receipts and documentation for all donations. Corporate sponsors receive additional documentation for their records."
+                },
+                {
+                  question: "What percentage of my donation goes to the scholar?",
+                  answer: "100% of your donation goes directly to funding the scholar's university tuition. We cover operational costs separately and maintain full transparency. You'll receive receipts and university confirmations showing exactly how your funds were used."
+                },
+                {
+                  question: "Can I choose a specific scholar?",
+                  answer: "Yes, you can specify preferences for field of study, country, or other criteria. We'll match you with a scholar who meets your preferences. If you have a specific scholar in mind, contact us directly and we can facilitate that connection."
+                },
+                {
+                  question: "What updates will I receive?",
+                  answer: "You'll receive regular updates including academic progress reports, grades, achievements, and photos. Updates are sent quarterly, with additional communications for major milestones like graduation. You can also request updates at any time through your sponsor dashboard."
+                },
+                {
+                  question: "Can I remain anonymous?",
+                  answer: "Yes, you can choose to remain anonymous publicly. However, we'll still need your contact information for payment verification and to send you updates. The scholar will know they have a sponsor, but won't see your name unless you choose to share it."
+                },
+                {
+                  question: "What happens if a scholar drops out?",
+                  answer: "If a scholar is unable to continue their studies, we'll work with you to either transfer your sponsorship to another qualified student or provide a refund for unused funds. We maintain a waitlist of top-performing students who need support, so we can quickly rematch your sponsorship."
+                }
+              ].map((faq, index) => (
+                <Card 
+                  key={index}
+                  className={`cursor-pointer transition-all ${
+                    expandedFAQ === index ? "border-slate-700 shadow-md" : "border-gray-200"
+                  }`}
+                  onClick={() => setExpandedFAQ(expandedFAQ === index ? null : index)}
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-gray-900 pr-4">{faq.question}</h3>
+                      {expandedFAQ === index ? (
+                        <Minus className="h-5 w-5 text-slate-700 flex-shrink-0" />
+                      ) : (
+                        <Plus className="h-5 w-5 text-slate-700 flex-shrink-0" />
+                      )}
+                    </div>
+                  </CardHeader>
+                  {expandedFAQ === index && (
+                    <CardContent className="pt-0">
+                      <p className="text-sm text-gray-600">{faq.answer}</p>
+                    </CardContent>
+                  )}
+                </Card>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-16 bg-slate-900 text-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">
-            Ready to Change a Life?
+            Ready to Bridge the Gap?
           </h2>
           <p className="text-base md:text-lg mb-8 max-w-2xl mx-auto opacity-90">
-            Your sponsorship doesn't just support education - it creates role models,
-            builds communities, and transforms futures.
+            Help top-performing students overcome financial barriers. Your sponsorship transforms academic excellence into opportunity.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" className="text-base">
-              <Heart className="mr-2 h-5 w-5" />
-              Sponsor a Scholar Now
-            </Button>
-            <Link href="/contact">
-              <Button
-                size="lg"
-                variant="outline"
-                className="text-base border-white text-white hover:bg-white/20"
-              >
-                Ask Questions First
-              </Button>
-            </Link>
-          </div>
+          <Button 
+            size="lg" 
+            variant="secondary" 
+            className="text-base"
+            onClick={() => {
+              const tiers = document.querySelector('[data-tiers]');
+              if (tiers) {
+                tiers.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+          >
+            <Heart className="mr-2 h-5 w-5" />
+            Sponsor a Scholar Now
+          </Button>
         </div>
       </section>
 
@@ -750,184 +1046,296 @@ export default function SponsorPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
           <Card className="w-full max-w-2xl my-8 max-h-[90vh] overflow-y-auto">
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between mb-4">
                 <div>
                   <CardTitle className="text-xl">Complete Your Sponsorship</CardTitle>
                   <CardDescription>
-                    {selectedTier?.name} - ${selectedTier?.amount.toLocaleString()}
+                    {customAmount 
+                      ? `Custom Amount - $${parseFloat(customAmount || "0").toLocaleString()}`
+                      : `${selectedTier?.name} - $${selectedTier?.amount.toLocaleString()}`
+                    }
                   </CardDescription>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => setShowForm(false)}>
+                <Button variant="ghost" size="sm" onClick={() => {
+                  setShowForm(false);
+                  resetForm();
+                }}>
                   ✕
                 </Button>
               </div>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Personal/Company Details */}
-                <div className="space-y-4">
-                  <h3 className="font-semibold text-lg">Your Information</h3>
-                  
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        {sponsorType === "corporate" ? "Contact Name" : "Full Name"} *
-                      </label>
-                      <Input
-                        required
-                        value={formData.name}
-                        onChange={(e) => setFormData({...formData, name: e.target.value})}
-                        placeholder="John Doe"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Email *</label>
-                      <Input
-                        required
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({...formData, email: e.target.value})}
-                        placeholder="john@example.com"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Phone *</label>
-                      <Input
-                        required
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                        placeholder="+1 234 567 8900"
-                      />
-                    </div>
-                    {sponsorType === "corporate" && (
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Company Name</label>
-                        <Input
-                          value={formData.companyName}
-                          onChange={(e) => setFormData({...formData, companyName: e.target.value})}
-                          placeholder="Tech Corp (optional)"
-                        />
+              
+              {/* Progress Indicator */}
+              <div className="flex items-center justify-between mb-6">
+                {[1, 2, 3].map((step) => (
+                  <div key={step} className="flex items-center flex-1">
+                    <div className="flex flex-col items-center flex-1">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all ${
+                        formStep >= step 
+                          ? "bg-primary text-white" 
+                          : "bg-gray-200 text-gray-500"
+                      }`}>
+                        {formStep > step ? <CheckCircle2 className="h-5 w-5" /> : step}
                       </div>
-                    )}
-                  </div>
-
-                  {sponsorType === "corporate" && (
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Company Website</label>
-                      <Input
-                        value={formData.companyWebsite}
-                        onChange={(e) => setFormData({...formData, companyWebsite: e.target.value})}
-                        placeholder="https://example.com"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Scholar Preferences */}
-                <div className="space-y-4">
-                  <h3 className="font-semibold text-lg">Scholar Preferences (Optional)</h3>
-                  
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Preferred Field of Study</label>
-                      <Input
-                        value={formData.preferredField}
-                        onChange={(e) => setFormData({...formData, preferredField: e.target.value})}
-                        placeholder="Engineering, Medicine, etc."
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Preferred Country</label>
-                      <Input
-                        value={formData.preferredCountry}
-                        onChange={(e) => setFormData({...formData, preferredCountry: e.target.value})}
-                        placeholder="Kenya, Nigeria, etc."
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Message (Optional)</label>
-                    <textarea
-                      className="w-full border rounded-lg p-3 min-h-[100px]"
-                      value={formData.message}
-                      onChange={(e) => setFormData({...formData, message: e.target.value})}
-                      placeholder="Share your motivation for sponsoring..."
-                    />
-                  </div>
-                </div>
-
-                {/* Anonymity Option */}
-                <div className="mt-4">
-                  <label className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={!!formData.anonymous}
-                      onChange={(e) => setFormData({...formData, anonymous: e.target.checked})}
-                      className="w-4 h-4"
-                    />
-                    <span>Remain anonymous publicly (we will still have your details for verification)</span>
-                  </label>
-                </div>
-
-                {/* Bank Details */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 space-y-4">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Building2 className="h-5 w-5 text-blue-600" />
-                    <h3 className="font-semibold text-lg">Payment Details</h3>
-                  </div>
-                  
-                  <div className="space-y-3 text-sm">
-                    <div className="grid grid-cols-2 gap-2">
-                      <span className="font-medium text-gray-700">Bank Name:</span>
-                      <span className="text-gray-900">Equity Bank Kenya</span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <span className="font-medium text-gray-700">Account Number:</span>
-                      <span className="text-gray-900 font-mono">1001103192251</span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <span className="font-medium text-gray-700">SWIFT Code:</span>
-                      <span className="text-gray-900 font-mono">EQBLKENA</span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <span className="font-medium text-gray-700">Amount:</span>
-                      <span className="text-gray-900 font-bold text-lg text-primary">
-                        ${selectedTier?.amount.toLocaleString()}
+                      <span className={`text-xs mt-2 ${formStep >= step ? "text-primary font-medium" : "text-gray-500"}`}>
+                        {step === 1 ? "Your Info" : step === 2 ? "Preferences" : "Payment"}
                       </span>
                     </div>
+                    {step < 3 && (
+                      <div className={`h-1 flex-1 mx-2 transition-all ${
+                        formStep > step ? "bg-primary" : "bg-gray-200"
+                      }`}></div>
+                    )}
                   </div>
+                ))}
+              </div>
+            </CardHeader>
+            <CardContent>
+              {errorMessage && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-800">{errorMessage}</p>
+                </div>
+              )}
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Step 1: Personal/Company Details */}
+                {formStep === 1 && (
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="font-semibold text-lg mb-4">Your Information</h3>
+                      
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-2">
+                            {sponsorType === "corporate" ? "Contact Name" : "Full Name"} *
+                          </label>
+                          <Input
+                            required
+                            value={formData.name}
+                            onChange={(e) => setFormData({...formData, name: e.target.value})}
+                            placeholder="John Doe"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Email *</label>
+                          <Input
+                            required
+                            type="email"
+                            value={formData.email}
+                            onChange={(e) => setFormData({...formData, email: e.target.value})}
+                            placeholder="john@example.com"
+                          />
+                        </div>
+                      </div>
 
-                  <div className="bg-white rounded-lg p-4 mt-4">
-                    <p className="text-sm text-gray-700">
-                      <strong>Payment Reference:</strong> Please use your email address as the payment reference. 
-                      After making the payment, submit this form and we'll contact you within 24 hours to confirm.
-                    </p>
+                      <div className="grid md:grid-cols-2 gap-4 mt-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Phone *</label>
+                          <Input
+                            required
+                            type="tel"
+                            value={formData.phone}
+                            onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                            placeholder="+1 234 567 8900"
+                          />
+                        </div>
+                        {sponsorType === "corporate" && (
+                          <div>
+                            <label className="block text-sm font-medium mb-2">Company Name</label>
+                            <Input
+                              value={formData.companyName}
+                              onChange={(e) => setFormData({...formData, companyName: e.target.value})}
+                              placeholder="Tech Corp (optional)"
+                            />
+                          </div>
+                        )}
+                      </div>
+
+                      {sponsorType === "corporate" && (
+                        <div className="mt-4">
+                          <label className="block text-sm font-medium mb-2">Company Website</label>
+                          <Input
+                            value={formData.companyWebsite}
+                            onChange={(e) => setFormData({...formData, companyWebsite: e.target.value})}
+                            placeholder="https://example.com"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex gap-3 pt-4 border-t">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="flex-1"
+                        onClick={() => {
+                          setShowForm(false);
+                          resetForm();
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        type="button"
+                        className="flex-1"
+                        onClick={nextStep}
+                      >
+                        Continue
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                )}
 
-                {/* Submit */}
-                <div className="flex gap-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => setShowForm(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="flex-1"
-                    disabled={loading}
-                  >
-                    {loading ? "Submitting..." : "Proceed with Sponsorship"}
-                  </Button>
-                </div>
+                {/* Step 2: Scholar Preferences */}
+                {formStep === 2 && (
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="font-semibold text-lg mb-4">Scholar Preferences (Optional)</h3>
+                      
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Preferred Field of Study</label>
+                          <Input
+                            value={formData.preferredField}
+                            onChange={(e) => setFormData({...formData, preferredField: e.target.value})}
+                            placeholder="Engineering, Medicine, etc."
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Preferred Country</label>
+                          <Input
+                            value={formData.preferredCountry}
+                            onChange={(e) => setFormData({...formData, preferredCountry: e.target.value})}
+                            placeholder="Kenya, Nigeria, etc."
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mt-4">
+                        <label className="block text-sm font-medium mb-2">Message (Optional)</label>
+                        <textarea
+                          className="w-full border rounded-lg p-3 min-h-[100px]"
+                          value={formData.message}
+                          onChange={(e) => setFormData({...formData, message: e.target.value})}
+                          placeholder="Share your motivation for sponsoring..."
+                        />
+                      </div>
+
+                      <div className="mt-4">
+                        <label className="flex items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={!!formData.anonymous}
+                            onChange={(e) => setFormData({...formData, anonymous: e.target.checked})}
+                            className="w-4 h-4"
+                          />
+                          <span>Remain anonymous publicly (we will still have your details for verification)</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 pt-4 border-t">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="flex-1"
+                        onClick={prevStep}
+                      >
+                        <ArrowRight className="mr-2 h-4 w-4 rotate-180" />
+                        Back
+                      </Button>
+                      <Button
+                        type="button"
+                        className="flex-1"
+                        onClick={nextStep}
+                      >
+                        Continue
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 3: Payment Details & Review */}
+                {formStep === 3 && (
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="font-semibold text-lg mb-4">Review & Payment Details</h3>
+                      
+                      {/* Review Summary */}
+                      <div className="bg-gray-50 rounded-lg p-4 mb-6 space-y-3">
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <span className="text-gray-600">Name:</span>
+                          <span className="font-medium">{formData.name}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <span className="text-gray-600">Email:</span>
+                          <span className="font-medium">{formData.email}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <span className="text-gray-600">Amount:</span>
+                          <span className="font-bold text-primary">
+                            ${(customAmount ? parseFloat(customAmount || "0") : selectedTier?.amount || 0).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Bank Details */}
+                      <div className="bg-primary-light border border-primary/20 rounded-lg p-6 space-y-4">
+                        <div className="flex items-center gap-2 mb-4">
+                          <Building2 className="h-5 w-5 text-primary" />
+                          <h3 className="font-semibold text-lg">Payment Details</h3>
+                        </div>
+                        
+                        <div className="space-y-3 text-sm">
+                          <div className="grid grid-cols-2 gap-2">
+                            <span className="font-medium text-gray-700">Bank Name:</span>
+                            <span className="text-gray-900">Equity Bank Kenya</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <span className="font-medium text-gray-700">Account Number:</span>
+                            <span className="text-gray-900 font-mono">1001103192251</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <span className="font-medium text-gray-700">SWIFT Code:</span>
+                            <span className="text-gray-900 font-mono">EQBLKENA</span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <span className="font-medium text-gray-700">Amount:</span>
+                            <span className="text-gray-900 font-bold text-lg text-primary">
+                              ${(customAmount ? parseFloat(customAmount || "0") : selectedTier?.amount || 0).toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="bg-white rounded-lg p-4 mt-4">
+                          <p className="text-sm text-gray-700">
+                            <strong>Payment Reference:</strong> Please use your email address as the payment reference. 
+                            After making the payment, submit this form and we'll contact you within 24 hours to confirm.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 pt-4 border-t">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="flex-1"
+                        onClick={prevStep}
+                      >
+                        <ArrowRight className="mr-2 h-4 w-4 rotate-180" />
+                        Back
+                      </Button>
+                      <Button
+                        type="submit"
+                        className="flex-1"
+                        disabled={loading}
+                      >
+                        {loading ? "Submitting..." : "Submit Sponsorship"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </form>
             </CardContent>
           </Card>
@@ -949,7 +1357,7 @@ export default function SponsorPage() {
             </CardHeader>
             <CardContent className="text-center space-y-4">
               {/* Transaction Number */}
-              <div className="bg-primary text-white rounded-lg p-4">
+              <div className="bg-slate-700 text-white rounded-lg p-4">
                 <p className="text-sm font-medium mb-2">Your Transaction Number</p>
                 <p className="text-2xl font-bold tracking-wide">{transactionNumber}</p>
                 <p className="text-xs mt-2 opacity-90">Use this as payment reference</p>
@@ -963,7 +1371,7 @@ export default function SponsorPage() {
                 <p className="text-sm text-blue-900 font-semibold mb-2">Next Steps:</p>
                 <ol className="text-sm text-blue-900 space-y-1 list-decimal list-inside">
                   <li>Download the payment instructions below</li>
-                  <li>Transfer ${selectedTier?.amount.toLocaleString()} to our bank account</li>
+                  <li>Transfer ${(customAmount ? parseFloat(customAmount || "0") : selectedTier?.amount || 0).toLocaleString()} to our bank account</li>
                   <li>Use transaction number <strong>{transactionNumber}</strong> as reference</li>
                   <li>Send proof of payment to sponsors@ailesglobal.org</li>
                   <li>We'll confirm and match you with a scholar within 24 hours</li>
@@ -985,17 +1393,7 @@ export default function SponsorPage() {
                     setSubmitted(false);
                     setShowForm(false);
                     setTransactionNumber("");
-                    setFormData({
-                      name: "",
-                      email: "",
-                      phone: "",
-                      companyName: "",
-                      companyWebsite: "",
-                      message: "",
-                      preferredField: "",
-                      preferredCountry: "",
-                      anonymous: false,
-                    });
+                    resetForm();
                   }}
                 >
                   Close

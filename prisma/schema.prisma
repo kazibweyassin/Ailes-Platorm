@@ -328,16 +328,121 @@ model Sponsor {
   anonymous         Boolean  @default(false)
   status            SponsorStatus @default(PENDING)
   
+  // Payment tracking
+  paymentReference  String?  // Transaction number or reference
+  paymentConfirmed  Boolean  @default(false)
+  paymentConfirmedAt DateTime?
+  paymentNotes      String?  // Admin notes about payment
+  
   // Scholar preferences
   preferredField    String?
   preferredCountry  String?
   message           String?
+  
+  // Relations
+  matchedScholars   SponsorScholar[]
   
   // Timestamps
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   
   @@map("sponsors")
+}
+
+model Scholar {
+  id                String   @id @default(cuid())
+  
+  // Personal Information
+  firstName         String
+  lastName          String
+  email             String
+  phone             String
+  dateOfBirth       DateTime
+  gender            String   @default("Female")
+  nationality       String
+  currentCountry    String
+  city              String
+  address           String?
+  
+  // Academic Background
+  currentDegree     String
+  fieldOfStudy      String
+  university        String
+  gpa               String
+  graduationYear    String
+  currentYear       String
+  
+  // Test Scores
+  hasTestScores     Boolean  @default(false)
+  toeflScore        String?
+  ieltsScore        String?
+  greScore          String?
+  gmatScore         String?
+  satScore          String?
+  
+  // Study Preferences
+  targetDegree      String
+  targetCountries   String
+  targetFields      String
+  preferredIntake   String
+  budgetRange       String
+  
+  // Financial Information
+  financialNeed     String
+  fundingSource     String
+  expectedFunding   String
+  
+  // Additional Information
+  workExperience    String?
+  researchExperience String?
+  publications      String?
+  awards            String?
+  volunteerWork     String?
+  languages         String?
+  personalStory     String?  @db.Text // Why they need sponsorship
+  
+  // Status
+  status            ScholarStatus @default(APPLIED)
+  assignedSponsorId String?
+  
+  // Relations
+  sponsorships      SponsorScholar[]
+  
+  // Metadata
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("scholars")
+}
+
+model SponsorScholar {
+  id                String   @id @default(cuid())
+  sponsorId         String
+  scholarId         String
+  
+  sponsor           Sponsor  @relation(fields: [sponsorId], references: [id], onDelete: Cascade)
+  scholar           Scholar  @relation(fields: [scholarId], references: [id], onDelete: Cascade)
+  
+  // Matching details
+  matchedAt         DateTime @default(now())
+  matchedBy         String?  // Admin user ID
+  matchNotes        String?  @db.Text
+  
+  // Status
+  status            MatchStatus @default(MATCHED)
+  
+  // Progress tracking
+  applicationStatus String?  // Scholarship application status
+  scholarshipSecured Boolean @default(false)
+  scholarshipAmount Float?
+  universityAdmitted String?
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@unique([sponsorId, scholarId])
+  @@map("sponsor_scholars")
 }
 
 // Enums
@@ -375,6 +480,24 @@ enum SponsorStatus {
   CONFIRMED
   ACTIVE
   COMPLETED
+}
+
+enum ScholarStatus {
+  APPLIED
+  REVIEWING
+  MATCHED
+  IN_PROGRESS
+  SCHOLARSHIP_SECURED
+  COMPLETED
+  ARCHIVED
+}
+
+enum MatchStatus {
+  MATCHED
+  ACTIVE
+  SCHOLARSHIP_SECURED
+  COMPLETED
+  ARCHIVED
 }
 
 enum UserRole {

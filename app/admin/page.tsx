@@ -96,7 +96,43 @@ export default function AdminDashboard() {
             <CardContent>
               <CardTitle className="mb-2">Sponsors</CardTitle>
               <CardDescription>
-                Manage sponsor applications, confirm payments, and assign scholars
+                Manage sponsor applications, confirm payments, and match with scholars
+              </CardDescription>
+            </CardContent>
+          </Card>
+
+          <Card
+            className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => router.push('/admin/scholars')}
+          >
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <GraduationCap className="h-8 w-8 text-green-600" />
+                <Button size="sm" variant="outline">Manage</Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <CardTitle className="mb-2">Scholars</CardTitle>
+              <CardDescription>
+                View scholar applications and manage matches with sponsors
+              </CardDescription>
+            </CardContent>
+          </Card>
+
+          <Card
+            className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => router.push('/admin/sponsors/match')}
+          >
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <Users className="h-8 w-8 text-purple-600" />
+                <Button size="sm" variant="outline">Match</Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <CardTitle className="mb-2">Match Sponsors & Scholars</CardTitle>
+              <CardDescription>
+                Match confirmed sponsors with scholar applicants
               </CardDescription>
             </CardContent>
           </Card>
@@ -125,7 +161,7 @@ export default function AdminDashboard() {
           >
             <CardHeader>
               <div className="flex items-center justify-between">
-                <Users className="h-8 w-8 text-purple-600" />
+                <Users className="h-8 w-8 text-orange-600" />
                 <Button size="sm" variant="outline">Manage</Button>
               </div>
             </CardHeader>
@@ -137,17 +173,20 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="opacity-50">
+          <Card
+            className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => router.push('/admin/reports')}
+          >
             <CardHeader>
               <div className="flex items-center justify-between">
                 <TrendingUp className="h-8 w-8 text-orange-600" />
-                <Button size="sm" variant="outline" disabled>Coming Soon</Button>
+                <Button size="sm" variant="outline">View</Button>
               </div>
             </CardHeader>
             <CardContent>
-              <CardTitle className="mb-2">Analytics</CardTitle>
+              <CardTitle className="mb-2">Reports & Analytics</CardTitle>
               <CardDescription>
-                View platform statistics, engagement metrics, and reports
+                View sponsorship program statistics and performance metrics
               </CardDescription>
             </CardContent>
           </Card>

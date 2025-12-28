@@ -312,21 +312,82 @@ export default function AdminSponsorsPage() {
                     </div>
                   )}
 
-                  <div className="flex gap-2 pt-4 border-t">
+                  {/* Payment Tracking */}
+                  {sponsor.status === "PENDING" && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
+                      <p className="text-sm font-semibold text-yellow-900 mb-2">Payment Pending</p>
+                      {sponsor.paymentReference && (
+                        <p className="text-xs text-yellow-800">
+                          <strong>Reference:</strong> {sponsor.paymentReference}
+                        </p>
+                      )}
+                      {sponsor.paymentNotes && (
+                        <p className="text-xs text-yellow-800 mt-1">
+                          <strong>Notes:</strong> {sponsor.paymentNotes}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {sponsor.paymentConfirmed && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+                      <p className="text-sm font-semibold text-green-900">
+                        ✓ Payment Confirmed
+                        {sponsor.paymentConfirmedAt && (
+                          <span className="text-xs font-normal ml-2">
+                            ({new Date(sponsor.paymentConfirmedAt).toLocaleDateString()})
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="flex gap-2 pt-4 border-t flex-wrap">
                     {sponsor.status === "PENDING" && (
-                      <Button
-                        size="sm"
-                        onClick={() => updateStatus(sponsor.id, "CONFIRMED")}
-                      >
-                        Confirm Payment
-                      </Button>
+                      <>
+                        <Button
+                          size="sm"
+                          onClick={async () => {
+                            const paymentRef = prompt("Enter payment reference/transaction number:");
+                            if (paymentRef) {
+                              try {
+                                const res = await fetch(`/api/sponsors/${sponsor.id}`, {
+                                  method: 'PATCH',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ 
+                                    status: "CONFIRMED",
+                                    paymentReference: paymentRef,
+                                    paymentConfirmed: true,
+                                  }),
+                                });
+                                if (res.ok) {
+                                  window.location.reload();
+                                }
+                              } catch (err) {
+                                alert('Failed to confirm payment');
+                              }
+                            }
+                          }}
+                        >
+                          Confirm Payment
+                        </Button>
+                      </>
                     )}
                     {sponsor.status === "CONFIRMED" && (
                       <Button
                         size="sm"
-                        onClick={() => updateStatus(sponsor.id, "ACTIVE")}
+                        onClick={() => router.push(`/admin/sponsors/match?sponsor=${sponsor.id}`)}
                       >
-                        Assign Scholar
+                        Match Scholar
+                      </Button>
+                    )}
+                    {sponsor.status === "ACTIVE" && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => router.push(`/admin/sponsors/match`)}
+                      >
+                        View Match
                       </Button>
                     )}
                     <Button
@@ -336,6 +397,22 @@ export default function AdminSponsorsPage() {
                     >
                       <Mail className="h-4 w-4 mr-2" />
                       Email
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        const notes = prompt("Add payment notes:", sponsor.paymentNotes || "");
+                        if (notes !== null) {
+                          fetch(`/api/sponsors/${sponsor.id}`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ paymentNotes: notes }),
+                          }).then(() => window.location.reload());
+                        }
+                      }}
+                    >
+                      Add Notes
                     </Button>
                   </div>
 

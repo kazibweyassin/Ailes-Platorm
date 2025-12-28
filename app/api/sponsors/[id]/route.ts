@@ -16,18 +16,39 @@ export async function PATCH(
       );
     }
 
-    const { status } = await req.json();
+    const body = await req.json();
+    const { status, paymentReference, paymentNotes, paymentConfirmed } = body;
 
-    if (!status || !["PENDING", "CONFIRMED", "ACTIVE", "COMPLETED"].includes(status)) {
-      return NextResponse.json(
-        { error: "Invalid status" },
-        { status: 400 }
-      );
+    const updateData: any = {};
+    
+    if (status) {
+      if (!["PENDING", "CONFIRMED", "ACTIVE", "COMPLETED"].includes(status)) {
+        return NextResponse.json(
+          { error: "Invalid status" },
+          { status: 400 }
+        );
+      }
+      updateData.status = status;
+    }
+
+    if (paymentReference !== undefined) {
+      updateData.paymentReference = paymentReference;
+    }
+
+    if (paymentNotes !== undefined) {
+      updateData.paymentNotes = paymentNotes;
+    }
+
+    if (paymentConfirmed !== undefined) {
+      updateData.paymentConfirmed = paymentConfirmed;
+      if (paymentConfirmed) {
+        updateData.paymentConfirmedAt = new Date();
+      }
     }
 
     const sponsor = await prisma.sponsor.update({
       where: { id: params.id },
-      data: { status },
+      data: updateData,
     });
 
     return NextResponse.json({ sponsor });
