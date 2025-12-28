@@ -94,32 +94,32 @@ export default function ScholarApplyPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 sm:p-6">
         <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <CheckCircle2 className="h-8 w-8 text-green-600" />
+          <CardHeader className="text-center px-4 sm:px-6">
+            <div className="mx-auto w-14 h-14 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center mb-3 sm:mb-4">
+              <CheckCircle2 className="h-7 w-7 sm:h-8 sm:w-8 text-green-600" />
             </div>
-            <CardTitle className="text-2xl">Application Received!</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-xl sm:text-2xl">Application Received!</CardTitle>
+            <CardDescription className="text-sm sm:text-base">
               Thank you for applying to our sponsorship program
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-gray-600 text-center">
+          <CardContent className="space-y-3 sm:space-y-4 px-4 sm:px-6 pb-6">
+            <p className="text-sm sm:text-base text-gray-600 text-center">
               We've received your application and will review it carefully. 
               Our team will contact you within 5-7 business days.
             </p>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-sm text-blue-900 font-semibold mb-2">What happens next?</p>
-              <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
+              <p className="text-sm sm:text-base text-blue-900 font-semibold mb-2">What happens next?</p>
+              <ol className="text-xs sm:text-sm text-blue-800 space-y-1 list-decimal list-inside">
                 <li>We review your application</li>
                 <li>We match you with potential sponsors</li>
                 <li>You'll receive an email with next steps</li>
               </ol>
             </div>
             <Button 
-              className="w-full" 
+              className="w-full text-sm sm:text-base" 
               onClick={() => router.push('/')}
             >
               Return to Home
@@ -131,40 +131,40 @@ export default function ScholarApplyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-gray-50 py-6 sm:py-8 md:py-12">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full mb-4">
-            <GraduationCap className="h-5 w-5 text-primary" />
-            <span className="text-sm font-medium text-primary">Apply for Sponsorship</span>
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="inline-flex items-center gap-2 bg-primary/10 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full mb-3 sm:mb-4">
+            <GraduationCap className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+            <span className="text-xs sm:text-sm font-medium text-primary">Apply for Sponsorship</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3 px-2">
             Scholar Application Form
           </h1>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto px-2">
             Apply to be matched with a sponsor who will support your scholarship journey. 
             Fill out all sections to complete your application.
           </p>
         </div>
 
         {/* Progress Steps */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
+        <div className="mb-6 sm:mb-8 px-2 sm:px-0">
+          <div className="flex items-center justify-between gap-1 sm:gap-2">
             {[1, 2, 3, 4].map((s) => (
-              <div key={s} className="flex items-center flex-1">
-                <div className={`flex flex-col items-center flex-1`}>
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
+              <div key={s} className="flex items-center flex-1 min-w-0">
+                <div className={`flex flex-col items-center flex-1 w-full`}>
+                  <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-semibold text-xs sm:text-sm flex-shrink-0 ${
                     step >= s ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'
                   }`}>
-                    {step > s ? <CheckCircle2 className="h-5 w-5" /> : s}
+                    {step > s ? <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" /> : s}
                   </div>
-                  <span className={`text-xs mt-2 ${step >= s ? 'text-primary font-medium' : 'text-gray-500'}`}>
+                  <span className={`text-[10px] sm:text-xs mt-1 sm:mt-2 text-center px-0.5 ${step >= s ? 'text-primary font-medium' : 'text-gray-500'} hidden xs:block`}>
                     {s === 1 ? 'Personal' : s === 2 ? 'Academic' : s === 3 ? 'Financial' : 'Additional'}
                   </span>
                 </div>
                 {s < 4 && (
-                  <div className={`h-1 flex-1 mx-2 ${step > s ? 'bg-primary' : 'bg-gray-200'}`} />
+                  <div className={`h-0.5 sm:h-1 flex-1 mx-1 sm:mx-2 min-w-[8px] ${step > s ? 'bg-primary' : 'bg-gray-200'}`} />
                 )}
               </div>
             ))}
@@ -187,13 +187,13 @@ export default function ScholarApplyPage() {
                 {step === 4 && "Work experience, achievements, and personal story"}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-4 sm:space-y-6">
               {/* Step 1: Personal Information */}
               {step === 1 && (
-                <div className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">First Name *</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">First Name *</label>
                       <Input
                         required
                         value={formData.firstName}
@@ -202,7 +202,7 @@ export default function ScholarApplyPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">Last Name *</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">Last Name *</label>
                       <Input
                         required
                         value={formData.lastName}
@@ -212,9 +212,9 @@ export default function ScholarApplyPage() {
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">Email *</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">Email *</label>
                       <Input
                         required
                         type="email"
@@ -224,7 +224,7 @@ export default function ScholarApplyPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">Phone *</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">Phone *</label>
                       <Input
                         required
                         type="tel"
@@ -235,9 +235,9 @@ export default function ScholarApplyPage() {
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">Date of Birth *</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">Date of Birth *</label>
                       <Input
                         required
                         type="date"
@@ -246,7 +246,7 @@ export default function ScholarApplyPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">Gender *</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">Gender *</label>
                       <select
                         required
                         value={formData.gender}
@@ -260,9 +260,9 @@ export default function ScholarApplyPage() {
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">Nationality *</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">Nationality *</label>
                       <Input
                         required
                         value={formData.nationality}
@@ -271,7 +271,7 @@ export default function ScholarApplyPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">Current Country *</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">Current Country *</label>
                       <Input
                         required
                         value={formData.currentCountry}
@@ -281,9 +281,9 @@ export default function ScholarApplyPage() {
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">City *</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">City *</label>
                       <Input
                         required
                         value={formData.city}
@@ -292,7 +292,7 @@ export default function ScholarApplyPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">Address</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">Address</label>
                       <Input
                         value={formData.address}
                         onChange={(e) => setFormData({...formData, address: e.target.value})}
@@ -305,10 +305,10 @@ export default function ScholarApplyPage() {
 
               {/* Step 2: Academic Background */}
               {step === 2 && (
-                <div className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-3 sm:space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">Current Degree *</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">Current Degree *</label>
                       <select
                         required
                         value={formData.currentDegree}
@@ -323,7 +323,7 @@ export default function ScholarApplyPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">Field of Study *</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">Field of Study *</label>
                       <Input
                         required
                         value={formData.fieldOfStudy}
@@ -333,9 +333,9 @@ export default function ScholarApplyPage() {
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">University/Institution *</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">University/Institution *</label>
                       <Input
                         required
                         value={formData.university}
@@ -344,7 +344,7 @@ export default function ScholarApplyPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">GPA/CGPA *</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">GPA/CGPA *</label>
                       <Input
                         required
                         value={formData.gpa}
@@ -354,9 +354,9 @@ export default function ScholarApplyPage() {
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">Graduation Year *</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">Graduation Year *</label>
                       <Input
                         required
                         value={formData.graduationYear}
@@ -365,7 +365,7 @@ export default function ScholarApplyPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">Current Year *</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">Current Year *</label>
                       <Input
                         required
                         value={formData.currentYear}
@@ -387,9 +387,9 @@ export default function ScholarApplyPage() {
                     </label>
 
                     {formData.hasTestScores && (
-                      <div className="grid md:grid-cols-2 gap-4 pl-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pl-4 sm:pl-6 mt-3">
                         <div>
-                          <label className="block text-sm font-medium mb-2">IELTS Score</label>
+                          <label className="block text-sm font-medium mb-1.5 sm:mb-2">IELTS Score</label>
                           <Input
                             value={formData.ieltsScore}
                             onChange={(e) => setFormData({...formData, ieltsScore: e.target.value})}
@@ -397,7 +397,7 @@ export default function ScholarApplyPage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium mb-2">TOEFL Score</label>
+                          <label className="block text-sm font-medium mb-1.5 sm:mb-2">TOEFL Score</label>
                           <Input
                             value={formData.toeflScore}
                             onChange={(e) => setFormData({...formData, toeflScore: e.target.value})}
@@ -405,7 +405,7 @@ export default function ScholarApplyPage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium mb-2">GRE Score</label>
+                          <label className="block text-sm font-medium mb-1.5 sm:mb-2">GRE Score</label>
                           <Input
                             value={formData.greScore}
                             onChange={(e) => setFormData({...formData, greScore: e.target.value})}
@@ -413,7 +413,7 @@ export default function ScholarApplyPage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium mb-2">GMAT Score</label>
+                          <label className="block text-sm font-medium mb-1.5 sm:mb-2">GMAT Score</label>
                           <Input
                             value={formData.gmatScore}
                             onChange={(e) => setFormData({...formData, gmatScore: e.target.value})}
@@ -424,9 +424,9 @@ export default function ScholarApplyPage() {
                     )}
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">Target Degree *</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">Target Degree *</label>
                       <select
                         required
                         value={formData.targetDegree}
@@ -440,7 +440,7 @@ export default function ScholarApplyPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">Target Countries *</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">Target Countries *</label>
                       <Input
                         required
                         value={formData.targetCountries}
@@ -450,9 +450,9 @@ export default function ScholarApplyPage() {
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">Target Fields *</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">Target Fields *</label>
                       <Input
                         required
                         value={formData.targetFields}
@@ -461,7 +461,7 @@ export default function ScholarApplyPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">Preferred Intake *</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">Preferred Intake *</label>
                       <Input
                         required
                         value={formData.preferredIntake}
@@ -475,21 +475,21 @@ export default function ScholarApplyPage() {
 
               {/* Step 3: Financial Information */}
               {step === 3 && (
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">Financial Need *</label>
+                    <label className="block text-sm font-medium mb-1.5 sm:mb-2">Financial Need *</label>
                     <textarea
                       required
                       value={formData.financialNeed}
                       onChange={(e) => setFormData({...formData, financialNeed: e.target.value})}
-                      className="w-full border rounded-lg p-3 min-h-[100px]"
+                      className="w-full border rounded-lg p-3 text-sm sm:text-base min-h-[100px] sm:min-h-[120px]"
                       placeholder="Describe your financial situation and why you need sponsorship..."
                     />
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">Current Funding Source *</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">Current Funding Source *</label>
                       <Input
                         required
                         value={formData.fundingSource}
@@ -498,7 +498,7 @@ export default function ScholarApplyPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">Expected Funding Needed *</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">Expected Funding Needed *</label>
                       <Input
                         required
                         value={formData.expectedFunding}
@@ -509,7 +509,7 @@ export default function ScholarApplyPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">Budget Range *</label>
+                    <label className="block text-sm font-medium mb-1.5 sm:mb-2">Budget Range *</label>
                     <select
                       required
                       value={formData.budgetRange}
@@ -530,7 +530,7 @@ export default function ScholarApplyPage() {
               {step === 4 && (
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-2">Work Experience</label>
+                    <label className="block text-sm font-medium mb-1.5 sm:mb-2">Work Experience</label>
                     <textarea
                       value={formData.workExperience}
                       onChange={(e) => setFormData({...formData, workExperience: e.target.value})}
@@ -540,7 +540,7 @@ export default function ScholarApplyPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">Research Experience</label>
+                    <label className="block text-sm font-medium mb-1.5 sm:mb-2">Research Experience</label>
                     <textarea
                       value={formData.researchExperience}
                       onChange={(e) => setFormData({...formData, researchExperience: e.target.value})}
@@ -551,7 +551,7 @@ export default function ScholarApplyPage() {
 
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium mb-2">Awards & Achievements</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">Awards & Achievements</label>
                       <Input
                         value={formData.awards}
                         onChange={(e) => setFormData({...formData, awards: e.target.value})}
@@ -559,7 +559,7 @@ export default function ScholarApplyPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium mb-2">Languages</label>
+                      <label className="block text-sm font-medium mb-1.5 sm:mb-2">Languages</label>
                       <Input
                         value={formData.languages}
                         onChange={(e) => setFormData({...formData, languages: e.target.value})}
@@ -569,25 +569,25 @@ export default function ScholarApplyPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">Volunteer Work</label>
+                    <label className="block text-sm font-medium mb-1.5 sm:mb-2">Volunteer Work</label>
                     <textarea
                       value={formData.volunteerWork}
                       onChange={(e) => setFormData({...formData, volunteerWork: e.target.value})}
-                      className="w-full border rounded-lg p-3 min-h-[80px]"
+                      className="w-full border rounded-lg p-3 text-sm sm:text-base min-h-[80px] sm:min-h-[100px]"
                       placeholder="Community service, volunteer activities..."
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-2">Personal Story *</label>
+                    <label className="block text-sm font-medium mb-1.5 sm:mb-2">Personal Story *</label>
                     <textarea
                       required
                       value={formData.personalStory}
                       onChange={(e) => setFormData({...formData, personalStory: e.target.value})}
-                      className="w-full border rounded-lg p-3 min-h-[150px]"
+                      className="w-full border rounded-lg p-3 text-sm sm:text-base min-h-[120px] sm:min-h-[150px]"
                       placeholder="Tell us your story. Why do you need sponsorship? What are your goals? How will this opportunity change your life and your community?..."
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-500 mt-1.5 sm:mt-2">
                       This is your chance to make a compelling case. Be authentic and detailed.
                     </p>
                   </div>
@@ -595,22 +595,24 @@ export default function ScholarApplyPage() {
               )}
 
               {/* Navigation Buttons */}
-              <div className="flex justify-between pt-6 border-t">
+              <div className="flex flex-col sm:flex-row justify-between gap-3 sm:gap-0 pt-4 sm:pt-6 border-t">
                 {step > 1 ? (
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setStep(step - 1)}
+                    className="w-full sm:w-auto order-2 sm:order-1"
                   >
                     Previous
                   </Button>
                 ) : (
-                  <div />
+                  <div className="hidden sm:block" />
                 )}
                 {step < 4 ? (
                   <Button
                     type="button"
                     onClick={() => setStep(step + 1)}
+                    className="w-full sm:w-auto order-1 sm:order-2"
                   >
                     Next
                   </Button>
@@ -618,6 +620,7 @@ export default function ScholarApplyPage() {
                   <Button
                     type="submit"
                     disabled={loading}
+                    className="w-full sm:w-auto order-1 sm:order-2"
                   >
                     {loading ? (
                       <>
