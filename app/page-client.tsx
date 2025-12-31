@@ -141,8 +141,14 @@ export default function HomeClient() {
                 before university selection - because admission without funding isn't an option.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 md:gap-4 pt-2">
-                <Link href="/find-scholarships" className="w-full sm:w-auto sm:flex-1">
-                  <Button size="lg" className="w-full sm:w-auto text-base sm:text-lg font-semibold py-6 sm:py-7 shadow-lg hover:shadow-xl transition-all">
+                <Link href="/auth/signup" className="w-full sm:w-auto sm:flex-1">
+                  <Button size="lg" className="w-full sm:w-auto text-base sm:text-lg font-semibold py-6 sm:py-7 shadow-lg hover:shadow-xl transition-all bg-primary hover:bg-primary/90 text-white">
+                    <Sparkles className="mr-2 h-5 w-5" />
+                    Get Started Free
+                  </Button>
+                </Link>
+                <Link href="/find-scholarships" className="w-full sm:w-auto">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto text-base sm:text-lg font-medium py-6 sm:py-7 border-2">
                     <Sparkles className="mr-2 h-5 w-5" />
                     Find My Scholarships (AI)
                   </Button>
@@ -150,7 +156,7 @@ export default function HomeClient() {
                 <Link href="/scholarships" className="w-full sm:w-auto">
                   <Button size="lg" variant="outline" className="w-full sm:w-auto text-base sm:text-lg font-medium py-6 sm:py-7 border-2">
                     {scholarshipCount !== null 
-                      ? `Browse ${scholarshipCount}+ Scholarships` 
+                      ? `Browse ${scholarshipCount}+` 
                       : 'Browse Scholarships'}
                   </Button>
                 </Link>
@@ -730,6 +736,81 @@ export default function HomeClient() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-2xl mx-auto">
             <LeadMagnet />
+          </div>
+        </div>
+      </section>
+
+      {/* Latest Resources */}
+      <section className="py-12 bg-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-dark mb-2">
+                Latest Resources & Guides
+              </h2>
+              <p className="text-sm md:text-base text-gray-600">
+                Expert guides to help you succeed in your scholarship journey
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card className="border-2 border-primary hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <div className="inline-block bg-primary text-white px-3 py-1 rounded-full text-xs font-bold mb-3">
+                        FEATURED
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">
+                        Top 20 Fully-Funded Scholarships for African Students in 2026
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        Discover the best fully-funded scholarship opportunities with amounts from $50K to $100K+. 
+                        Complete list with deadlines, requirements, and application tips.
+                      </p>
+                      <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-4 w-4" />
+                          <span>{new Date().toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Award className="h-4 w-4" />
+                          <span>12 min read</span>
+                        </div>
+                      </div>
+                      <Link href="/blog/top-20-scholarships-2026">
+                        <Button className="w-full sm:w-auto">
+                          Read Full Article
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card className="border-2 border-gray-200 hover:shadow-lg transition-shadow">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <div className="inline-block bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-xs font-bold mb-3">
+                        RESOURCES
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">
+                        More Helpful Guides
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        Explore our complete blog with guides on applications, visas, test prep, and success stories.
+                      </p>
+                      <Link href="/blog">
+                        <Button variant="outline" className="w-full sm:w-auto">
+                          Browse All Articles
+                          <ArrowRight className="ml-2 h-4 w-4" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </section>

@@ -17,7 +17,18 @@ export const metadata: Metadata = generateSEO({
 export default function BlogPage() {
   const articles = [
     {
-      id: 1,
+      id: "top-20-scholarships-2026",
+      title: "Top 20 Fully-Funded Scholarships for African Students in 2026",
+      excerpt:
+        "Discover the best fully-funded scholarship opportunities for African students in 2026. Complete list with amounts from $50K to $100K+, deadlines, and application requirements.",
+      category: "Scholarships",
+      date: new Date().toISOString().split('T')[0],
+      readTime: "12 min read",
+      image: "🎓",
+      slug: "top-20-scholarships-2026",
+    },
+    {
+      id: "study-in-canada",
       title: "How to Study in Canada: Complete Guide for African Students",
       excerpt:
         "Everything you need to know about studying in Canada, from application requirements to visa processes and living costs.",
@@ -25,19 +36,10 @@ export default function BlogPage() {
       date: "2025-01-15",
       readTime: "8 min read",
       image: "🇨🇦",
+      slug: "study-in-canada",
     },
     {
-      id: 2,
-      title: "Top 20 Scholarships for African Students in 2025",
-      excerpt:
-        "Comprehensive list of the best scholarship opportunities available to African students worldwide, with application deadlines and requirements.",
-      category: "Scholarships",
-      date: "2025-01-10",
-      readTime: "12 min read",
-      image: "🎓",
-    },
-    {
-      id: 3,
+      id: "germany-visa-guide",
       title: "Visa Requirements for Germany: Step-by-Step Guide",
       excerpt:
         "Navigate the German student visa process with our detailed guide covering documents, timelines, and interview tips.",
@@ -45,9 +47,10 @@ export default function BlogPage() {
       date: "2025-01-05",
       readTime: "10 min read",
       image: "🇩🇪",
+      slug: "germany-visa-guide",
     },
     {
-      id: 4,
+      id: "write-perfect-sop",
       title: "How to Write a Perfect Statement of Purpose (SOP)",
       excerpt:
         "Master the art of writing a compelling SOP that stands out to admissions committees. Includes examples and templates.",
@@ -55,9 +58,10 @@ export default function BlogPage() {
       date: "2024-12-28",
       readTime: "15 min read",
       image: "✍️",
+      slug: "write-perfect-sop",
     },
     {
-      id: 5,
+      id: "ielts-vs-toefl",
       title: "Understanding IELTS vs TOEFL: Which Test Should You Take?",
       excerpt:
         "Compare IELTS and TOEFL to determine which English proficiency test is right for your study abroad goals.",
@@ -65,9 +69,10 @@ export default function BlogPage() {
       date: "2024-12-20",
       readTime: "7 min read",
       image: "📝",
+      slug: "ielts-vs-toefl",
     },
     {
-      id: 6,
+      id: "cost-of-living-comparison",
       title: "Cost of Living: Studying in the US vs UK vs Canada",
       excerpt:
         "Compare living costs across top study destinations to help you plan your budget and choose the right country.",
@@ -75,6 +80,7 @@ export default function BlogPage() {
       date: "2024-12-15",
       readTime: "9 min read",
       image: "💰",
+      slug: "cost-of-living-comparison",
     },
   ];
 
@@ -116,7 +122,7 @@ export default function BlogPage() {
                   {articles[0].readTime}
                 </div>
               </div>
-              <Link href={`/blog/${articles[0].id}`}>
+              <Link href={articles[0].slug ? `/blog/${articles[0].slug}` : `/blog/${articles[0].id}`}>
                 <Button variant="secondary">Read Article</Button>
               </Link>
             </CardContent>
@@ -150,7 +156,7 @@ export default function BlogPage() {
                     {article.readTime}
                   </div>
                 </div>
-                <Link href={`/blog/${article.id}`}>
+                <Link href={(article as any).slug ? `/blog/${(article as any).slug}` : `/blog/${article.id}`}>
                   <Button variant="outline" className="w-full">
                     Read More
                     <ArrowRight className="ml-2 h-4 w-4" />

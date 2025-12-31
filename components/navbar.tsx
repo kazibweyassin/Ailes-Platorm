@@ -93,12 +93,19 @@ export function Navbar() {
                 Sign Out
               </Button>
             ) : (
-              <Link href="/auth/signin">
-                <Button variant="ghost" className="text-gray-dark hover:text-primary px-3 py-2">
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Sign In
-                </Button>
-              </Link>
+              <>
+                <Link href="/auth/signup">
+                  <Button className="bg-primary hover:bg-primary/90 text-white font-semibold px-5 py-2">
+                    Get Started
+                  </Button>
+                </Link>
+                <Link href="/auth/signin">
+                  <Button variant="ghost" className="text-gray-dark hover:text-primary px-3 py-2">
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Sign In
+                  </Button>
+                </Link>
+              </>
             )}
           </div>
 
@@ -174,12 +181,19 @@ export function Navbar() {
                   Sign Out
                 </Button>
               ) : (
-                <Link href="/auth/signin" onClick={() => setIsOpen(false)}>
-                  <Button variant="ghost" className="w-full text-gray-dark hover:text-primary hover:bg-primary/5 py-3">
-                    <LogIn className="mr-2 h-4 w-4" />
-                    Sign In
-                  </Button>
-                </Link>
+                <>
+                  <Link href="/auth/signup" onClick={() => setIsOpen(false)}>
+                    <Button className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3">
+                      Get Started
+                    </Button>
+                  </Link>
+                  <Link href="/auth/signin" onClick={() => setIsOpen(false)}>
+                    <Button variant="ghost" className="w-full text-gray-dark hover:text-primary hover:bg-primary/5 py-3">
+                      <LogIn className="mr-2 h-4 w-4" />
+                      Sign In
+                    </Button>
+                  </Link>
+                </>
               )}
             </div>
           </div>

@@ -22,6 +22,8 @@ import {
   Shield,
   TrendingUp,
   DollarSign,
+  Target,
+  BarChart3,
 } from "lucide-react";
 import { jsPDF } from "jspdf";
 
@@ -77,6 +79,11 @@ export default function SponsorPage() {
     totalFunding: null,
     successRate: null,
   });
+  const [animatedStats, setAnimatedStats] = useState({
+    sponsoredScholars: 0,
+    successRate: 0,
+    totalFunding: 0,
+  });
 
   // Fetch dynamic statistics
   useEffect(() => {
@@ -96,6 +103,54 @@ export default function SponsorPage() {
     };
     fetchStats();
   }, []);
+
+  // Animate stats on mount
+  useEffect(() => {
+    if (stats.sponsoredScholars !== null || stats.successRate !== null || stats.totalFunding !== null) {
+      const duration = 2000; // 2 seconds
+      const steps = 60;
+      const interval = duration / steps;
+
+      let currentStep = 0;
+      const timer = setInterval(() => {
+        currentStep++;
+        const progress = Math.min(currentStep / steps, 1);
+        // Easing function for smooth animation
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+
+        if (stats.sponsoredScholars !== null) {
+          setAnimatedStats(prev => ({
+            ...prev,
+            sponsoredScholars: Math.floor(stats.sponsoredScholars! * easeOut),
+          }));
+        }
+        if (stats.successRate !== null) {
+          setAnimatedStats(prev => ({
+            ...prev,
+            successRate: Math.floor(stats.successRate! * easeOut),
+          }));
+        }
+        if (stats.totalFunding !== null) {
+          setAnimatedStats(prev => ({
+            ...prev,
+            totalFunding: stats.totalFunding! * easeOut,
+          }));
+        }
+
+        if (currentStep >= steps) {
+          clearInterval(timer);
+          // Set final values
+          setAnimatedStats({
+            sponsoredScholars: stats.sponsoredScholars ?? 0,
+            successRate: stats.successRate ?? 0,
+            totalFunding: stats.totalFunding ?? 0,
+          });
+        }
+      }, interval);
+
+      return () => clearInterval(timer);
+    }
+  }, [stats.sponsoredScholars, stats.successRate, stats.totalFunding]);
 
   // Helper function to format currency for stats (with + suffix)
   const formatStatsCurrency = (amount: number | null): string => {
@@ -431,23 +486,23 @@ export default function SponsorPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section - Main CTA */}
-      <section className="relative bg-primary-light py-16 md:py-20">
+      <section className="relative bg-primary-light py-12 md:py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
+            <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full mb-4">
               <Sparkles className="h-4 w-4 text-slate-700" />
               <span className="text-sm font-medium text-slate-700">Change a Life Today</span>
             </div>
-            <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight text-gray-dark">
+            <h1 className="text-3xl md:text-4xl font-bold mb-3 leading-tight text-gray-dark">
               Sponsor a <span className="text-primary">Top-Performing Scholar</span>
             </h1>
-            <p className="text-base md:text-lg mb-3 text-gray-soft max-w-3xl mx-auto">
+            <p className="text-base md:text-lg mb-2 text-gray-soft max-w-3xl mx-auto">
               Help high-achieving African students who cannot afford tuition access world-class education
             </p>
-            <p className="text-sm md:text-base mb-8 text-gray-soft max-w-2xl mx-auto">
+            <p className="text-sm md:text-base mb-6 text-gray-soft max-w-2xl mx-auto">
               100% of your sponsorship goes directly to funding tuition for talented students who lack financial means
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
               <Button 
                 size="lg" 
                 className="text-lg px-10 py-7 bg-primary text-white hover:bg-primary/90 font-semibold shadow-xl hover:shadow-2xl transition-all transform hover:scale-105"
@@ -475,25 +530,55 @@ export default function SponsorPage() {
               </Link>
             </div>
             
-            {/* Trust Stats */}
-            <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto pt-8 border-t border-primary/20">
-              <div>
-                <div className="text-3xl md:text-4xl font-bold mb-1 text-primary">
-                  {stats.sponsoredScholars !== null ? stats.sponsoredScholars : '...'}
+            {/* Trust Stats with Visual Progress */}
+            <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto pt-6 border-t border-primary/20">
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold mb-2 text-primary">
+                  {stats.sponsoredScholars !== null ? animatedStats.sponsoredScholars : '...'}
                 </div>
-                <div className="text-sm text-gray-soft">Scholars Sponsored</div>
+                <div className="text-sm text-gray-soft mb-3">Scholars Sponsored</div>
+                <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                  <div 
+                    className="bg-primary h-full rounded-full transition-all duration-1000 ease-out"
+                    style={{ 
+                      width: stats.sponsoredScholars !== null 
+                        ? `${Math.min((animatedStats.sponsoredScholars / Math.max(stats.sponsoredScholars, 1)) * 100, 100)}%` 
+                        : '0%' 
+                    }}
+                  />
+                </div>
               </div>
-              <div>
-                <div className="text-3xl md:text-4xl font-bold mb-1 text-primary">
-                  {stats.successRate !== null ? `${stats.successRate}%` : '...'}
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold mb-2 text-primary">
+                  {stats.successRate !== null ? `${animatedStats.successRate}%` : '...'}
                 </div>
-                <div className="text-sm text-gray-soft">Success Rate</div>
+                <div className="text-sm text-gray-soft mb-3">Success Rate</div>
+                <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                  <div 
+                    className="bg-green-500 h-full rounded-full transition-all duration-1000 ease-out"
+                    style={{ 
+                      width: stats.successRate !== null 
+                        ? `${animatedStats.successRate}%` 
+                        : '0%' 
+                    }}
+                  />
+                </div>
               </div>
-              <div>
-                <div className="text-3xl md:text-4xl font-bold mb-1 text-primary">
-                  {formatStatsCurrency(stats.totalFunding)}
+              <div className="text-center">
+                <div className="text-3xl md:text-4xl font-bold mb-2 text-primary">
+                  {stats.totalFunding !== null ? formatStatsCurrency(animatedStats.totalFunding) : '...'}
                 </div>
-                <div className="text-sm text-gray-soft">Scholarships Secured</div>
+                <div className="text-sm text-gray-soft mb-3">Scholarships Secured</div>
+                <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                  <div 
+                    className="bg-primary h-full rounded-full transition-all duration-1000 ease-out"
+                    style={{ 
+                      width: stats.totalFunding !== null 
+                        ? `${Math.min((animatedStats.totalFunding / Math.max(stats.totalFunding, 1)) * 100, 100)}%` 
+                        : '0%' 
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -501,9 +586,9 @@ export default function SponsorPage() {
       </section>
 
       {/* Sponsorship Type Toggle */}
-      <section className="py-16">
+      <section className="py-12">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md mx-auto mb-12">
+            <div className="max-w-md mx-auto mb-8">
               <div className="flex gap-4 p-2 bg-gray-100 rounded-lg">
                 <button
                   onClick={() => setSponsorType("individual")}
@@ -532,7 +617,7 @@ export default function SponsorPage() {
 
           {/* Sponsorship Tiers */}
           <div className="max-w-6xl mx-auto" data-tiers>
-            <div className="text-center mb-12">
+            <div className="text-center mb-8">
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
                 Create a University Scholarship
               </h2>
@@ -543,7 +628,7 @@ export default function SponsorPage() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-3 gap-4">
               {sponsorshipTiers.map((tier, index) => (
                 <Card
                   key={index}
@@ -683,11 +768,98 @@ export default function SponsorPage() {
         </div>
       </section>
 
+      {/* Visual Journey Section */}
+      <section className="py-12 bg-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-green-500/5"></div>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full mb-4">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-gray-700">The Journey of Impact</span>
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+                From Your Donation to Their Graduation
+              </h2>
+              <p className="text-base text-gray-600 max-w-2xl mx-auto">
+                See how your sponsorship creates a lasting impact that extends far beyond the classroom
+              </p>
+            </div>
+
+            {/* Visual Timeline */}
+            <div className="relative">
+              {/* Connection Line */}
+              <div className="hidden md:block absolute top-24 left-0 right-0 h-1 bg-gradient-to-r from-primary via-green-500 to-primary"></div>
+              
+              <div className="grid md:grid-cols-4 gap-4">
+                {[
+                  {
+                    step: "1",
+                    title: "Your Donation",
+                    description: "You sponsor a scholar",
+                    icon: Heart,
+                    color: "bg-red-500",
+                    stat: "100%",
+                    statLabel: "Direct to Tuition"
+                  },
+                  {
+                    step: "2",
+                    title: "Scholar Matched",
+                    description: "Top-performing student selected",
+                    icon: Users,
+                    color: "bg-blue-500",
+                    stat: stats.sponsoredScholars !== null ? `${animatedStats.sponsoredScholars}+` : '...',
+                    statLabel: "Scholars Helped"
+                  },
+                  {
+                    step: "3",
+                    title: "Education Funded",
+                    description: "Tuition paid directly to university",
+                    icon: GraduationCap,
+                    color: "bg-purple-500",
+                    stat: formatStatsCurrency(stats.totalFunding),
+                    statLabel: "Total Funded"
+                  },
+                  {
+                    step: "4",
+                    title: "Future Transformed",
+                    description: "Graduate ready to change the world",
+                    icon: Award,
+                    color: "bg-green-500",
+                    stat: stats.successRate !== null ? `${stats.successRate}%` : '...',
+                    statLabel: "Success Rate"
+                  },
+                ].map((item, index) => (
+                  <div key={index} className="relative">
+                    <Card className="text-center border-2 border-gray-200 hover:border-primary transition-all hover:shadow-lg bg-white">
+                      <CardContent className="pt-6 pb-6">
+                        <div className={`w-16 h-16 ${item.color} rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg`}>
+                          <item.icon className="h-8 w-8 text-white" />
+                        </div>
+                        <div className="w-8 h-8 bg-white border-2 border-primary rounded-full mx-auto mb-3 flex items-center justify-center font-bold text-sm text-primary">
+                          {item.step}
+                        </div>
+                        <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
+                        <p className="text-sm text-gray-600 mb-4">{item.description}</p>
+                        <div className="pt-4 border-t border-gray-100">
+                          <div className="text-2xl font-bold text-primary mb-1">{item.stat}</div>
+                          <div className="text-xs text-gray-500">{item.statLabel}</div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* How It Works - Accordion */}
-      <section id="how-it-works" className="py-16 bg-gray-50">
+      <section id="how-it-works" className="py-12 bg-gray-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
               <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
                 How Scholarship Funding Works
               </h2>
@@ -696,7 +868,7 @@ export default function SponsorPage() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-3">
+            <div className="grid md:grid-cols-2 gap-2">
               {[
                 {
                   step: "1",
@@ -763,12 +935,12 @@ export default function SponsorPage() {
 
       {/* Corporate Partnership CTA */}
       {sponsorType === "corporate" && (
-        <section className="py-16 bg-gray-50">
+        <section className="py-12 bg-gray-50">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto">
               <Card className="border-2 border-slate-200">
-                <CardContent className="pt-8 pb-8">
-                  <div className="text-center mb-8">
+                <CardContent className="pt-6 pb-6">
+                  <div className="text-center mb-6">
                     <div className="w-20 h-20 bg-slate-100 rounded-full mx-auto mb-4 flex items-center justify-center">
                       <Building2 className="h-10 w-10 text-slate-700" />
                     </div>
@@ -780,7 +952,7 @@ export default function SponsorPage() {
                     </p>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-6 mb-8">
+                  <div className="grid md:grid-cols-2 gap-4 mb-6">
                     <div className="flex items-start gap-3">
                       <CheckCircle2 className="h-5 w-5 text-slate-700 flex-shrink-0 mt-0.5" />
                       <div>
@@ -838,11 +1010,147 @@ export default function SponsorPage() {
         </section>
       )}
 
-      {/* Visual Impact Section */}
-      <section className="py-16 bg-white">
+      {/* Visual Progress & Impact Section */}
+      <section className="py-12 bg-gradient-to-b from-primary-light/30 to-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full mb-4">
+                <BarChart3 className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-gray-700">Real Impact, Real Progress</span>
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+                See Your Impact Grow
+              </h2>
+              <p className="text-base text-gray-600 max-w-2xl mx-auto">
+                Every sponsorship creates a ripple effect. Watch how your contribution transforms lives and builds futures.
+              </p>
+            </div>
+
+            {/* Visual Progress Cards */}
+            <div className="grid md:grid-cols-2 gap-6 mb-8">
+              {/* Progress Card 1: Scholars Helped */}
+              <Card className="border-2 border-primary/20 shadow-lg overflow-hidden">
+                <div className="relative h-48 bg-gradient-to-br from-primary/20 to-primary/5">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                      <Users className="h-16 w-16 text-primary mx-auto mb-2" />
+                      <div className="text-4xl font-bold text-primary">
+                        {stats.sponsoredScholars !== null ? animatedStats.sponsoredScholars : '...'}
+                      </div>
+                      <div className="text-sm text-gray-600 mt-1">Lives Changed</div>
+                    </div>
+                  </div>
+                </div>
+                <CardContent className="pt-6">
+                  <h3 className="font-semibold text-lg mb-3">Scholars Sponsored</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Progress to Goal</span>
+                      <span className="font-medium text-primary">
+                        {stats.sponsoredScholars !== null 
+                          ? `${Math.min(Math.floor((animatedStats.sponsoredScholars / 200) * 100), 100)}%`
+                          : '...'}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                      <div 
+                        className="bg-gradient-to-r from-primary to-primary/80 h-full rounded-full transition-all duration-1000 ease-out"
+                        style={{ 
+                          width: stats.sponsoredScholars !== null 
+                            ? `${Math.min((animatedStats.sponsoredScholars / 200) * 100, 100)}%` 
+                            : '0%' 
+                        }}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Each scholar represents a dream realized and a future secured
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Progress Card 2: Funding Impact */}
+              <Card className="border-2 border-green-500/20 shadow-lg overflow-hidden">
+                <div className="relative h-48 bg-gradient-to-br from-green-500/20 to-green-500/5">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                      <DollarSign className="h-16 w-16 text-green-600 mx-auto mb-2" />
+                      <div className="text-3xl font-bold text-green-600">
+                        {stats.totalFunding !== null ? formatStatsCurrency(animatedStats.totalFunding) : '...'}
+                      </div>
+                      <div className="text-sm text-gray-600 mt-1">Scholarships Funded</div>
+                    </div>
+                  </div>
+                </div>
+                <CardContent className="pt-6">
+                  <h3 className="font-semibold text-lg mb-3">Financial Impact</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Annual Goal</span>
+                      <span className="font-medium text-green-600">
+                        {stats.totalFunding !== null 
+                          ? `${Math.min(Math.floor((animatedStats.totalFunding / 5000000) * 100), 100)}%`
+                          : '...'}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                      <div 
+                        className="bg-gradient-to-r from-green-500 to-green-600 h-full rounded-full transition-all duration-1000 ease-out"
+                        style={{ 
+                          width: stats.totalFunding !== null 
+                            ? `${Math.min((animatedStats.totalFunding / 5000000) * 100, 100)}%` 
+                            : '0%' 
+                        }}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      100% goes directly to tuition - no overhead, no intermediaries
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Impact Milestones */}
+            <div className="bg-white rounded-2xl p-6 md:p-8 shadow-lg border border-gray-200">
+              <div className="text-center mb-6">
+                <Target className="h-12 w-12 text-primary mx-auto mb-3" />
+                <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
+                  Our Impact Milestones
+                </h3>
+                <p className="text-gray-600">
+                  Together, we're building a brighter future for talented students
+                </p>
+              </div>
+              <div className="grid md:grid-cols-4 gap-4">
+                {[
+                  { icon: GraduationCap, label: "Graduates", value: "50+", color: "text-blue-600" },
+                  { icon: Award, label: "Countries", value: "15+", color: "text-purple-600" },
+                  { icon: TrendingUp, label: "Success Rate", value: stats.successRate !== null ? `${stats.successRate}%` : '...', color: "text-green-600" },
+                  { icon: Heart, label: "Active Sponsors", value: "100+", color: "text-red-600" },
+                ].map((milestone, idx) => (
+                  <div key={idx} className="text-center">
+                    <div className={`w-16 h-16 ${milestone.color.replace('text-', 'bg-').replace('-600', '-100')} rounded-full mx-auto mb-3 flex items-center justify-center`}>
+                      <milestone.icon className={`h-8 w-8 ${milestone.color}`} />
+                    </div>
+                    <div className={`text-2xl font-bold mb-1 ${milestone.color}`}>
+                      {milestone.value}
+                    </div>
+                    <div className="text-sm text-gray-600">{milestone.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Visual Impact Section */}
+      <section className="py-12 bg-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-8">
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
                 Where Your Donation Goes
               </h2>
@@ -851,7 +1159,7 @@ export default function SponsorPage() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8 mb-12">
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
               <Card className="text-center border-2 border-slate-100">
                 <CardContent className="pt-6">
                   <div className="w-16 h-16 bg-primary/10 rounded-full mx-auto mb-4 flex items-center justify-center">
@@ -889,9 +1197,9 @@ export default function SponsorPage() {
               </Card>
             </div>
 
-            {/* Impact Stories */}
-            <div className="bg-primary-light rounded-2xl p-8 md:p-12">
-              <div className="text-center mb-8">
+            {/* Impact Stories with Visuals */}
+            <div className="bg-primary-light rounded-2xl p-6 md:p-8">
+              <div className="text-center mb-6">
                 <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
                   Success Stories
                 </h3>
@@ -899,35 +1207,71 @@ export default function SponsorPage() {
                   Real impact from sponsors like you
                 </p>
               </div>
-              <div className="grid md:grid-cols-2 gap-6">
-                <Card className="bg-white">
+              <div className="grid md:grid-cols-2 gap-4">
+                <Card className="bg-white overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
+                  <div className="relative h-48 bg-gradient-to-br from-primary/20 to-primary/5">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
+                        <div className="w-full h-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+                          <GraduationCap className="h-16 w-16 text-white" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-                        <GraduationCap className="h-6 w-6 text-white" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-2">Sarah from Kenya</h4>
-                        <p className="text-sm text-gray-600 mb-2">
+                      <div className="flex-1">
+                        <h4 className="font-semibold mb-2 text-lg">Nakato from Uganda</h4>
+                        <p className="text-sm text-gray-600 mb-3 leading-relaxed">
                           "Thanks to my sponsor, I'm now studying Computer Science at a top university. Without this scholarship, I couldn't have afforded tuition."
                         </p>
-                        <p className="text-xs text-gray-500">Sponsored: 2023 • Currently: Year 2</p>
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <span>Sponsored: 2023 • Currently: Year 2</span>
+                        </div>
+                        <div className="mt-3 pt-3 border-t border-gray-100">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-gray-600">Progress</span>
+                            <span className="font-semibold text-primary">75% Complete</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
+                            <div className="bg-primary h-full rounded-full" style={{ width: '75%' }}></div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-                <Card className="bg-white">
+                <Card className="bg-white overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
+                  <div className="relative h-48 bg-gradient-to-br from-green-500/20 to-green-500/5">
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg">
+                        <div className="w-full h-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
+                          <Award className="h-16 w-16 text-white" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <CardContent className="pt-6">
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-                        <Award className="h-6 w-6 text-white" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold mb-2">Amina from Nigeria</h4>
-                        <p className="text-sm text-gray-600 mb-2">
+                      <div className="flex-1">
+                        <h4 className="font-semibold mb-2 text-lg">Namukasa from Uganda</h4>
+                        <p className="text-sm text-gray-600 mb-3 leading-relaxed">
                           "My sponsor's support changed everything. I'm maintaining a 3.8 GPA in Medicine and on track to graduate next year."
                         </p>
-                        <p className="text-xs text-gray-500">Sponsored: 2022 • Currently: Year 3</p>
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <span>Sponsored: 2022 • Currently: Year 3</span>
+                        </div>
+                        <div className="mt-3 pt-3 border-t border-gray-100">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-gray-600">Progress</span>
+                            <span className="font-semibold text-green-600">90% Complete</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
+                            <div className="bg-green-500 h-full rounded-full" style={{ width: '90%' }}></div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
@@ -939,10 +1283,10 @@ export default function SponsorPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-12 bg-gray-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
+            <div className="text-center mb-8">
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
                 Frequently Asked Questions
               </h2>
@@ -1016,12 +1360,12 @@ export default function SponsorPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-16 bg-slate-900 text-white">
+      <section className="py-12 bg-slate-900 text-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl md:text-3xl font-bold mb-4">
             Ready to Bridge the Gap?
           </h2>
-          <p className="text-base md:text-lg mb-8 max-w-2xl mx-auto opacity-90">
+          <p className="text-base md:text-lg mb-6 max-w-2xl mx-auto opacity-90">
             Help top-performing students overcome financial barriers. Your sponsorship transforms academic excellence into opportunity.
           </p>
           <Button 
