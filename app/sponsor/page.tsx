@@ -537,10 +537,10 @@ export default function SponsorPage() {
             </p>
 
             {/* Urgent Deadline Box */}
-            <div className="inline-block bg-red-600 text-white px-6 py-3 rounded-lg mb-6 shadow-lg">
-              <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                <span className="font-semibold">Tuition Deadline: January 15, 2025 (12 days away)</span>
+            <div className="inline-block bg-red-600 text-white px-4 py-3 sm:px-6 rounded-lg mb-6 shadow-lg max-w-full">
+              <div className="flex items-center gap-2 flex-wrap justify-center">
+                <Clock className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                <span className="font-semibold text-sm sm:text-base text-center">Tuition Deadline: January 15, 2025 (12 days away)</span>
               </div>
             </div>
 
@@ -583,9 +583,9 @@ export default function SponsorPage() {
 
             {/* Three CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <Button 
-                size="lg" 
-                className="text-lg px-8 py-6 bg-primary hover:bg-primary/90 text-white font-semibold shadow-xl"
+                <Button
+                  size="lg"
+                  className="text-base sm:text-lg px-6 py-5 sm:px-8 sm:py-6 bg-primary hover:bg-primary/90 text-white font-semibold shadow-xl"
                 onClick={() => {
                   // Scroll to student profiles section
                   const profiles = document.querySelector('[data-student-profiles]');
@@ -598,10 +598,10 @@ export default function SponsorPage() {
                 Sponsor Grace - $2,000
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-                <Button 
-                  size="lg" 
+                <Button
+                  size="lg"
                   variant="outline"
-                className="text-lg px-8 py-6 border-2 border-primary text-primary bg-white hover:bg-primary-light"
+                  className="text-base sm:text-lg px-6 py-5 sm:px-8 sm:py-6 border-2 border-primary text-primary bg-white hover:bg-primary-light"
                 onClick={() => {
                   const profiles = document.querySelector('[data-student-profiles]');
                   if (profiles) {
@@ -612,9 +612,9 @@ export default function SponsorPage() {
                 See All Students
                 <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-              <Button 
-                size="lg" 
-                className="text-lg px-8 py-6 bg-primary hover:bg-primary/90 text-white font-semibold"
+                <Button
+                  size="lg"
+                  className="text-base sm:text-lg px-6 py-5 sm:px-8 sm:py-6 bg-primary hover:bg-primary/90 text-white font-semibold"
                 onClick={() => {
                   const tiers = document.querySelector('[data-tiers]');
                   if (tiers) {
@@ -943,7 +943,7 @@ export default function SponsorPage() {
                     "I want to become a doctor to serve my rural community where the nearest hospital is 50km away. My mother sells vegetables but cannot afford my tuition."
                   </blockquote>
                   <div className="bg-primary-light rounded-lg p-3 mb-3">
-                    <div className="text-3xl font-bold text-primary mb-0.5">$2,000</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-primary mb-0.5">$2,000</div>
                     <div className="text-xs text-gray-600">Covers full year tuition + textbooks</div>
                   </div>
                   <Button className="w-full bg-primary hover:bg-primary/90 text-sm py-2" onClick={() => handleSelectTier({ name: "Full Year Scholarship", amount: 2000 })}>
@@ -1000,7 +1000,7 @@ export default function SponsorPage() {
                     "I taught myself coding on a borrowed phone. I built 3 apps that are used by 5,000+ people in my community. With a CS degree, I can create technology solutions for African problems."
                   </blockquote>
                   <div className="bg-primary-light rounded-lg p-3 mb-3">
-                    <div className="text-3xl font-bold text-primary mb-0.5">$1,800</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-primary mb-0.5">$1,800</div>
                     <div className="text-xs text-gray-600">Covers full year tuition + textbooks</div>
                   </div>
                   <Button className="w-full bg-primary hover:bg-primary/90 text-sm py-2" onClick={() => {
@@ -1059,7 +1059,7 @@ export default function SponsorPage() {
               {/* Connection Line */}
               <div className="hidden md:block absolute top-24 left-0 right-0 h-1 bg-primary"></div>
               
-              <div className="grid md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 {[
                   {
                     step: "1",
@@ -1243,7 +1243,7 @@ export default function SponsorPage() {
               </h2>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
               {/* Column 1: University Receipt */}
               <Card className="text-center border-2 border-gray-200 hover:border-primary transition-all">
                 <CardContent className="pt-6">
@@ -1600,7 +1600,7 @@ export default function SponsorPage() {
                   With your support, we aim to achieve these milestones
                 </p>
               </div>
-              <div className="grid md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
                 {[
                   { icon: GraduationCap, label: "Students to Sponsor", value: "50+", color: "text-primary", description: "Our target for this year" },
                   { icon: Award, label: "Countries", value: "5+", color: "text-primary", description: "Expanding our reach" },
@@ -1608,13 +1608,13 @@ export default function SponsorPage() {
                   { icon: Heart, label: "Sponsors Needed", value: "50+", color: "text-primary", description: "Join our community" },
                 ].map((milestone, idx) => (
                   <div key={idx} className="text-center">
-                    <div className={`w-16 h-16 bg-primary/10 rounded-full mx-auto mb-3 flex items-center justify-center`}>
-                      <milestone.icon className={`h-8 w-8 ${milestone.color}`} />
+                    <div className={`w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-full mx-auto mb-2 sm:mb-3 flex items-center justify-center`}>
+                      <milestone.icon className={`h-6 w-6 sm:h-8 sm:w-8 ${milestone.color}`} />
                     </div>
-                    <div className={`text-2xl font-bold mb-1 ${milestone.color}`}>
+                    <div className={`text-xl sm:text-2xl font-bold mb-1 ${milestone.color}`}>
                       {milestone.value}
                     </div>
-                    <div className="text-sm text-gray-600 mb-1">{milestone.label}</div>
+                    <div className="text-xs sm:text-sm text-gray-600 mb-1">{milestone.label}</div>
                     <div className="text-xs text-gray-500">{milestone.description}</div>
                   </div>
                 ))}
@@ -1676,16 +1676,16 @@ export default function SponsorPage() {
             </div>
 
             {/* Impact Stories with Visuals */}
-            <div className="bg-primary-light rounded-2xl p-6 md:p-8">
+            <div className="bg-primary-light rounded-2xl p-4 sm:p-6 md:p-8">
               <div className="text-center mb-6">
-                <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
+                <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2">
                   Success Stories
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-sm sm:text-base text-gray-600">
                   Real impact from sponsors like you
                 </p>
               </div>
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Testimonial 1 - Namukasa */}
                 <Card className="bg-white overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
                   <div className="relative h-48 bg-green-50">
@@ -2043,34 +2043,34 @@ export default function SponsorPage() {
       <section className="py-16 bg-primary text-white relative overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 px-4">
               15 Students Need Sponsors by January 15
           </h2>
-            <div className="space-y-4 mb-8">
-              <p className="text-xl opacity-90">
+            <div className="space-y-4 mb-8 px-4">
+              <p className="text-lg sm:text-xl opacity-90">
                 These students have admission letters. They have dreams. They have talent.
               </p>
-              <p className="text-xl opacity-90">
+              <p className="text-lg sm:text-xl opacity-90">
                 They just don't have $2,000 for tuition.
               </p>
-              <p className="text-xl font-semibold">
+              <p className="text-lg sm:text-xl font-semibold">
                 You can change that today.
               </p>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-3 gap-4 mb-8 max-w-2xl mx-auto">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 max-w-2xl mx-auto">
               <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 border border-white/30">
-                <div className="text-3xl md:text-4xl font-bold mb-1">12 Days</div>
-                <div className="text-sm opacity-90">Until Deadline</div>
+                <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1">12 Days</div>
+                <div className="text-xs sm:text-sm opacity-90">Until Deadline</div>
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 border border-white/30">
-                <div className="text-3xl md:text-4xl font-bold mb-1">$2,000</div>
-                <div className="text-sm opacity-90">Changes a Life</div>
+                <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1">$2,000</div>
+                <div className="text-xs sm:text-sm opacity-90">Changes a Life</div>
               </div>
               <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 border border-white/30">
-                <div className="text-3xl md:text-4xl font-bold mb-1">10,000+</div>
-                <div className="text-sm opacity-90">Lives Impacted</div>
+                <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1">10,000+</div>
+                <div className="text-xs sm:text-sm opacity-90">Lives Impacted</div>
               </div>
             </div>
 
@@ -2078,7 +2078,7 @@ export default function SponsorPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
           <Button 
             size="lg" 
-                className="bg-white text-primary hover:bg-gray-100 font-semibold text-lg px-8 py-6 shadow-xl"
+                className="bg-white text-primary hover:bg-gray-100 font-semibold text-base sm:text-lg px-6 py-5 sm:px-8 sm:py-6 shadow-xl"
                 onClick={() => {
                   const profiles = document.querySelector('[data-student-profiles]');
                   if (profiles) {
@@ -2092,7 +2092,7 @@ export default function SponsorPage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-2 border-white text-white hover:bg-white/10 font-semibold text-lg px-8 py-6"
+                className="border-2 border-white text-white hover:bg-white/10 font-semibold text-base sm:text-lg px-6 py-5 sm:px-8 sm:py-6"
             onClick={() => {
               const tiers = document.querySelector('[data-tiers]');
               if (tiers) {
@@ -2106,7 +2106,7 @@ export default function SponsorPage() {
             </div>
 
             {/* Trust Line */}
-            <div className="flex flex-wrap items-center justify-center gap-4 text-sm opacity-75">
+            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm opacity-75 px-4">
               <span className="flex items-center gap-1">
                 <Shield className="h-4 w-4" />
                 Secure payment
@@ -2132,8 +2132,8 @@ export default function SponsorPage() {
 
       {/* Sponsorship Form Modal */}
       {showForm && !submitted && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <Card className="w-full max-w-2xl my-8 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4 overflow-y-auto">
+          <Card className="w-full max-w-2xl my-4 sm:my-8 max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
             <CardHeader>
               <div className="flex items-center justify-between mb-4">
                 <div>
