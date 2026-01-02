@@ -22,6 +22,8 @@ import {
   Loader2,
   AlertCircle,
   LogIn,
+  Bot,
+  Download,
 } from "lucide-react";
 
 interface DashboardStats {
@@ -67,6 +69,7 @@ export default function DashboardPage() {
   const [upcomingDeadlines, setUpcomingDeadlines] = useState<any[]>([]);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
+  const [copilotRequests, setCopilotRequests] = useState<any[]>([]);
 
   // Redirect to signin if not authenticated
   useEffect(() => {
@@ -91,11 +94,12 @@ export default function DashboardPage() {
       setError(null);
 
       // Fetch all dashboard data in parallel
-      const [savedRes, deadlinesRes, matchRes, applicationsRes] = await Promise.all([
+      const [savedRes, deadlinesRes, matchRes, applicationsRes, copilotRes] = await Promise.all([
         fetch('/api/saved/scholarships').catch(() => null),
         fetch('/api/scholarships/deadlines').catch(() => null),
         fetch('/api/scholarships/match').catch(() => null),
         fetch('/api/applications').catch(() => null),
+        fetch('/api/copilot/requests').catch(() => null),
       ]);
 
       // Process saved scholarships
@@ -143,6 +147,12 @@ export default function DashboardPage() {
       if (applicationsRes?.ok) {
         const appsData = await applicationsRes.json();
         setApplications(appsData.applications || []);
+      }
+
+      // Process copilot requests
+      if (copilotRes?.ok) {
+        const copilotData = await copilotRes.json();
+        setCopilotRequests(copilotData || []);
       }
 
       // Update stats
@@ -494,6 +504,79 @@ export default function DashboardPage() {
                     </Link>
                   </CardContent>
                 </Card>
+
+                {/* Copilot Requests */}
+                {copilotRequests.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="flex items-center gap-2">
+                          <Bot className="h-5 w-5 text-primary" />
+                          AI Copilot
+                        </CardTitle>
+                        <Link href="/copilot/activate">
+                          <Button size="sm" variant="outline">New</Button>
+                        </Link>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {copilotRequests.slice(0, 3).map((request: any) => (
+                        <div
+                          key={request.id}
+                          className="p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors"
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex-1">
+                              <p className="text-sm font-semibold text-gray-900">
+                                Request #{request.id.slice(0, 8)}
+                              </p>
+                              <p className="text-xs text-gray-600 mt-1">
+                                {new Date(request.createdAt).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <span
+                              className={`text-xs px-2 py-1 rounded-full ${
+                                request.status === "completed"
+                                  ? "bg-green-100 text-green-800"
+                                  : request.status === "processing"
+                                  ? "bg-blue-100 text-blue-800"
+                                  : "bg-yellow-100 text-yellow-800"
+                              }`}
+                            >
+                              {request.status}
+                            </span>
+                          </div>
+                          {request.documents && (request.documents as any)?.zipGenerated && (
+                            <a
+                              href={`/api/copilot/download?requestId=${request.id}`}
+                              download
+                              className="block mt-2"
+                            >
+                              <Button size="sm" variant="outline" className="w-full">
+                                <Download className="h-3 w-3 mr-2" />
+                                Download Package
+                              </Button>
+                            </a>
+                          )}
+                          {request.status === "pending" && (
+                            <Link href="/copilot/review" className="block mt-2">
+                              <Button size="sm" variant="outline" className="w-full">
+                                Review
+                              </Button>
+                            </Link>
+                          )}
+                        </div>
+                      ))}
+                      {copilotRequests.length > 3 && (
+                        <Link href="/copilot/review">
+                          <Button variant="outline" size="sm" className="w-full">
+                            View All ({copilotRequests.length})
+                          </Button>
+                        </Link>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
 
                 {/* Recent Activity */}
                 <Card>

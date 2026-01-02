@@ -253,7 +253,7 @@ export default function HomeClient() {
                 <div className="flex-shrink-0">
                   <Link href="/copilot/activate">
                     <Button size="lg" className="w-full md:w-auto bg-primary hover:bg-primary/90 text-white font-bold text-base md:text-lg px-8 py-6 sm:py-7 shadow-lg hover:shadow-xl transition-all border-2 border-primary">
-                      🚀 Activate Now
+                      Activate Now
                     </Button>
                   </Link>
                 </div>

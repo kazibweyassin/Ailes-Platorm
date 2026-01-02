@@ -194,15 +194,57 @@ export default function CopilotReviewPage() {
                       Your Application Package
                     </h3>
                     {copilotRequest.documents ? (
-                      <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                        <pre className="text-xs overflow-x-auto whitespace-pre-wrap">
-                          {JSON.stringify(copilotRequest.documents, null, 2)}
-                        </pre>
+                      <div className="space-y-4">
+                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                          <div className="flex items-center justify-between mb-3">
+                            <p className="text-sm font-semibold text-gray-900">Documents Generated</p>
+                            {(copilotRequest.documents as any)?.zipGenerated && (
+                              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                                ZIP Ready
+                              </span>
+                            )}
+                          </div>
+                          <div className="space-y-2 text-sm text-gray-700">
+                            {(copilotRequest.documents as any)?.motivationLetter && (
+                              <div className="flex items-center gap-2">
+                                <FileText className="h-4 w-4 text-primary" />
+                                <span>Motivation Letter</span>
+                              </div>
+                            )}
+                            {(copilotRequest.documents as any)?.personalStatement && (
+                              <div className="flex items-center gap-2">
+                                <FileText className="h-4 w-4 text-primary" />
+                                <span>Personal Statement</span>
+                              </div>
+                            )}
+                            {(copilotRequest.documents as any)?.filledFormPreview && (
+                              <div className="flex items-center gap-2">
+                                <FileText className="h-4 w-4 text-primary" />
+                                <span>Form Mappings ({((copilotRequest.documents as any)?.filledFormPreview || []).length} fields)</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        {(copilotRequest.documents as any)?.zipGenerated && (
+                          <a
+                            href={`/api/copilot/download?requestId=${copilotRequest.id}`}
+                            download
+                            className="block"
+                          >
+                            <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
+                              <Download className="mr-2 h-5 w-5" />
+                              Download Complete Package (ZIP)
+                            </Button>
+                          </a>
+                        )}
                       </div>
                     ) : (
                       <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
                         <p className="text-sm text-gray-700">
                           Your documents are being generated. This may take up to 24 hours.
+                        </p>
+                        <p className="text-xs text-gray-600 mt-2">
+                          You'll receive an email at <strong>{copilotRequest.paymentEmail}</strong> when ready.
                         </p>
                       </div>
                     )}

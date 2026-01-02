@@ -235,10 +235,19 @@ export async function POST(req: Request) {
     
     // Get AI client (OpenAI, Gemini, or null for template fallback)
     const aiClient = getAIClient();
+    const hasOpenAI = !!(process.env.OPENAI_API_KEY || process.env.OPENAI_KEY);
+    const hasGemini = !!process.env.GEMINI_API_KEY;
+    
     console.log('[Chat API] AI Client type:', aiClient?.type || 'none (template fallback)');
-    console.log('[Chat API] Environment check - OPENAI_API_KEY:', process.env.OPENAI_API_KEY ? 'SET' : 'NOT SET');
-    console.log('[Chat API] Environment check - OPENAI_KEY:', process.env.OPENAI_KEY ? 'SET' : 'NOT SET');
-    console.log('[Chat API] Environment check - GEMINI_API_KEY:', process.env.GEMINI_API_KEY ? 'SET' : 'NOT SET');
+    console.log('[Chat API] Environment check - OPENAI_API_KEY:', hasOpenAI ? 'SET' : 'NOT SET');
+    console.log('[Chat API] Environment check - GEMINI_API_KEY:', hasGemini ? 'SET' : 'NOT SET');
+    
+    // Warn if no AI is configured
+    if (!aiClient) {
+      console.warn('[Chat API] ⚠️ NO AI CONFIGURED - Using template responses only!');
+      console.warn('[Chat API] To enable AI: Set GEMINI_API_KEY (free) or OPENAI_API_KEY in .env file');
+      console.warn('[Chat API] Get Gemini key: https://makersuite.google.com/app/apikey');
+    }
 
     // Validate the message
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
@@ -320,6 +329,7 @@ export async function POST(req: Request) {
             if (aiClient) {
               try {
                 if (aiClient.type === 'openai') {
+                  console.log('[Chat] 🤖 Using OpenAI to generate scholarship match response');
                   const aiResponse = await retryWithBackoff(async () => {
                     return await aiClient.client.chat.completions.create({
                       model: process.env.OPENAI_MODEL || "gpt-4o-mini",
@@ -332,28 +342,44 @@ export async function POST(req: Request) {
                     });
                   });
                   aiReply = aiResponse.choices[0]?.message?.content || aiReply;
+                  console.log('[Chat] ✅ OpenAI response received');
                 } else if (aiClient.type === 'gemini') {
-                  try {
-                    const model = aiClient.client.getGenerativeModel({ model: "gemini-pro" });
-                    const prompt = `${systemPrompt}\n\nHere are ${topMatches.length} scholarships that match the user's profile:\n\n${matchesText}\n\nProvide a helpful response introducing these matches.`;
-                    console.log('[Chat] Using Gemini to generate scholarship match response');
-                    const result = await model.generateContent(prompt);
-                    const text = result.response.text();
-                    if (text) {
-                      aiReply = text;
-                      console.log('[Chat] Gemini scholarship match response received');
+                  // Try multiple model names
+                  const modelNames = process.env.GEMINI_MODEL 
+                    ? [process.env.GEMINI_MODEL]
+                    : ['gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-pro'];
+                  
+                  for (const modelName of modelNames) {
+                    try {
+                      console.log(`[Chat] 🤖 Trying Gemini model: ${modelName} for scholarship matches`);
+                      const model = aiClient.client.getGenerativeModel({ model: modelName });
+                      const prompt = `${systemPrompt}\n\nHere are ${topMatches.length} scholarships that match the user's profile:\n\n${matchesText}\n\nProvide a helpful response introducing these matches.`;
+                      const result = await model.generateContent(prompt);
+                      const text = result.response.text();
+                      if (text) {
+                        aiReply = text;
+                        console.log(`[Chat] ✅ Successfully used Gemini model: ${modelName} for scholarship matches`);
+                        break;
+                      }
+                    } catch (geminiError: any) {
+                      console.warn(`[Chat] ⚠️ Model ${modelName} failed for scholarship matches:`, geminiError.message);
+                      // Continue to next model
+                      continue;
                     }
-                  } catch (geminiError: any) {
-                    console.error('[Chat] Gemini error for scholarship matches:', geminiError);
-                    // Fall through to template response
                   }
                 }
-              } catch (aiError) {
-                console.error('AI error, using fallback:', aiError);
+              } catch (aiError: any) {
+                console.error('[Chat] ❌ AI error, using fallback:', aiError.message || aiError);
+                console.error('[Chat] Error details:', {
+                  status: aiError.status,
+                  code: aiError.code,
+                  type: aiError.constructor.name
+                });
                 // Fall through to template response
               }
             } else {
               // Use template response if no AI available
+              console.warn('[Chat] ⚠️ No AI client available - using template response');
               aiReply = getTemplateResponse(message, context);
             }
             
@@ -410,6 +436,7 @@ export async function POST(req: Request) {
     if (aiClient) {
       try {
         if (aiClient.type === 'openai') {
+          console.log('[Chat] 🤖 Using OpenAI to generate response');
           const response = await retryWithBackoff(async () => {
             return await aiClient.client.chat.completions.create({
               model: process.env.OPENAI_MODEL || "gpt-4o-mini",
@@ -422,38 +449,63 @@ export async function POST(req: Request) {
             });
           });
           reply = response.choices[0]?.message?.content || reply;
+          console.log('[Chat] ✅ OpenAI response received successfully');
         } else if (aiClient.type === 'gemini') {
-          try {
-            const model = aiClient.client.getGenerativeModel({ model: "gemini-pro" });
-            const prompt = `${systemPrompt}\n\nUser: ${message}`;
-            console.log('[Chat] Using Gemini to generate response');
-            const result = await model.generateContent(prompt);
-            const text = result.response.text();
-            if (text) {
-              reply = text;
-              console.log('[Chat] Gemini response received successfully');
-            } else {
-              console.warn('[Chat] Gemini returned empty response');
-              reply = getTemplateResponse(message, context);
+          // Try multiple model names in order
+          const modelNames = process.env.GEMINI_MODEL 
+            ? [process.env.GEMINI_MODEL]
+            : ['gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-pro'];
+          
+          let geminiSuccess = false;
+          let lastError: any = null;
+          
+          for (const modelName of modelNames) {
+            try {
+              console.log(`[Chat] 🤖 Trying Gemini model: ${modelName}`);
+              const model = aiClient.client.getGenerativeModel({ model: modelName });
+              const prompt = `${systemPrompt}\n\nUser: ${message}`;
+              const result = await model.generateContent(prompt);
+              const text = result.response.text();
+              if (text) {
+                reply = text;
+                console.log(`[Chat] ✅ Successfully used Gemini model: ${modelName}`);
+                geminiSuccess = true;
+                break;
+              }
+            } catch (geminiError: any) {
+              console.warn(`[Chat] ⚠️ Model ${modelName} failed:`, geminiError.message);
+              lastError = geminiError;
+              // Continue to next model
+              continue;
             }
-          } catch (geminiError: any) {
-            console.error('[Chat] Gemini error:', geminiError);
-            console.error('[Chat] Gemini error details:', {
-              message: geminiError.message,
-              status: geminiError.status,
-              code: geminiError.code
-            });
+          }
+          
+          if (!geminiSuccess) {
+            console.error('[Chat] ❌ All Gemini models failed');
+            console.error('[Chat] Last error:', lastError?.message || 'Unknown error');
             reply = getTemplateResponse(message, context);
+            reply += `\n\n---\n⚠️ **AI Error:** ${lastError?.message || 'Failed to generate AI response. Please check your GEMINI_API_KEY is valid and try a different model name.'}`;
           }
         }
-      } catch (aiError) {
-        console.error('AI error, using template fallback:', aiError);
+      } catch (aiError: any) {
+        console.error('[Chat] ❌ AI error, using template fallback:', aiError.message || aiError);
+        console.error('[Chat] Error details:', {
+          message: aiError.message,
+          status: aiError.status,
+          code: aiError.code,
+          type: aiError.constructor.name
+        });
         // Fall through to template response
         reply = getTemplateResponse(message, context);
+        reply += `\n\n---\n⚠️ **AI Error:** ${aiError.message || 'Failed to generate AI response'}. Check your API key and account status.`;
       }
     } else {
       // No AI available - use template responses
+      console.warn('[Chat API] ⚠️ No AI client available - returning template response');
       reply = getTemplateResponse(message, context);
+      
+      // Add helpful message about AI setup
+      reply += `\n\n---\n💡 **Note:** AI responses are currently disabled. To enable AI chat, add \`GEMINI_API_KEY\` (free) or \`OPENAI_API_KEY\` to your .env file. Get a free Gemini key at https://makersuite.google.com/app/apikey`;
     }
 
     // Return the AI's response

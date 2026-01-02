@@ -15,22 +15,45 @@ export type AIClient = {
  * Priority: OpenAI > Gemini > null (template fallback)
  */
 export function getAIClient(): AIClient {
-  // Try OpenAI first
-  const openaiKey = process.env.OPENAI_API_KEY || process.env.OPENAI_KEY;
-  if (openaiKey) {
-    console.log('[AI Client] Using OpenAI');
-    return { type: 'openai', client: new OpenAI({ apiKey: openaiKey }) };
-  }
-  
-  // Fallback to Google Gemini (free tier)
+  // Priority: GEMINI_API_KEY first (if user wants Gemini), then OpenAI
+  // Check if user explicitly wants Gemini
   const geminiKey = process.env.GEMINI_API_KEY;
   if (geminiKey) {
-    console.log('[AI Client] Using Google Gemini (GEMINI_API_KEY found)');
-    return { type: 'gemini', client: new GoogleGenerativeAI(geminiKey) };
+    const trimmedKey = geminiKey.trim();
+    if (trimmedKey.length > 0) {
+      try {
+        console.log('[AI Client] ✅ Using Google Gemini (GEMINI_API_KEY found)');
+        return { type: 'gemini', client: new GoogleGenerativeAI(trimmedKey) };
+      } catch (error) {
+        console.error('[AI Client] ❌ Error initializing Gemini:', error);
+        // Fall through to OpenAI or null
+      }
+    }
+  }
+  
+  // Try OpenAI as fallback
+  const openaiKey = process.env.OPENAI_API_KEY || process.env.OPENAI_KEY;
+  if (openaiKey) {
+    const trimmedKey = openaiKey.trim();
+    // Validate OpenAI key format (should start with sk-)
+    if (trimmedKey.startsWith('sk-') || trimmedKey.startsWith('sk-proj-')) {
+      try {
+        console.log('[AI Client] ✅ Using OpenAI');
+        return { type: 'openai', client: new OpenAI({ apiKey: trimmedKey }) };
+      } catch (error) {
+        console.error('[AI Client] ❌ Error initializing OpenAI:', error);
+        // Fall through to null
+      }
+    } else {
+      console.warn('[AI Client] ⚠️ OpenAI key found but format invalid (should start with sk-). Key length:', trimmedKey.length);
+    }
   }
   
   // No AI available - return null for template fallback
-  console.warn('[AI Client] No AI API key found. Using template fallback. Set OPENAI_API_KEY or GEMINI_API_KEY');
+  console.warn('[AI Client] ⚠️ NO AI CONFIGURED - Using template fallback');
+  console.warn('[AI Client] To enable AI:');
+  console.warn('[AI Client]   1. Set GEMINI_API_KEY (free): https://makersuite.google.com/app/apikey');
+  console.warn('[AI Client]   2. Or set OPENAI_API_KEY (paid): https://platform.openai.com/api-keys');
   return null;
 }
 
@@ -69,10 +92,34 @@ export async function generateAIResponse(
       });
       return response.choices[0]?.message?.content || 'I could not generate a response.';
     } else if (aiClient.type === 'gemini') {
-      const geminiModel = aiClient.client.getGenerativeModel({ model: 'gemini-pro' });
-      const prompt = `${systemPrompt}\n\n${userPrompt}`;
-      const result = await geminiModel.generateContent(prompt);
-      return result.response.text() || 'I could not generate a response.';
+      // Try multiple model names in order of preference
+      const modelNames = process.env.GEMINI_MODEL 
+        ? [process.env.GEMINI_MODEL]
+        : ['gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-pro'];
+      
+      let lastError: any = null;
+      
+      for (const modelName of modelNames) {
+        try {
+          console.log(`[AI Client] Trying Gemini model: ${modelName}`);
+          const geminiModel = aiClient.client.getGenerativeModel({ model: modelName });
+          const prompt = `${systemPrompt}\n\n${userPrompt}`;
+          const result = await geminiModel.generateContent(prompt);
+          const text = result.response.text();
+          if (text) {
+            console.log(`[AI Client] ✅ Successfully used model: ${modelName}`);
+            return text;
+          }
+        } catch (error: any) {
+          console.warn(`[AI Client] ⚠️ Model ${modelName} failed:`, error.message);
+          lastError = error;
+          // Continue to next model
+          continue;
+        }
+      }
+      
+      // If all models failed, throw the last error
+      throw new Error(`All Gemini models failed. Last error: ${lastError?.message || 'Unknown error'}. Available models: ${modelNames.join(', ')}`);
     }
   } catch (error: any) {
     console.error('AI generation error:', error);

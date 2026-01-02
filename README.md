@@ -3,7 +3,7 @@
 
 A modern, premium website for AILES Global, helping African students (especially women) access world-class education opportunities globally.
 
-## 🚀 Features
+## Features
 
 ### Core Features
 - **AI-Powered University Matcher** - Personalized university recommendations based on student profiles
@@ -133,7 +133,7 @@ OPENAI_API_KEY=""
 - **Integration Checklist:** See `INTEGRATION_CHECKLIST.md` for implementation tracking
 - **Instructions:** See `instructions.md` for complete project requirements
 
-## 🚀 Deployment
+## Deployment
 
 ### Vercel (Recommended)
 

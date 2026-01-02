@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Users, DollarSign, GraduationCap, TrendingUp, Loader2, AlertCircle } from "lucide-react";
+import { Users, DollarSign, GraduationCap, TrendingUp, Loader2, AlertCircle, Bot } from "lucide-react";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -187,6 +187,24 @@ export default function AdminDashboard() {
               <CardTitle className="mb-2">Reports & Analytics</CardTitle>
               <CardDescription>
                 View sponsorship program statistics and performance metrics
+              </CardDescription>
+            </CardContent>
+          </Card>
+
+          <Card
+            className="cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => router.push('/admin/copilot')}
+          >
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <Bot className="h-8 w-8 text-purple-600" />
+                <Button size="sm" variant="outline">Manage</Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <CardTitle className="mb-2">Copilot Requests</CardTitle>
+              <CardDescription>
+                Process copilot requests, confirm payments, and generate documents
               </CardDescription>
             </CardContent>
           </Card>

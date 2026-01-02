@@ -332,7 +332,7 @@ You have a GREAT platform. But it's useless if nobody knows about it.
 **START:** Getting users
 
 **The platform is ready. Now go get customers.**
-
+    
 **Do the 7-day plan. Track results. Adjust. Repeat.**
 
 **You can do this. Start NOW.**
