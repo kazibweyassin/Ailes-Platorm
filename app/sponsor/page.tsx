@@ -533,7 +533,7 @@ export default function SponsorPage() {
 
             {/* Story Paragraph */}
             <p className="text-lg md:text-xl text-gray-700 mb-6 max-w-3xl mx-auto">
-              She has a 3.9 GPA. She was accepted to study Medicine at Makerere University. Her family earns $2/day. Without a sponsor, she cannot enroll.
+              She has a 3.9 GPA. She was accepted to study Medicine at Makerere University. Her family earns UGX 20,000/day. Without a sponsor, she cannot enroll.
             </p>
 
             {/* Urgent Deadline Box */}
