@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
-import QuickApplyButton from "@/components/quick-apply-button";
 import {
   Award,
   Calendar,
@@ -311,15 +310,11 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-3 pt-6">
-                <QuickApplyButton 
-                  scholarshipId={scholarship.id} 
-                  scholarshipName={scholarship.name} 
-                />
                 {scholarship.applicationLink && (
-                  <Button size="lg" variant="outline" className="flex-1 md:flex-none" asChild>
+                  <Button size="lg" className="flex-1 md:flex-none" asChild>
                     <a href={scholarship.applicationLink} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="h-4 w-4 mr-2" />
-                      View Form
+                      Apply Now
                     </a>
                   </Button>
                 )}

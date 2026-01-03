@@ -1,70 +1,61 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
-/**
- * Get application statistics for dashboard
- */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
     }
 
-    const userId = session.user.id;
-
-    // Get all applications with scholarship details
-    const applications = await prisma.application.findMany({
-      where: { userId },
-      include: {
-        scholarship: true,
-      },
-      orderBy: { createdAt: 'desc' },
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true }
     });
 
-    // Calculate statistics
+    if (!user) {
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 404 }
+      );
+    }
+
+    const applications = await prisma.application.findMany({
+      where: { userId: user.id },
+      include: {
+        scholarship: {
+          select: {
+            name: true,
+            amount: true,
+            currency: true,
+            deadline: true
+          }
+        }
+      }
+    });
+
     const stats = {
       total: applications.length,
-      draft: applications.filter((a: any) => a.status === 'DRAFT').length,
-      submitted: applications.filter((a: any) => a.status === 'SUBMITTED').length,
-      underReview: applications.filter((a: any) => a.status === 'UNDER_REVIEW').length,
-      accepted: applications.filter((a: any) => a.status === 'ACCEPTED').length,
-      rejected: applications.filter((a: any) => a.status === 'REJECTED').length,
-      
-      // Upcoming deadlines (next 30 days)
-      upcomingDeadlines: applications.filter((a: any) => {
-        if (!a.scholarship?.deadline) return false;
-        const deadline = new Date(a.scholarship.deadline);
-        const now = new Date();
-        const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-        return deadline > now && deadline <= thirtyDaysFromNow;
-      }).length,
-      
-      // Success rate
-      successRate: applications.length > 0
-        ? Math.round((applications.filter((a: any) => a.status === 'ACCEPTED').length / applications.length) * 100)
-        : 0,
+      pending: applications.filter((a: any) => a.status === 'pending').length,
+      submitted: applications.filter((a: any) => a.status === 'submitted').length,
+      reviewing: applications.filter((a: any) => a.status === 'reviewing').length,
+      accepted: applications.filter((a: any) => a.status === 'accepted').length,
+      rejected: applications.filter((a: any) => a.status === 'rejected').length,
+      recentApplications: applications
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 5)
     };
 
-    // Recent applications (last 5)
-    const recentApplications = applications.slice(0, 5).map((app: any) => ({
-      id: app.id,
-      scholarshipName: app.scholarship?.name || app.programName || 'Unknown',
-      provider: app.scholarship?.provider,
-      status: app.status,
-      appliedAt: app.submittedAt || app.createdAt,
-      deadline: app.scholarship?.deadline,
-    }));
-
-    return NextResponse.json({
-      stats,
-      recentApplications,
-    });
-  } catch (error: any) {
+    return NextResponse.json(stats);
+  } catch (error) {
     console.error("Error fetching application stats:", error);
     return NextResponse.json(
-      { error: "Failed to fetch statistics" },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

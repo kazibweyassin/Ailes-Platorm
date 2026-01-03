@@ -22,7 +22,7 @@ export async function GET() {
       },
     });
 
-    const totalFunding = sponsors.reduce((sum: number, sponsor: any) => sum + (sponsor.amount || 0), 0);
+    const totalFunding = sponsors.reduce((sum, sponsor) => sum + (sponsor.amount || 0), 0);
 
     // Calculate success rate from applications
     // This is a simplified calculation - you may want to refine this based on your business logic
