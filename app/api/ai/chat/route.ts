@@ -420,7 +420,7 @@ export async function POST(req: Request) {
                   // Try multiple model names
                   const modelNames = process.env.GEMINI_MODEL 
                     ? [process.env.GEMINI_MODEL]
-                    : ['gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-pro'];
+                    : ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-flash-latest'];
                   
                   for (const modelName of modelNames) {
                     try {
@@ -535,7 +535,7 @@ export async function POST(req: Request) {
           // Try multiple model names in order
           const modelNames = process.env.GEMINI_MODEL 
             ? [process.env.GEMINI_MODEL]
-            : ['gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-pro'];
+            : ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-flash-latest'];
           
           let geminiSuccess = false;
           let lastError: any = null;

@@ -40,7 +40,7 @@
     "@radix-ui/react-progress": "^1.1.8",
     "@radix-ui/react-select": "^2.1.0",
     "@radix-ui/react-slot": "^1.2.4",
-    "@radix-ui/react-tabs": "^1.1.0",
+    "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-toast": "^1.2.2",
     "@types/chalk": "^0.4.31",
     "@types/inquirer": "^9.0.9",

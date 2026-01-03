@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     })
 
     // Calculate match scores
-    const matches = universities.map(university => {
+    const matches = universities.map((university: any) => {
       let score = 70 // Base score
 
       // GPA match
@@ -91,7 +91,7 @@ export async function POST(req: Request) {
         logo: university.logo,
         ranking: university.ranking,
         matchScore: score,
-        programs: university.programs.map(p => ({
+        programs: university.programs.map((p: any) => ({
           id: p.id,
           name: p.name,
           degree: p.degree,
@@ -107,7 +107,7 @@ export async function POST(req: Request) {
     })
 
     // Sort by match score
-    matches.sort((a, b) => b.matchScore - a.matchScore)
+    matches.sort((a: any, b: any) => b.matchScore - a.matchScore)
 
     // Return top 12 matches
     return NextResponse.json({ matches: matches.slice(0, 12) })

@@ -87,7 +87,7 @@ Provide a helpful, detailed answer about this specific scholarship. Include prac
     } else if (aiClient.type === 'gemini') {
       const modelNames = process.env.GEMINI_MODEL
         ? [process.env.GEMINI_MODEL]
-        : ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro'];
+        : ['gemini-2.5-flash', 'gemini-2.5-pro', 'gemini-flash-latest'];
 
       for (const modelName of modelNames) {
         try {

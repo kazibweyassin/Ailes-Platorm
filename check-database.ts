@@ -19,7 +19,7 @@ async function checkDatabase() {
     console.log(`📋 Student Intakes: ${intakes.length} entries`);
     if (intakes.length > 0) {
       console.log('\nRecent submissions:');
-      intakes.forEach((intake, idx) => {
+      intakes.forEach((intake: any, idx: number) => {
         console.log(`${idx + 1}. ${intake.firstName} ${intake.lastName} (${intake.email})`);
         console.log(`   ID: ${intake.id}`);
         console.log(`   Status: ${intake.status}`);

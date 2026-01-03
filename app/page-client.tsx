@@ -18,6 +18,7 @@ export default function HomeClient() {
   const [expandedStep, setExpandedStep] = useState<number | null>(0);
   const [scholarshipCount, setScholarshipCount] = useState<number | null>(null);
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
+  const [currentDate, setCurrentDate] = useState<string>('');
   const [stats, setStats] = useState<{
     sponsoredScholars: number | null;
     totalFunding: number | null;
@@ -30,6 +31,11 @@ export default function HomeClient() {
   const [loadingStats, setLoadingStats] = useState(true);
   const [featuredScholarships, setFeaturedScholarships] = useState<any[]>([]);
   const [loadingScholarships, setLoadingScholarships] = useState(true);
+
+  // Set current date on client side only to avoid hydration mismatch
+  useEffect(() => {
+    setCurrentDate(new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' }));
+  }, []);
 
   // Fetch actual scholarship count
   useEffect(() => {
@@ -770,7 +776,7 @@ export default function HomeClient() {
                       <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
                         <div className="flex items-center gap-1">
                           <Calendar className="h-4 w-4" />
-                          <span>{new Date().toLocaleDateString()}</span>
+                          <span>{currentDate || 'Loading...'}</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Award className="h-4 w-4" />

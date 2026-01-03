@@ -195,7 +195,7 @@ class AICache {
     const keysToDelete: string[] = [];
 
     this.memoryCache.forEach((entry, key) => {
-      const metadata = entry.metadata || {};
+      const metadata: any = entry.metadata || {};
       let shouldInvalidate = false;
 
       if (criteria.scholarshipId && metadata.scholarshipId === criteria.scholarshipId) {
