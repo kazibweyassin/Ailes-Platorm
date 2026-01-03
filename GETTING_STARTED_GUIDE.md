@@ -30,10 +30,10 @@ This guide will get your platform operational and ready to serve students. Follo
 
 3. **Configure Your App:**
    ```bash
-   # Create .env.local file in your project root
-   cd /home/runner/work/Ailes-Platorm/Ailes-Platorm
+   # Navigate to your project root directory
+   cd your-project-directory
    
-   # Create the file
+   # Create .env.local file
    cat > .env.local << 'EOF'
    # Database
    DATABASE_URL="your-connection-string-here"
@@ -286,9 +286,9 @@ Your platform is ready to generate revenue:
 
 ### Week 1: Content & Marketing
 1. **Add More Scholarships:**
-   ```bash
-   npm run add-scholarships
-   ```
+   - Use Prisma Studio: `npm run db:studio`
+   - Manually add scholarships via the web interface
+   - Or create additional seed scripts based on `/prisma/seed.ts`
    - Target: 100+ scholarships
    - Focus on your target countries (Kenya, Nigeria, Ghana, etc.)
 
@@ -389,7 +389,7 @@ Your platform is ready to generate revenue:
 
 ### Tools to Use:
 - **Vercel Analytics** (built-in, free)
-- **Google Analytics** (free) - Set up guide in `/GOOGLE_ANALYTICS_SETUP.md`
+- **Google Analytics** (free) - Set up guide in `GOOGLE_ANALYTICS_SETUP.md`
 - **Prisma Studio** (database stats) - Run `npm run db:studio`
 - **Custom Dashboard** - Build in `/app/admin/stats`
 
