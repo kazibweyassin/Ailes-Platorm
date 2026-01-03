@@ -23,7 +23,8 @@
     "create-admin": "ts-node --project tsconfig.seed.json scripts/create-admin.ts",
     "db:check": "ts-node --project tsconfig.seed.json scripts/check-database.ts",
     "add-scholarships": "ts-node --project tsconfig.seed.json scripts/add-more-scholarships.ts",
-    "check:google-oauth": "ts-node --project tsconfig.seed.json scripts/check-google-oauth.ts"
+    "check:google-oauth": "ts-node --project tsconfig.seed.json scripts/check-google-oauth.ts",
+    "pre-generate-templates": "ts-node --project tsconfig.seed.json scripts/pre-generate-scholarship-templates.ts"
   },
   "prisma": {
     "seed": "ts-node --project tsconfig.seed.json prisma/seed.ts"

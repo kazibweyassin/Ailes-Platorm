@@ -1,6 +1,12 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAIClient, AIClient } from '@/lib/ai-client';
+import { getAICache } from '@/lib/ai-cache';
+import { 
+  getScholarshipTemplate, 
+  getGeneralTemplate, 
+  detectScholarshipName 
+} from '@/lib/scholarship-templates';
 
 // Template-based responses when no AI is available
 function getTemplateResponse(message: string, context: any): string {
@@ -257,6 +263,73 @@ export async function POST(req: Request) {
       );
     }
 
+    // Check cache first to reduce API calls
+    const cache = getAICache();
+    const cachedResponse = cache.get(message, context);
+    if (cachedResponse) {
+      console.log('[Chat API] ✅ Using cached response');
+      return NextResponse.json({
+        reply: cachedResponse,
+        type: 'text',
+        cached: true,
+      });
+    }
+
+    // Check for pre-generated templates
+    const scholarshipName = detectScholarshipName(message);
+    const lowerMessage = message.toLowerCase();
+    
+    // Detect question type
+    let questionType = 'general';
+    if (/how to apply|application process|steps|procedure/i.test(lowerMessage)) {
+      questionType = 'application_steps';
+    } else if (/eligibility|requirements|qualify|need|must have/i.test(lowerMessage)) {
+      questionType = 'eligibility';
+    } else if (/deadline|when|due date|close/i.test(lowerMessage)) {
+      questionType = 'deadline';
+    } else if (/amount|funding|money|cost|cover|tuition/i.test(lowerMessage)) {
+      questionType = 'funding';
+    } else if (/essay|personal statement|sop|motivation letter|document/i.test(lowerMessage)) {
+      questionType = 'documents';
+    } else if (/tips|advice|recommendation|suggest/i.test(lowerMessage)) {
+      questionType = 'tips';
+    } else if (/about|what is|tell me about|information/i.test(lowerMessage)) {
+      questionType = 'general_info';
+    }
+
+    // Try to get template response
+    if (scholarshipName) {
+      const template = getScholarshipTemplate(scholarshipName, questionType);
+      if (template) {
+        console.log('[Chat API] ✅ Using pre-generated template for', scholarshipName);
+        // Cache the template response
+        cache.set(message, template, {
+          scholarshipName,
+          questionType,
+        });
+        return NextResponse.json({
+          reply: template,
+          type: 'text',
+          cached: true,
+          template: true,
+        });
+      }
+    }
+
+    // Try general template
+    const generalTemplate = getGeneralTemplate(questionType);
+    if (generalTemplate && (questionType === 'application_steps' || questionType === 'eligibility' || questionType === 'tips')) {
+      console.log('[Chat API] ✅ Using general template for', questionType);
+      // Cache the template response
+      cache.set(message, generalTemplate, { questionType });
+      return NextResponse.json({
+        reply: generalTemplate,
+        type: 'text',
+        cached: true,
+        template: true,
+      });
+    }
+
     // Check if user is asking about finding/matching scholarships
     const isScholarshipSearch = /find|match|search|looking for|scholarship|opportunity|available/i.test(message);
     
@@ -383,6 +456,12 @@ export async function POST(req: Request) {
               aiReply = getTemplateResponse(message, context);
             }
             
+            // Cache the scholarship match response
+            cache.set(message, aiReply, { 
+              scholarshipSearch: true,
+              matchCount: topMatches.length 
+            }, 24 * 3); // Cache for 3 days (deadlines change)
+            
             return NextResponse.json({ 
               reply: aiReply,
               type: 'scholarship_matches',
@@ -450,6 +529,8 @@ export async function POST(req: Request) {
           });
           reply = response.choices[0]?.message?.content || reply;
           console.log('[Chat] ✅ OpenAI response received successfully');
+          // Cache the AI response
+          cache.set(message, reply, context, 24 * 7); // Cache for 7 days
         } else if (aiClient.type === 'gemini') {
           // Try multiple model names in order
           const modelNames = process.env.GEMINI_MODEL 
@@ -469,6 +550,8 @@ export async function POST(req: Request) {
               if (text) {
                 reply = text;
                 console.log(`[Chat] ✅ Successfully used Gemini model: ${modelName}`);
+                // Cache the AI response
+                cache.set(message, reply, context, 24 * 7); // Cache for 7 days
                 geminiSuccess = true;
                 break;
               }
