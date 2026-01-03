@@ -410,22 +410,6 @@ export default function SponsorPage() {
       yPos += 7;
     });
     
-    // Footer
-    yPos += 15;
-    doc.setDrawColor(200, 200, 200);
-    doc.line(20, yPos, 190, yPos);
-    
-    doc.setFontSize(9);
-    doc.setTextColor(100, 100, 100);
-    doc.text('For questions or assistance, contact us:', 20, yPos + 10);
-    doc.text('Email: sponsors@ailesglobal.org', 20, yPos + 17);
-    doc.text('Phone: +256 700 000 000', 20, yPos + 24);
-    doc.text('Website: www.ailesglobal.org', 20, yPos + 31);
-    
-    // Disclaimer
-    doc.setFontSize(8);
-    doc.text('This document contains confidential banking information. Please handle securely.', 105, 285, { align: 'center' });
-    
     // Save PDF
     const fileName = transactionNumber 
       ? `AILES_Payment_${transactionNumber}.pdf`
@@ -547,16 +531,16 @@ export default function SponsorPage() {
             {/* Impact Statement */}
             <div className="mb-6">
               <p className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
-                Your $2,000 sends Grace to university for one year.
+                Your $2,000 Today = 10,000+ Lives Saved Over Her Career
               </p>
               <p className="text-lg md:text-xl text-gray-700">
-                She graduates in 2028 and will treat 10,000+ patients over her career.
+                One donation. One doctor. A lifetime of impact.
               </p>
             </div>
 
             {/* Sub-headline */}
-            <p className="text-lg md:text-xl font-bold text-primary mb-6">
-              15 students like Grace need sponsors this month.
+            <p className="text-lg md:text-xl font-bold text-red-600 mb-6">
+              Grace needs YOU — deadline in 12 days
             </p>
 
             {/* Benefits Box */}
@@ -581,11 +565,11 @@ export default function SponsorPage() {
               </div>
             </div>
 
-            {/* Three CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
                 <Button
                   size="lg"
-                  className="text-base sm:text-lg px-6 py-5 sm:px-8 sm:py-6 bg-primary hover:bg-primary/90 text-white font-semibold shadow-xl"
+                  className="text-base sm:text-lg px-8 py-6 sm:px-10 sm:py-7 bg-primary hover:bg-primary/90 text-white font-bold shadow-2xl hover:shadow-xl transition-all"
                 onClick={() => {
                   // Scroll to student profiles section
                   const profiles = document.querySelector('[data-student-profiles]');
@@ -595,13 +579,13 @@ export default function SponsorPage() {
                 }}
               >
                 <Heart className="mr-2 h-5 w-5" />
-                Sponsor Grace - $2,000
+                Sponsor Grace Now - $2,000
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
                 <Button
                   size="lg"
-                  variant="outline"
-                  className="text-base sm:text-lg px-6 py-5 sm:px-8 sm:py-6 border-2 border-primary text-primary bg-white hover:bg-primary-light"
+                  variant="ghost"
+                  className="text-base sm:text-lg px-6 py-5 sm:px-8 sm:py-6 text-primary hover:bg-primary-light"
                 onClick={() => {
                   const profiles = document.querySelector('[data-student-profiles]');
                   if (profiles) {
@@ -609,22 +593,25 @@ export default function SponsorPage() {
                   }
                 }}
               >
-                See All Students
+                See Other Students
                 <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
-                <Button
-                  size="lg"
-                  className="text-base sm:text-lg px-6 py-5 sm:px-8 sm:py-6 bg-primary hover:bg-primary/90 text-white font-semibold"
-                onClick={() => {
-                  const tiers = document.querySelector('[data-tiers]');
-                  if (tiers) {
-                    tiers.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }}
-              >
-                Sponsor Any Amount
-                        <ArrowRight className="ml-2 h-5 w-5" />
-                      </Button>
+                  </div>
+
+            {/* Trust Indicators */}
+            <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-600">
+              <span className="flex items-center gap-1">
+                <Shield className="h-4 w-4 text-green-600" />
+                Secure Payment
+              </span>
+              <span className="flex items-center gap-1">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                95% to Student
+              </span>
+              <span className="flex items-center gap-1">
+                <Users className="h-4 w-4 text-green-600" />
+                Join 50+ Sponsors
+              </span>
                   </div>
             </div>
           </div>
@@ -1369,96 +1356,6 @@ export default function SponsorPage() {
         </div>
       </section>
 
-      {/* Money-Back Guarantee Section */}
-      <section className="py-16 bg-yellow-50 border-y-2 border-yellow-200">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-4xl mx-auto">
-            <Card className="border-2 border-yellow-300 bg-white">
-              <CardContent className="pt-8 pb-8">
-                <div className="text-center mb-6">
-                  <div className="w-20 h-20 bg-yellow-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-                    <Shield className="h-10 w-10 text-yellow-600" />
-                  </div>
-                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-                    Our Guarantee to You
-                  </h2>
-                </div>
-
-                <div className="bg-yellow-50 rounded-lg p-6 mb-6 border border-yellow-200">
-                  <p className="text-gray-800 mb-4">
-                    If your sponsored student drops out in Year 1 due to academic failure (not financial hardship), we'll either:
-                  </p>
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-start gap-2">
-                      <span className="font-bold text-gray-900">1.</span>
-                      <span className="text-gray-800">Refund 50% of your donation, OR</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <span className="font-bold text-gray-900">2.</span>
-                      <span className="text-gray-800">Transfer 100% to another deserving student</span>
-                    </div>
-                  </div>
-                  <p className="font-semibold text-gray-900">Your choice.</p>
-                </div>
-
-                <div className="mb-6">
-                  <p className="text-gray-700 mb-4">
-                    Our rigorous student selection process has a 95% retention rate. We only accept students who:
-                  </p>
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-gray-700">Have strong academic records (3.5+ GPA)</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-gray-700">Demonstrate genuine financial need</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-gray-700">Show commitment through community involvement</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-gray-700">Pass our interview process</span>
-                    </div>
-                  </div>
-                  <p className="text-gray-700 mt-4 font-semibold">
-                    We set students up for success, not failure.
-                  </p>
-                </div>
-
-                <div className="bg-white rounded-lg p-6 border-2 border-gray-200">
-                  <h3 className="font-semibold text-lg mb-4 text-gray-900">Risk-Free Sponsorship:</h3>
-                  <div className="grid sm:grid-cols-2 gap-3 text-sm">
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">Full refund if we cannot match you within 30 days</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">50% refund if student fails out (Year 1 only)</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">100% transfer option to new student</span>
-                    </div>
-                    <div className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">No hidden fees or surprise charges</span>
-                    </div>
-                    <div className="flex items-start gap-2 col-span-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
-                      <span className="text-gray-700">Cancel future payments anytime (multi-year sponsors)</span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
       {/* Corporate Partnership CTA */}
       {sponsorType === "corporate" && (
         <section className="py-12 bg-gray-50">
@@ -1685,171 +1582,93 @@ export default function SponsorPage() {
                   Real impact from sponsors like you
                 </p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Testimonial 1 - Namukasa */}
-                <Card className="bg-white overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
-                  <div className="relative h-48 bg-green-50">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="relative w-32 h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gray-200">
-                        {imageLoading['namukasa'] && (
-                          <div className="absolute inset-0 bg-gray-300 animate-pulse flex items-center justify-center">
-                            <User className="h-8 w-8 text-gray-400" />
-                          </div>
-                        )}
+                <Card className="bg-white shadow-lg">
+                  <CardContent className="pt-6">
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="relative w-16 h-16 rounded-full overflow-hidden bg-green-100 flex-shrink-0">
                         {!imageErrors['namukasa'] && (
                           <Image
                             src="/students/namukasa.jpg"
                             alt="Namukasa"
                             fill
-                            className={`object-cover transition-opacity duration-300 ${imageLoading['namukasa'] ? 'opacity-0' : 'opacity-100'}`}
-                            onLoad={() => setImageLoading(prev => ({ ...prev, namukasa: false }))}
-                            onError={() => {
-                              setImageErrors(prev => ({ ...prev, namukasa: true }));
-                              setImageLoading(prev => ({ ...prev, namukasa: false }));
-                            }}
-                            onLoadingComplete={() => setImageLoading(prev => ({ ...prev, namukasa: false }))}
+                            className="object-cover"
+                            onError={() => setImageErrors(prev => ({ ...prev, namukasa: true }))}
                           />
                         )}
                         {imageErrors['namukasa'] && (
-                          <div className="absolute inset-0 bg-green-100 flex items-center justify-center">
-                            <User className="h-8 w-8 text-green-600" />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <User className="h-6 w-6 text-green-600" />
                           </div>
                         )}
                       </div>
-                    </div>
-                  </div>
-                  <CardContent className="pt-6">
-                    <div className="mb-3">
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">From Street Vendor to Medical Student</h3>
-                      <div className="flex items-center gap-1 mb-2">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        ))}
-                      </div>
-                      <div className="flex items-center gap-2 text-sm mb-2">
-                        <span className="font-semibold text-gray-900">Dr. Namukasa (in training)</span>
-                      </div>
-                      <div className="text-xs text-gray-600 mb-2">
-                        Medicine, Year 3 • Makerere University
-                      </div>
-                      <div className="inline-block bg-primary/10 text-primary px-2 py-1 rounded text-xs font-semibold mb-3">
-                        Sponsored: 2022 | Total Investment: $6,000
+                      <div>
+                        <h3 className="font-bold text-gray-900">Dr. Namukasa</h3>
+                        <p className="text-sm text-gray-600">Medicine, Year 3</p>
+                        <div className="flex items-center gap-1 mt-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                          ))}
+                        </div>
                       </div>
                     </div>
-                    <div className="text-sm text-gray-700 leading-relaxed space-y-3 mb-4">
-                      <p>
-                        "I sold vegetables on the street to help my family earn $2/day. When I got my admission letter to medical school, I cried—not from joy, but from despair. I knew we couldn't afford the $2,000 tuition."
+                    <p className="text-sm text-gray-700 mb-3">
+                      "I sold vegetables on the street to help my family. When my sponsor paid my tuition, I couldn't believe someone would invest in a stranger. Now I'm in Year 3 of Medicine with a 3.8 GPA. Last week I diagnosed my first patient—a moment that made everything real."
+                    </p>
+                    <p className="text-sm text-gray-800 font-semibold italic">
+                      "My sponsor saved my life and gave me the power to save thousands of others."
+                    </p>
+                    <div className="bg-green-50 border-l-4 border-green-500 p-3 mt-3 rounded-r">
+                      <p className="text-xs text-gray-700 italic">
+                        "Best $6,000 I've ever spent. Watching her progress is REAL impact."
                       </p>
-                      <p>
-                        "When my sponsor paid my tuition, I cried again—this time from overwhelming gratitude. I literally couldn't believe someone would invest in me, a stranger."
-                      </p>
-                      <p>
-                        "Now I'm in Year 3 of Medicine with a 3.8 GPA. Last week I diagnosed my first patient during clinical rotations. A mother brought her sick child, and I identified the problem and recommended treatment. The child recovered. That moment made everything real."
-                      </p>
-                      <p className="font-semibold">
-                        "My sponsor didn't just pay for school. They saved my life and gave me the power to save thousands of others."
-                      </p>
-                      <p>
-                        "I will spend my career serving rural communities where healthcare doesn't reach. Because someone believed in me."
-                      </p>
-                    </div>
-                    {/* Sponsor Quote Box */}
-                    <div className="bg-primary-light border-l-4 border-primary p-4 rounded-r-lg mt-4">
-                      <h4 className="font-semibold text-primary mb-2">What Her Sponsor Says:</h4>
-                      <p className="text-sm text-gray-800 italic mb-2">
-                        "Sponsoring Namukasa is the best $6,000 I've ever spent. Getting her quarterly grade reports, reading her thank you letters, seeing her progress from uncertain student to confident medical professional—that's REAL impact, not just throwing money into a void."
-                      </p>
-                      <p className="text-sm text-gray-800 italic mb-2">
-                        "Last month she emailed me about diagnosing her first patient. I cried reading it. My investment created generational change for her entire family. Her younger siblings now believe education is possible for them too."
-                      </p>
-                      <p className="text-xs text-gray-600 mt-2">
-                        — Sarah M., Tech Executive, San Francisco, USA<br />
-                        Sponsoring Namukasa since 2022
-                      </p>
+                      <p className="text-xs text-gray-600 mt-1">— Sarah M., Tech Executive, San Francisco</p>
                     </div>
                   </CardContent>
                 </Card>
 
                 {/* Testimonial 2 - Nakato */}
-                <Card className="bg-white overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
-                  <div className="relative h-48 bg-primary-light">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="relative w-32 h-32 rounded-full border-4 border-white shadow-lg overflow-hidden bg-gray-200">
-                        {imageLoading['nakato'] && (
-                          <div className="absolute inset-0 bg-gray-300 animate-pulse flex items-center justify-center">
-                            <User className="h-8 w-8 text-gray-400" />
-                          </div>
-                        )}
+                <Card className="bg-white shadow-lg">
+                  <CardContent className="pt-6">
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="relative w-16 h-16 rounded-full overflow-hidden bg-blue-100 flex-shrink-0">
                         {!imageErrors['nakato'] && (
                           <Image
                             src="/students/nakato.jpg"
                             alt="Nakato"
                             fill
-                            className={`object-cover transition-opacity duration-300 ${imageLoading['nakato'] ? 'opacity-0' : 'opacity-100'}`}
-                            onLoad={() => setImageLoading(prev => ({ ...prev, nakato: false }))}
-                            onError={() => {
-                              setImageErrors(prev => ({ ...prev, nakato: true }));
-                              setImageLoading(prev => ({ ...prev, nakato: false }));
-                            }}
-                            onLoadingComplete={() => setImageLoading(prev => ({ ...prev, nakato: false }))}
+                            className="object-cover"
+                            onError={() => setImageErrors(prev => ({ ...prev, nakato: true }))}
                           />
                         )}
                         {imageErrors['nakato'] && (
-                          <div className="absolute inset-0 bg-primary-light flex items-center justify-center">
-                            <User className="h-8 w-8 text-primary" />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <User className="h-6 w-6 text-blue-600" />
                           </div>
                         )}
                       </div>
-                    </div>
-                  </div>
-                  <CardContent className="pt-6">
-                    <div className="mb-3">
-                      <h3 className="text-xl font-bold text-gray-900 mb-2">Single Mother to Business Graduate</h3>
-                      <div className="flex items-center gap-1 mb-2">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        ))}
-                      </div>
-                      <div className="flex items-center gap-2 text-sm mb-2">
-                        <span className="font-semibold text-gray-900">Nakato</span>
-                      </div>
-                      <div className="text-xs text-gray-600 mb-2">
-                        Business Administration, Year 2 • Makerere University
-                      </div>
-                      <div className="inline-block bg-primary/10 text-primary px-2 py-1 rounded text-xs font-semibold mb-3">
-                        Sponsored: 2023 | Total Investment: $2,000
+                      <div>
+                        <h3 className="font-bold text-gray-900">Nakato</h3>
+                        <p className="text-sm text-gray-600">Business Admin, Year 2</p>
+                        <div className="flex items-center gap-1 mt-1">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                          ))}
+                        </div>
                       </div>
                     </div>
-                    <div className="text-sm text-gray-700 leading-relaxed space-y-3 mb-4">
-                      <p>
-                        "I had a baby at 19. Everyone said my life was over. My family couldn't support me. I was selling second-hand clothes at the market, earning barely enough to feed my daughter."
+                    <p className="text-sm text-gray-700 mb-3">
+                      "I had a baby at 19. Everyone said my life was over. I was selling second-hand clothes, barely earning enough to feed my daughter. When my sponsor paid my tuition, someone finally saw potential in me beyond my mistakes."
+                    </p>
+                    <p className="text-sm text-gray-800 font-semibold italic">
+                      "I'm now in Year 2 with a 3.6 GPA while raising my daughter. I started a business earning $500/month. My sponsor gave me dignity and a future."
+                    </p>
+                    <div className="bg-blue-50 border-l-4 border-blue-500 p-3 mt-3 rounded-r">
+                      <p className="text-xs text-gray-700 italic">
+                        "As a single mother myself, her story inspired me. She's proving circumstances don't define destiny."
                       </p>
-                      <p>
-                        "I applied to university, thinking it was impossible. When I was accepted to study Business Administration, I knew I couldn't afford it. Then Ailes Global matched me with a sponsor."
-                      </p>
-                      <p>
-                        "For the first time in my life, someone saw potential in me beyond my mistakes. My sponsor paid my $2,000 tuition, and I promised myself I wouldn't waste this chance."
-                      </p>
-                      <p>
-                        "I'm now in Year 2 with a 3.6 GPA while raising my daughter. I started a small business selling handmade crafts that now earns $500/month—more than I ever made before. Next year I'll graduate and scale this business to employ other single mothers."
-                      </p>
-                      <p className="font-semibold">
-                        "My sponsor didn't just give me education. They gave me dignity, hope, and a future for my daughter."
-                      </p>
-                    </div>
-                    {/* Sponsor Quote Box */}
-                    <div className="bg-primary-light border-l-4 border-primary p-4 rounded-r-lg mt-4">
-                      <h4 className="font-semibold text-primary mb-2">What Her Sponsor Says:</h4>
-                      <p className="text-sm text-gray-800 italic mb-2">
-                        "I'm a single mother too, so Nakato's story resonated with me. Watching her balance school and motherhood while maintaining good grades is inspiring. She sends me photos of her daughter doing homework alongside her."
-                      </p>
-                      <p className="text-sm text-gray-800 italic">
-                        "She's proving that circumstances don't define destiny. I'm proud to be part of her journey."
-                      </p>
-                      <p className="text-xs text-gray-600 mt-2">
-                        — Jennifer K., Marketing Manager, Toronto, Canada<br />
-                        Sponsoring Nakato since 2023
-                      </p>
+                      <p className="text-xs text-gray-600 mt-1">— Jennifer K., Marketing Manager, Toronto</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -1875,135 +1694,28 @@ export default function SponsorPage() {
             <div className="space-y-4">
               {[
                 {
-                  question: "How does the payment process work?",
-                  answer: (
-                    <div className="space-y-3">
-                      <p className="font-semibold mb-2">Step-by-step payment process:</p>
-                      <ol className="list-decimal list-inside space-y-2 ml-2">
-                        <li>You choose a student and click "Sponsor Now"</li>
-                        <li>Secure checkout via Stripe or PayPal</li>
-                        <li>You receive confirmation email within 5 minutes</li>
-                        <li>We verify student enrollment within 24 hours</li>
-                        <li>We pay university directly within 48 hours (NOT to student)</li>
-                        <li>You receive official university receipt via email</li>
-                        <li>Student sends you personal thank you message</li>
-                        <li>Quarterly updates begin</li>
-                      </ol>
-                      <p className="mt-3 font-semibold">Your money NEVER goes to the student directly. It's paid to the university's official account to ensure it's used for tuition.</p>
-                      <p className="text-sm">We use Stripe for secure payment processing—the same system used by Amazon, Google, and millions of businesses worldwide.</p>
-                    </div>
-                  )
+                  question: "How does payment work?",
+                  answer: "Secure checkout via Stripe/PayPal → We verify student (24 hrs) → Payment sent directly to university (48 hrs) → You receive official receipt + student thank you. Your money NEVER goes to the student directly."
                 },
                 {
-                  question: "What percentage of my donation goes to the scholar?",
-                  answer: (
-                    <div className="space-y-3">
-                      <p className="font-semibold">95% goes directly to student tuition.<br />5% covers operational costs.</p>
-                      <p className="text-sm">Here's the exact breakdown of where your $2,000 goes:</p>
-                      <div className="bg-gray-50 p-4 rounded-lg space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="font-semibold">Student University Tuition:</span>
-                          <span className="font-bold text-blue-600">$1,900 (95%)</span>
-                        </div>
-                        <div className="border-t pt-2 mt-2">
-                          <p className="font-semibold mb-2">Operations (5% = $100):</p>
-                          <ul className="space-y-1 ml-4">
-                            <li>• Student verification and background checks: $25</li>
-                            <li>• University payment processing and receipts: $20</li>
-                            <li>• Quarterly progress reports and updates: $25</li>
-                            <li>• Platform maintenance and donor support: $20</li>
-                            <li>• Impact measurement and transparency reporting: $10</li>
-                          </ul>
-                        </div>
-                      </div>
-                      <p className="text-sm mt-3">Compare this to traditional charities:</p>
-                      <div className="bg-white border border-gray-200 p-4 rounded-lg text-sm space-y-1">
-                        <div className="flex justify-between"><span>Red Cross:</span><span>9% overhead</span></div>
-                        <div className="flex justify-between"><span>UNICEF:</span><span>12% overhead</span></div>
-                        <div className="flex justify-between"><span>World Vision:</span><span>15% overhead</span></div>
-                        <div className="flex justify-between"><span>Save the Children:</span><span>16% overhead</span></div>
-                        <div className="flex justify-between font-bold text-green-600"><span>Ailes Global:</span><span>5% ✓</span></div>
-                      </div>
-                      <p className="text-sm mt-2">Our 5% is lower than any major charity because we're lean, efficient, and technology-driven.</p>
-                    </div>
-                  )
+                  question: "Where does my money go?",
+                  answer: "95% goes to tuition, 5% covers verification, payment processing, quarterly reports, and platform maintenance. Compare: Red Cross (9%), UNICEF (12%), World Vision (15%). We're the most efficient."
                 },
                 {
-                  question: "How are scholars matched with sponsors?",
-                  answer: "We match sponsors with scholars based on your preferences (field of study, country, etc.) and the scholar's needs. Our team reviews applications to ensure we match top-performing students who genuinely cannot afford tuition. You'll receive the scholar's profile, academic achievements, and story before the match is finalized."
+                  question: "Can I meet my sponsored student?",
+                  answer: "Yes! Options include video calls, in-person visits if traveling to their country, email/WhatsApp communication. Many sponsors develop long-term mentor relationships."
                 },
                 {
-                  question: "Can I visit or meet my sponsored student?",
-                  answer: (
-                    <div className="space-y-2">
-                      <p className="font-semibold">Yes! We encourage personal connections.</p>
-                      <p className="font-semibold mt-3">Options:</p>
-                      <ol className="list-decimal list-inside space-y-1 ml-2">
-                        <li><strong>Video Call:</strong> We can arrange a video call between you and your student (recommended for international sponsors)</li>
-                        <li><strong>In-Person Visit:</strong> If you're traveling to Uganda/Kenya/Rwanda, we can coordinate a campus visit</li>
-                        <li><strong>Email Communication:</strong> Direct email communication with your student (if both parties consent)</li>
-                        <li><strong>WhatsApp Updates:</strong> Some students share photos and updates via WhatsApp</li>
-                      </ol>
-                      <p className="mt-2">Many sponsors develop long-term mentor relationships with their students that extend beyond just financial support.</p>
-                    </div>
-                  )
-                },
-                {
-                  question: "What if my student needs more than just tuition?",
-                  answer: (
-                    <div className="space-y-2">
-                      <p>Your sponsorship covers tuition only, which is the biggest barrier for most students.</p>
-                      <p className="font-semibold mt-3">However, some students face additional challenges:</p>
-                      <ul className="list-disc list-inside space-y-1 ml-2">
-                        <li>Housing costs</li>
-                        <li>Textbooks and supplies</li>
-                        <li>Transportation</li>
-                        <li>Medical emergencies</li>
-                      </ul>
-                      <p className="font-semibold mt-3">If your student faces unexpected hardship, we'll contact you with options:</p>
-                      <ol className="list-decimal list-inside space-y-1 ml-2">
-                        <li>You can choose to provide additional support (optional, never required)</li>
-                        <li>We can help student apply for supplementary scholarships</li>
-                        <li>Student can work part-time for additional income</li>
-                      </ol>
-                      <p className="mt-2 font-semibold">We never pressure sponsors for more money. Your commitment is tuition only.</p>
-                    </div>
-                  )
-                },
-                {
-                  question: "Is my donation tax-deductible?",
-                  answer: (
-                    <div className="space-y-2">
-                      <p>Tax deductibility depends on your country and our organization status.</p>
-                      <p className="font-semibold mt-3">Current Status:</p>
-                      <p>We're currently registered as a company, so donations may not be tax-deductible in all countries. We're working on NGO registration for 2025.</p>
-                      <p className="font-semibold mt-3">Regardless of tax status, your $2,000 investment:</p>
-                      <ul className="list-disc list-inside space-y-1 ml-2">
-                        <li>Changes one student's life completely</li>
-                        <li>Creates generational impact for their family</li>
-                        <li>Contributes to Africa's development</li>
-                        <li>Gives you a meaningful connection with a future leader</li>
-                      </ul>
-                      <p className="mt-2">Many sponsors tell us the personal fulfillment is worth far more than any tax deduction.</p>
-                      <p className="mt-2">For specific tax advice, consult your accountant.</p>
-                    </div>
-                  )
-                },
-                {
-                  question: "Can I choose a specific scholar?",
-                  answer: "Yes, you can specify preferences for field of study, country, or other criteria. We'll match you with a scholar who meets your preferences. If you have a specific scholar in mind, contact us directly and we can facilitate that connection."
+                  question: "Is this tax-deductible?",
+                  answer: "We're working on NGO registration for 2025. Currently, tax deductibility depends on your country. Consult your accountant for specific tax advice."
                 },
                 {
                   question: "What updates will I receive?",
-                  answer: "You'll receive regular updates including academic progress reports, grades, achievements, and photos. Updates are sent quarterly, with additional communications for major milestones like graduation. You can also request updates at any time through your sponsor dashboard."
+                  answer: "Quarterly grade reports, photos, achievements, and annual video updates. Plus major milestone notifications like graduation. You can request updates anytime."
                 },
                 {
-                  question: "Can I remain anonymous?",
-                  answer: "Yes, you can choose to remain anonymous publicly. However, we'll still need your contact information for payment verification and to send you updates. The scholar will know they have a sponsor, but won't see your name unless you choose to share it."
-                },
-                {
-                  question: "What happens if a scholar drops out?",
-                  answer: "If a scholar is unable to continue their studies, we'll work with you to either transfer your sponsorship to another qualified student or provide a refund for unused funds. We maintain a waitlist of top-performing students who need support, so we can quickly rematch your sponsorship."
+                  question: "What if the student drops out?",
+                  answer: "We'll transfer your sponsorship to another qualified student or refund unused funds. We maintain a waitlist of top students who need support."
                 }
               ].map((faq, index) => (
                 <Card 
@@ -2025,11 +1737,7 @@ export default function SponsorPage() {
                   </CardHeader>
                   {expandedFAQ === index && (
                     <CardContent className="pt-0">
-                      {typeof faq.answer === 'string' ? (
-                        <p className="text-sm text-gray-600">{faq.answer}</p>
-                      ) : (
-                        <div className="text-sm text-gray-600">{faq.answer}</div>
-                      )}
+                      <p className="text-sm text-gray-600">{faq.answer}</p>
                     </CardContent>
                   )}
                 </Card>
@@ -2038,97 +1746,6 @@ export default function SponsorPage() {
           </div>
         </div>
       </section>
-
-      {/* Final CTA - Urgent */}
-      <section className="py-16 bg-primary text-white relative overflow-hidden">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 px-4">
-              15 Students Need Sponsors by January 15
-          </h2>
-            <div className="space-y-4 mb-8 px-4">
-              <p className="text-lg sm:text-xl opacity-90">
-                These students have admission letters. They have dreams. They have talent.
-              </p>
-              <p className="text-lg sm:text-xl opacity-90">
-                They just don't have $2,000 for tuition.
-              </p>
-              <p className="text-lg sm:text-xl font-semibold">
-                You can change that today.
-              </p>
-            </div>
-
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 max-w-2xl mx-auto">
-              <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 border border-white/30">
-                <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1">12 Days</div>
-                <div className="text-xs sm:text-sm opacity-90">Until Deadline</div>
-              </div>
-              <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 border border-white/30">
-                <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1">$2,000</div>
-                <div className="text-xs sm:text-sm opacity-90">Changes a Life</div>
-              </div>
-              <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 border border-white/30">
-                <div className="text-2xl sm:text-3xl md:text-4xl font-bold mb-1">10,000+</div>
-                <div className="text-xs sm:text-sm opacity-90">Lives Impacted</div>
-              </div>
-            </div>
-
-            {/* Two CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-          <Button 
-            size="lg" 
-                className="bg-white text-primary hover:bg-gray-100 font-semibold text-base sm:text-lg px-6 py-5 sm:px-8 sm:py-6 shadow-xl"
-                onClick={() => {
-                  const profiles = document.querySelector('[data-student-profiles]');
-                  if (profiles) {
-                    profiles.scrollIntoView({ behavior: 'smooth' });
-                  }
-                }}
-              >
-                Browse Students Who Need You
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-2 border-white text-white hover:bg-white/10 font-semibold text-base sm:text-lg px-6 py-5 sm:px-8 sm:py-6"
-            onClick={() => {
-              const tiers = document.querySelector('[data-tiers]');
-              if (tiers) {
-                tiers.scrollIntoView({ behavior: 'smooth' });
-              }
-            }}
-          >
-                Sponsor Any Amount
-                <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
-            </div>
-
-            {/* Trust Line */}
-            <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm opacity-75 px-4">
-              <span className="flex items-center gap-1">
-                <Shield className="h-4 w-4" />
-                Secure payment
-              </span>
-              <span className="flex items-center gap-1">
-                <FileText className="h-4 w-4" />
-                Official receipts
-              </span>
-              <span className="flex items-center gap-1">
-                <CheckCircle2 className="h-4 w-4" />
-                95% to tuition
-              </span>
-              <span className="flex items-center gap-1">
-                <GraduationCap className="h-4 w-4" />
-                Quarterly updates
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA - Old (keeping for reference) */}
 
       {/* Sponsorship Form Modal */}
       {showForm && !submitted && (
