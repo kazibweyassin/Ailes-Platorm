@@ -22,7 +22,7 @@ function MobileQuickActions() {
       color: "bg-blue-100 text-blue-600",
     },
     {
-      href: "/scholarships",
+      href: "/find-scholarships",
       icon: Award,
       label: "Scholarships",
       color: "bg-yellow-100 text-yellow-600",
@@ -34,27 +34,27 @@ function MobileQuickActions() {
       color: "bg-green-100 text-green-600",
     },
     {
-      href: "/financial-planning",
+      href: "/pricing",
       icon: Calculator,
-      label: "Cost Calculator",
+      label: "Packages",
       color: "bg-primary/10 text-primary",
     },
     {
-      href: "/ai-assistant",
+      href: "/copilot/activate",
       icon: MessageCircle,
-      label: "AI Assistant",
+      label: "AI Copilot",
       color: "bg-pink-100 text-pink-600",
     },
     {
-      href: "/destinations",
+      href: "/destinations/usa",
       icon: MapPin,
-      label: "Destinations",
+      label: "Study Abroad",
       color: "bg-red-100 text-red-600",
     },
     {
       href: "/blog",
       icon: FileText,
-      label: "Resources",
+      label: "Blog",
       color: "bg-indigo-100 text-indigo-600",
     },
     {

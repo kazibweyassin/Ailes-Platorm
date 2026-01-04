@@ -14,10 +14,20 @@ const MobileQuickActions = dynamic(() => import("@/components/mobile-quick-actio
   ssr: false,
 });
 
+// Partner and company logos data
+const partnerLogos = [
+  { name: "Association Partners", image: "/partners/associationLogo2.webp" },
+];
+
+const companyLogos = [
+  { name: "Top Companies", image: "/partners/companiesLogo.png" },
+];
+
 export default function HomeClient(): JSX.Element {
   const [expandedStep, setExpandedStep] = useState<number | null>(0);
   const [scholarshipCount, setScholarshipCount] = useState<number | null>(null);
   const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
+  const [currentLogoSet, setCurrentLogoSet] = useState<'partners' | 'companies'>('partners');
   const [stats, setStats] = useState<{
     sponsoredScholars: number | null;
     totalFunding: number | null;
@@ -124,6 +134,15 @@ export default function HomeClient(): JSX.Element {
     return () => clearInterval(interval);
   }, [heroScholarships.length]);
 
+  // Auto-rotate logos every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentLogoSet((prev) => prev === 'partners' ? 'companies' : 'partners');
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const formatStatsCurrency = (amount: number | null): string => {
     if (amount === null) return '...';
     if (amount >= 1000000) return `$${(amount / 1000000).toFixed(1)}M+`;
@@ -187,6 +206,39 @@ export default function HomeClient(): JSX.Element {
                 </div>
                 <div>
                   <span className="font-semibold text-gray-900">Free</span> to use
+                </div>
+              </div>
+
+              {/* Rotating Logos Section */}
+              <div className="mt-12 pt-8 border-t border-gray-200">
+                <div className="transition-opacity duration-500">
+                  {currentLogoSet === 'partners' ? (
+                    <div>
+                      <p className="text-sm text-gray-500 mb-4">Proudly associated with</p>
+                      <div className="flex items-center">
+                        <Image 
+                          src="/partners/associationLogo2.webp" 
+                          alt="Association Partners" 
+                          width={600} 
+                          height={80}
+                          className="h-16 w-auto object-contain"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="text-sm text-gray-500 mb-4">Our students finished University to work at global offices of</p>
+                      <div className="flex items-center">
+                        <Image 
+                          src="/partners/companiesLogo.png" 
+                          alt="Top Companies" 
+                          width={600} 
+                          height={80}
+                          className="h-16 w-auto object-contain"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -437,19 +489,23 @@ export default function HomeClient(): JSX.Element {
               <Card key={index} className="bg-white border border-gray-200 hover:border-blue-300 transition-colors">
                 <CardHeader>
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="relative w-12 h-12 overflow-hidden bg-gray-200">
-                      {!imageErrors[story.image] ? (
-                        <Image
-                          src={story.image}
-                          alt={`${story.name} - ${story.program}`}
-                          fill
-                          className="object-cover"
-                          onError={() => setImageErrors(prev => ({ ...prev, [story.image]: true }))}
-                        />
+                    <div className="relative w-12 h-12 rounded-full overflow-hidden bg-blue-50 flex items-center justify-center">
+                      {story.image.startsWith('/') ? (
+                        !imageErrors[story.image] ? (
+                          <Image
+                            src={story.image}
+                            alt={`${story.name} - ${story.program}`}
+                            fill
+                            className="object-cover"
+                            onError={() => setImageErrors(prev => ({ ...prev, [story.image]: true }))}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-blue-50 text-blue-600 font-semibold text-xs">
+                            {story.name.split(' ').map(n => n[0]).join('')}
+                          </div>
+                        )
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-blue-50 text-blue-600 font-semibold text-xs">
-                          {story.name.split(' ').map(n => n[0]).join('')}
-                        </div>
+                        <span className="text-2xl">{story.image}</span>
                       )}
                     </div>
                     <div>

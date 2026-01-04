@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { prisma } from "@/lib/prisma";
 
 const subscribeSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -10,34 +11,20 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { email } = subscribeSchema.parse(body);
 
-    // TODO: Add email to your email service
-    // Options:
-    // 1. Resend (recommended for Next.js)
-    // 2. Mailchimp
-    // 3. ConvertKit
-    // 4. Your database (Prisma)
-
-    // For now, just log it
-    console.log("Newsletter subscription:", email);
-
-    // Example with Resend (uncomment when ready):
-    /*
-    import { Resend } from "resend";
-    const resend = new Resend(process.env.RESEND_API_KEY);
-    
-    await resend.contacts.create({
-      email,
-      audienceId: process.env.RESEND_AUDIENCE_ID,
+    // Store email in database
+    await prisma.emailCapture.upsert({
+      where: { email },
+      update: { 
+        updatedAt: new Date(),
+        source: "newsletter"
+      },
+      create: { 
+        email,
+        source: "newsletter"
+      },
     });
-    */
 
-    // Example with database (uncomment when ready):
-    /*
-    import { prisma } from "@/lib/prisma";
-    await prisma.newsletterSubscriber.create({
-      data: { email, subscribedAt: new Date() },
-    });
-    */
+    console.log("Newsletter subscription saved:", email);
 
     return NextResponse.json(
       { message: "Successfully subscribed to newsletter" },

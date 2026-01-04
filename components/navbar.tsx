@@ -3,12 +3,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { Menu, X, Heart, LayoutDashboard, User, Shield, LogIn, LogOut, Sparkles } from "lucide-react";
+import { Menu, X, Heart, LayoutDashboard, User, Shield, LogIn, LogOut, Sparkles, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { signOut, useSession } from "next-auth/react";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
   const { data: session, status } = useSession();
   const isLoggedIn = status === "authenticated";
   const isAdmin = session?.user?.role === "ADMIN";
@@ -16,9 +17,16 @@ export function Navbar() {
   const navItems = [
     { href: "/", label: "Home" },
     { href: "/scholarships", label: "Scholarships" },
-    { href: "/university-matcher", label: "Find University" },
-    { href: "/services", label: "Services" },
+    { href: "/university-matcher", label: "Study Abroad" },
     { href: "/about", label: "About" },
+  ];
+
+  const servicesDropdown = [
+    { href: "/services", label: "All Services" },
+    { href: "/pricing", label: "Packages & Pricing" },
+    { href: "/university-matcher", label: "University Matching" },
+    { href: "/find-scholarships", label: "Scholarship Search" },
+    { href: "/copilot/activate", label: "AI Copilot" },
   ];
 
   return (
@@ -47,6 +55,32 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
+            
+            {/* Services Dropdown */}
+            <div 
+              className="relative"
+              onMouseEnter={() => setServicesOpen(true)}
+              onMouseLeave={() => setServicesOpen(false)}
+            >
+              <button className="flex items-center text-gray-dark hover:text-primary transition-colors font-medium">
+                Services
+                <ChevronDown className="ml-1 h-4 w-4" />
+              </button>
+              
+              {servicesOpen && (
+                <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                  {servicesDropdown.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="block px-4 py-2 text-sm text-gray-dark hover:bg-primary-light hover:text-primary transition-colors"
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
             
             {/* Primary CTA */}
             <Link href="/find-scholarships">
@@ -131,6 +165,31 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
+            
+            {/* Services Dropdown (Mobile) */}
+            <div>
+              <button 
+                className="flex items-center justify-between w-full py-3 px-2 text-gray-dark hover:text-primary hover:bg-primary/5 transition-colors rounded-md font-medium"
+                onClick={() => setServicesOpen(!servicesOpen)}
+              >
+                Services
+                <ChevronDown className={`h-4 w-4 transition-transform ${servicesOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {servicesOpen && (
+                <div className="pl-4 space-y-1 mt-1">
+                  {servicesDropdown.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="block py-2 px-2 text-sm text-gray-dark hover:text-primary hover:bg-primary/5 transition-colors rounded-md"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
             
             <div className="pt-2 space-y-2 border-t border-gray-200">
               {/* Primary CTA */}

@@ -2,8 +2,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Check, X } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { Metadata } from "next";
 import { generateSEO } from "@/lib/seo";
+import { getFeaturedStories } from "@/lib/success-stories";
 
 export const metadata: Metadata = generateSEO({
   title: "Pricing & Packages - Transparent Education Consulting Rates",
@@ -193,13 +195,13 @@ export default function PricingPage() {
               <CardDescription>See how we compare to doing it yourself</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full">
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <table className="w-full min-w-[600px]">
                   <thead>
                     <tr className="border-b">
-                      <th className="text-left py-3 px-4"></th>
-                      <th className="text-center py-3 px-4 text-gray-soft">DIY (On Your Own)</th>
-                      <th className="text-center py-3 px-4 bg-primary-light font-semibold">With Ailes Global</th>
+                      <th className="text-left py-3 px-4 w-1/3"></th>
+                      <th className="text-center py-3 px-4 text-gray-soft w-1/3">DIY (On Your Own)</th>
+                      <th className="text-center py-3 px-4 bg-primary-light font-semibold w-1/3">With Ailes Global</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -251,6 +253,61 @@ export default function PricingPage() {
               </p>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Success Stories Section */}
+        <div className="max-w-6xl mx-auto mb-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-dark mb-4">
+              Real Students, Real Results
+            </h2>
+            <p className="text-gray-soft text-lg">
+              Students who found scholarships through Ailes Global
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8 mb-8">
+            {getFeaturedStories().map((story, index) => (
+              <Card key={index} className="bg-white border border-gray-200 hover:border-primary transition-colors">
+                <CardHeader>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="relative w-12 h-12 rounded-full overflow-hidden bg-primary-light flex items-center justify-center">
+                      {story.image.startsWith('/') ? (
+                        <Image
+                          src={story.image}
+                          alt={`${story.name}`}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <span className="text-2xl">{story.image}</span>
+                      )}
+                    </div>
+                    <div>
+                      <CardTitle className="text-base font-semibold text-gray-900">{story.name}</CardTitle>
+                      <CardDescription className="text-sm text-gray-600">
+                        {story.program}
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-700 mb-3 line-clamp-3">"{story.testimonial}"</p>
+                  <div className="text-sm text-primary font-medium">
+                    {story.scholarship}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          
+          <div className="text-center">
+            <Link href="/success-stories">
+              <Button variant="outline" size="lg">
+                View All Success Stories →
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* FAQ Section */}
@@ -314,8 +371,3 @@ export default function PricingPage() {
     </div>
   );
 }
-
-
-
-
-
