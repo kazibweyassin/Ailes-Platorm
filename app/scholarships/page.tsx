@@ -470,11 +470,15 @@ export default function ScholarshipsPage() {
                             {daysLeft} days left
                           </span>
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-gray-500">
-                          <Users className="h-3 w-3" />
-                          <span>{scholarship.views?.toLocaleString() || 0} views</span>
-                          <span>•</span>
-                          <span>{scholarship._count?.applications || 0} applications</span>
+                        <div className="flex items-center gap-2 text-xs text-gray-600">
+                          <Award className="h-3 w-3 text-primary" />
+                          <span className="font-medium">{scholarship.numberOfAwards || 'Multiple'} awards</span>
+                          {scholarship.degreeLevel && scholarship.degreeLevel.length > 0 && (
+                            <>
+                              <span>•</span>
+                              <span>{scholarship.degreeLevel.slice(0, 2).join(', ')}</span>
+                            </>
+                          )}
                         </div>
                       </div>
 
