@@ -19,7 +19,7 @@ export default function AboutPage() {
       {/* Hero Section */}
       <section 
         className="py-16 md:py-24 bg-cover bg-center bg-no-repeat relative"
-        style={{ backgroundImage: "url('/herobgGradient.png')" }}
+        style={{ backgroundImage: "url('/HeroBgGradient.png')" }}
       >
         <div className="absolute inset-0 bg-white/80"></div>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
