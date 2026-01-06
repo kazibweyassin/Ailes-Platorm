@@ -18,75 +18,106 @@ export const metadata: Metadata = generateSEO({
 export default function PricingPage() {
   const packages = [
     {
-      name: "Free Tier",
+      name: "Free",
       price: "$0",
       period: "Forever",
-      description: "Perfect for getting started with your study abroad journey",
-      outcome: "🎯 Explore opportunities and learn the process",
+      description: "Start your scholarship search today",
+      outcome: "🔍 Discover opportunities matching your profile",
       features: [
-        "Browse 10,000+ scholarships worldwide",
-        "AI-powered scholarship matching (3 matches/month)",
-        "University search and comparison",
-        "Educational guides and success stories",
-        "Email support",
+        "Browse 10,000+ verified scholarships",
+        "AI scholarship matching (5 matches)",
+        "Basic deadline calendar",
+        "University search & comparison",
+        "Educational guides & tips",
+        "Community access",
+      ],
+      notIncluded: [
+        "Application checklists",
+        "AI Copilot essay help",
+        "WhatsApp deadline alerts",
+        "Profile review",
+      ],
+      cta: "Start Free",
+      href: "/find-scholarships",
+      popular: false,
+    },
+    {
+      name: "Premium Access",
+      price: "$5",
+      period: "month",
+      description: "Everything you need to apply successfully",
+      outcome: "🎯 10x your chances with guided applications",
+      results: "Includes: Scholarships • Visa Guide • AI Copilot • WhatsApp Alerts",
+      features: [
+        "Access to 10,000+ verified scholarships",
+        "Visa guidance & document checklist",
+        "Unlimited AI scholarship matching",
+        "Application checklists for every scholarship",
+        "AI Copilot for essay writing & review",
+        "WhatsApp deadline alerts (never miss a deadline)",
+        "Profile strength analysis",
+        "Essay templates & examples",
+        "Priority email support",
       ],
       notIncluded: [
         "Expert consultation",
-        "Application writing",
-        "Scholarship applications",
-        "Priority support",
+        "Done-for-you applications",
       ],
-      cta: "Get Started Free",
-      popular: false,
+      cta: "Get Premium - $5/mo",
+      href: "/payment/checkout?plan=premium",
+      popular: true,
+      badge: "Best Value",
     },
     {
       name: "Standard Package",
       price: "$299",
       period: "One-time",
-      description: "Get admitted with scholarship funding - we handle everything",
+      description: "We handle everything - you get admitted with funding",
       outcome: "🎓 Get admitted to your dream university with a scholarship",
       results: "Average outcome: $18,000 scholarship | 85% admission rate | Save 55+ hours",
       features: [
-        "Everything in Free Tier +",
-        "Expert 1-hour consultation (personalized roadmap for YOUR profile)",
-        "5 University + Scholarship matches (pre-screened for funding opportunities)",
-        "Professional Statement of Purpose written by experts (2 revisions)",
-        "Complete application review before submission (catch rejection mistakes)",
-        "3-5 Scholarship applications submitted on your behalf",
-        "Document preparation checklist and guidance",
-        "Email & WhatsApp support until admission decision",
+        "Everything in Premium +",
+        "Expert 1-hour consultation (personalized roadmap)",
+        "5 University + Scholarship matches (pre-screened)",
+        "Professional Statement of Purpose (2 revisions)",
+        "Complete application review before submission",
+        "3-5 Scholarship applications submitted for you",
+        "Document preparation guidance",
+        "Basic visa guidance & document checklist",
+        "WhatsApp support until admission decision",
       ],
       notIncluded: [
         "Unlimited consultations",
         "Visa interview preparation",
-        "Post-landing support",
       ],
       cta: "Get Started - $299",
-      popular: true,
+      href: "/payment/checkout?plan=standard",
+      popular: false,
       guarantee: "💚 50% refund if not admitted to any of 5 universities",
     },
     {
       name: "Premium Mentorship",
       price: "$799",
       period: "One-time",
-      description: "Complete concierge service - your dedicated mentor handles everything",
-      outcome: "🚀 Maximum success rate with full hand-holding from application to landing",
-      results: "Average outcome: $25,000+ scholarship | 92% admission rate | Stress-free process",
+      description: "Complete concierge service with dedicated mentor",
+      outcome: "🚀 Maximum success with full hand-holding from application to landing",
+      results: "Average outcome: $25,000+ scholarship | 92% admission rate | Stress-free",
       features: [
-        "Everything in Standard Package +",
-        "Dedicated personal mentor (direct WhatsApp access)",
-        "Unlimited 1-on-1 consultations (as many as you need)",
-        "10 University + Scholarship matches (maximize your options)",
-        "Unlimited SOP revisions (perfect your story)",
-        "Test prep resources (IELTS, TOEFL guidance)",
-        "Complete visa application assistance & interview prep",
-        "Scholarship application to 10+ opportunities",
-        "Pre-departure orientation (accommodation, travel, what to expect)",
-        "Post-admission support (first 3 months in new country)",
-        "Priority 24/7 support (response within 2 hours)",
+        "Everything in Standard +",
+        "Dedicated personal mentor (direct WhatsApp)",
+        "Unlimited 1-on-1 consultations",
+        "10 University + Scholarship matches",
+        "Unlimited SOP revisions",
+        "Test prep resources (IELTS, TOEFL)",
+        "Complete visa assistance & interview prep",
+        "10+ scholarship applications submitted",
+        "Pre-departure orientation",
+        "Post-admission support (3 months)",
+        "Priority 24/7 support (2-hour response)",
       ],
       notIncluded: [],
       cta: "Get Premium - $799",
+      href: "/payment/checkout?plan=mentorship",
       popular: false,
       guarantee: "💚 50% refund if not admitted + lifetime mentorship",
     },
@@ -115,20 +146,20 @@ export default function PricingPage() {
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-12">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto mb-12">
           {packages.map((pkg, index) => (
             <Card
               key={index}
               className={`relative ${
                 pkg.popular
-                  ? "border-2 border-primary shadow-lg scale-105"
+                  ? "border-2 border-primary shadow-xl scale-105 z-10"
                   : "hover:shadow-lg transition-shadow"
               }`}
             >
-              {pkg.popular && (
+              {pkg.popular && pkg.badge && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                   <span className="bg-primary text-white px-4 py-1 rounded-full text-sm font-semibold">
-                    Most Popular
+                    {pkg.badge}
                   </span>
                 </div>
               )}
@@ -172,7 +203,7 @@ export default function PricingPage() {
                     <p className="text-xs text-green-800">{pkg.guarantee}</p>
                   </div>
                 )}
-                <Link href="/contact" className="block">
+                <Link href={pkg.href || "/contact"} className="block">
                   <Button
                     className={`w-full ${
                       pkg.popular ? "" : "variant-outline"

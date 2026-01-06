@@ -48,6 +48,8 @@ model User {
   subscriptionStartDate DateTime?
   subscriptionExpiresAt DateTime?
   subscriptionTransactionId String?
+  subscriptionPlan String?  // premium, standard, mentorship
+  subscriptionEnd DateTime? // When subscription expires
   
   // Account management
   createdAt     DateTime  @default(now())
@@ -61,6 +63,7 @@ model User {
   savedUniversities SavedUniversity[]
   documents     Document[]
   scholarshipMatches ScholarshipMatch[]
+  payments      Payment[]
 
   copilotRequests CopilotRequest[]
   
@@ -554,6 +557,9 @@ enum SubscriptionStatus {
   ACTIVE
   EXPIRED
   CANCELLED
+  PREMIUM     // $5/month tier
+  STANDARD    // $299 one-time
+  MENTORSHIP  // $799 one-time
 }
 
 model StudentIntake {
@@ -643,4 +649,32 @@ model EmailCapture {
   updatedAt DateTime @updatedAt
 
   @@map("email_captures")
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  userId          String
+  amount          Float
+  currency        String        @default("USD")
+  status          PaymentStatus @default(PENDING)
+  provider        String        @default("FLUTTERWAVE") // FLUTTERWAVE, PAYSTACK, etc.
+  transactionRef  String        @unique // Our reference
+  flutterwaveRef  String?       // Flutterwave's transaction ID
+  planId          String        // premium, standard, mentorship
+  metadata        Json?         // Additional payment info
+  completedAt     DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+  CANCELLED
 }

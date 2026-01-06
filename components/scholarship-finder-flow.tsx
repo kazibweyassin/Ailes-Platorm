@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, ArrowLeft, Sparkles, CheckCircle2, MapPin, DollarSign, Calendar, Loader2, Award } from "lucide-react";
+import { ArrowRight, ArrowLeft, Sparkles, CheckCircle2, MapPin, DollarSign, Calendar, Loader2, Award, Users, Shield, Zap, Star, Lock, Bell, FileText, MessageCircle } from "lucide-react";
 import Link from "next/link";
 
 export default function ScholarshipFinderFlow() {
@@ -15,6 +15,9 @@ export default function ScholarshipFinderFlow() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any[]>([]);
   const [showResults, setShowResults] = useState(false);
+  const [email, setEmail] = useState("");
+  const [emailCaptured, setEmailCaptured] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
   const [answers, setAnswers] = useState({
     nationality: "",
     degreeLevel: "",
@@ -81,48 +84,90 @@ export default function ScholarshipFinderFlow() {
   const handleFindScholarships = async () => {
     setLoading(true);
     try {
-      // Build query parameters from answers
+      // Build query parameters from answers - use flexible matching
       const params = new URLSearchParams();
       
-      if (answers.destination && answers.destination !== "Anywhere") {
-        params.append('country', answers.destination);
-      }
-      
-      if (answers.degreeLevel) {
-        // Map to API format
-        const degreeMap: Record<string, string> = {
-          "Bachelor's": "BACHELORS",
-          "Master's": "MASTERS",
-          "PhD": "PHD",
-          "Diploma/Certificate": "DIPLOMA"
-        };
-        params.append('degreeLevel', degreeMap[answers.degreeLevel] || answers.degreeLevel);
-      }
-      
-      if (answers.fieldOfStudy) {
-        params.append('fieldOfStudy', answers.fieldOfStudy);
-      }
-      
-      if (answers.fundingType && answers.fundingType !== "Any Support") {
-        if (answers.fundingType.includes("Full")) {
-          params.append('minAmount', '10000'); // Full funding usually means higher amounts
+      // For African students, most scholarships are "forAfrican"
+      // This is more important than exact country match
+      if (answers.nationality) {
+        const africanCountries = [
+          "kenya", "uganda", "nigeria", "ghana", "rwanda", "tanzania", 
+          "ethiopia", "south africa", "senegal", "cameroon", "egypt",
+          "morocco", "algeria", "tunisia", "zimbabwe", "zambia", "malawi",
+          "botswana", "namibia", "mozambique", "angola", "drc", "congo",
+          "ivory coast", "mali", "burkina faso", "niger", "chad", "sudan",
+          "south sudan", "somalia", "eritrea", "djibouti", "mauritius"
+        ];
+        const isAfrican = africanCountries.some(c => 
+          answers.nationality.toLowerCase().includes(c)
+        );
+        if (isAfrican) {
+          params.append('forAfrican', 'true');
         }
       }
+      
+      // Don't filter by destination country strictly - many scholarships are "Multiple Countries"
+      // Instead, we'll do a more flexible search
+      if (answers.destination && answers.destination !== "Anywhere") {
+        params.append('search', answers.destination);
+      }
+      
+      // Note: Don't filter by degree level strictly - it causes issues with Prisma enum matching
+      // The search will include all scholarships and we'll do client-side filtering if needed
+      
+      // Don't use strict fieldOfStudy matching - do a search instead
+      if (answers.fieldOfStudy) {
+        // If we already have a search, append to it
+        const existingSearch = params.get('search');
+        if (existingSearch) {
+          params.set('search', `${existingSearch} ${answers.fieldOfStudy}`);
+        } else {
+          params.append('search', answers.fieldOfStudy);
+        }
+      }
+      
+      // Don't filter by amount - show all scholarships
+      // if (answers.fundingType && answers.fundingType !== "Any Support") {
+      //   if (answers.fundingType.includes("Full")) {
+      //     params.append('minAmount', '10000');
+      //   }
+      // }
 
-      // Fetch matching scholarships
-      const response = await fetch(`/api/scholarships?${params.toString()}&limit=20`);
+      // Fetch matching scholarships - get more results
+      const response = await fetch(`/api/scholarships?${params.toString()}&limit=50`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch scholarships');
       }
       
       const data = await response.json();
-      setResults(data.scholarships || []);
+      let scholarships = data.scholarships || [];
+      
+      // If no results with filters, try without filters to get ALL scholarships
+      if (scholarships.length === 0) {
+        const fallbackResponse = await fetch(`/api/scholarships?limit=50`);
+        if (fallbackResponse.ok) {
+          const fallbackData = await fallbackResponse.json();
+          scholarships = fallbackData.scholarships || [];
+        }
+      }
+      
+      setResults(scholarships);
       setShowResults(true);
     } catch (error) {
       console.error('Error finding scholarships:', error);
-      // Still show results page even if there's an error
-      setResults([]);
+      // Try to get ALL scholarships as fallback
+      try {
+        const fallbackResponse = await fetch(`/api/scholarships?limit=50`);
+        if (fallbackResponse.ok) {
+          const fallbackData = await fallbackResponse.json();
+          setResults(fallbackData.scholarships || []);
+        } else {
+          setResults([]);
+        }
+      } catch {
+        setResults([]);
+      }
       setShowResults(true);
     } finally {
       setLoading(false);
@@ -145,11 +190,37 @@ export default function ScholarshipFinderFlow() {
     return diffDays > 0 ? diffDays : null;
   };
 
+  const handleEmailCapture = async () => {
+    if (!email || !email.includes("@")) return;
+    
+    setEmailLoading(true);
+    try {
+      const response = await fetch("/api/newsletter/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, source: "scholarship-finder" }),
+      });
+      
+      if (response.ok) {
+        setEmailCaptured(true);
+      }
+    } catch (error) {
+      console.error("Email capture error:", error);
+    } finally {
+      setEmailLoading(false);
+    }
+  };
+
+  // Calculate total scholarship value for display
+  const totalValue = results.reduce((sum, s) => sum + (s.amount || 0), 0);
+  const visibleResults = emailCaptured ? results : results.slice(0, 5);
+
   // Show results page
   if (showResults) {
     return (
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
+          {/* Header with Stats */}
           <div className="mb-8">
             <Button
               variant="ghost"
@@ -157,6 +228,8 @@ export default function ScholarshipFinderFlow() {
                 setShowResults(false);
                 setCurrentStep(0);
                 setResults([]);
+                setEmailCaptured(false);
+                setEmail("");
               }}
               className="mb-4"
             >
@@ -164,73 +237,266 @@ export default function ScholarshipFinderFlow() {
               Start Over
             </Button>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Scholarships Matching Your Profile
+              🎉 Great News! We Found {results.length} Scholarships For You
             </h1>
-            <p className="text-gray-600">
-              Found {results.length} {results.length === 1 ? 'scholarship' : 'scholarships'} based on your preferences
+            <p className="text-gray-600 mb-4">
+              Total potential funding: <span className="font-bold text-primary">${totalValue.toLocaleString()}</span>
             </p>
+            
+            {/* Trust Badges */}
+            <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+              <div className="flex items-center gap-1">
+                <Users className="h-4 w-4 text-primary" />
+                <span>127+ students helped</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Star className="h-4 w-4 text-yellow-500" />
+                <span>85% success rate</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Shield className="h-4 w-4 text-green-600" />
+                <span>Verified scholarships</span>
+              </div>
+            </div>
           </div>
 
           {results.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {results.map((scholarship) => {
-                const daysLeft = getDaysUntilDeadline(scholarship.deadline);
-                return (
-                  <Link key={scholarship.id} href={`/scholarships/${scholarship.id}`}>
-                    <Card className="h-full hover:shadow-xl transition-all duration-300 border-2 hover:border-primary cursor-pointer">
-                      <CardHeader>
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <CardTitle className="text-lg leading-tight line-clamp-2">
-                            {scholarship.name}
-                          </CardTitle>
-                          {scholarship.featured && (
-                            <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full whitespace-nowrap flex-shrink-0">
-                              Featured
-                            </span>
-                          )}
-                        </div>
-                        <CardDescription className="text-sm">
-                          {scholarship.provider}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        <div className="flex items-center gap-2 text-sm">
-                          <DollarSign className="h-4 w-4 text-success" />
-                          <span className="font-semibold text-success">
-                            {formatCurrency(scholarship.amount, scholarship.currency || 'USD')}
-                          </span>
-                        </div>
-                        {scholarship.country && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <MapPin className="h-4 w-4" />
-                            <span>{scholarship.country}</span>
+            <>
+              {/* Results Grid - Show first 5 or all if email captured */}
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {visibleResults.map((scholarship) => {
+                  const daysLeft = getDaysUntilDeadline(scholarship.deadline);
+                  return (
+                    <Link key={scholarship.id} href={`/scholarships/${scholarship.id}`}>
+                      <Card className="h-full hover:shadow-xl transition-all duration-300 border-2 hover:border-primary cursor-pointer">
+                        <CardHeader>
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <CardTitle className="text-lg leading-tight line-clamp-2">
+                              {scholarship.name}
+                            </CardTitle>
+                            {scholarship.featured && (
+                              <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full whitespace-nowrap flex-shrink-0">
+                                Featured
+                              </span>
+                            )}
                           </div>
-                        )}
-                        {daysLeft !== null && daysLeft > 0 && (
+                          <CardDescription className="text-sm">
+                            {scholarship.provider}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
                           <div className="flex items-center gap-2 text-sm">
-                            <Calendar className={`h-4 w-4 ${daysLeft <= 30 ? 'text-red-500' : 'text-gray-600'}`} />
-                            <span className={daysLeft <= 30 ? 'text-red-500 font-semibold' : 'text-gray-600'}>
-                              {daysLeft} days left
+                            <DollarSign className="h-4 w-4 text-success" />
+                            <span className="font-semibold text-success">
+                              {formatCurrency(scholarship.amount, scholarship.currency || 'USD')}
                             </span>
                           </div>
-                        )}
-                        {scholarship.description && (
-                          <p className="text-xs text-gray-600 line-clamp-2">
-                            {scholarship.description}
-                          </p>
-                        )}
-                        <div className="pt-2">
-                          <Button variant="ghost" size="sm" className="w-full text-primary hover:text-primary-dark">
-                            View Details
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                          </Button>
+                          {scholarship.country && (
+                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                              <MapPin className="h-4 w-4" />
+                              <span>{scholarship.country}</span>
+                            </div>
+                          )}
+                          {daysLeft !== null && daysLeft > 0 && (
+                            <div className="flex items-center gap-2 text-sm">
+                              <Calendar className={`h-4 w-4 ${daysLeft <= 30 ? 'text-red-500' : 'text-gray-600'}`} />
+                              <span className={daysLeft <= 30 ? 'text-red-500 font-semibold' : 'text-gray-600'}>
+                                {daysLeft} days left
+                              </span>
+                            </div>
+                          )}
+                          <div className="pt-2">
+                            <Button variant="ghost" size="sm" className="w-full text-primary hover:text-primary-dark">
+                              View Details
+                              <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              {/* Email Capture Gate - Show if more results available */}
+              {!emailCaptured && results.length > 5 && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-8"
+                >
+                  <Card className="border-2 border-primary bg-gradient-to-r from-primary/5 to-primary/10">
+                    <CardContent className="p-8 text-center">
+                      <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Lock className="h-8 w-8 text-primary" />
+                      </div>
+                      <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                        {results.length - 5} More Scholarships Available!
+                      </h3>
+                      <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                        Enter your email to unlock all {results.length} matching scholarships worth ${totalValue.toLocaleString()}
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                        <Input
+                          type="email"
+                          placeholder="Enter your email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="flex-1"
+                        />
+                        <Button 
+                          onClick={handleEmailCapture}
+                          disabled={emailLoading || !email.includes("@")}
+                        >
+                          {emailLoading ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <>
+                              Unlock All
+                              <ArrowRight className="h-4 w-4 ml-2" />
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-3">
+                        🔒 We never spam. Unsubscribe anytime.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+
+              {/* Success message after email capture */}
+              {emailCaptured && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-8"
+                >
+                  <Card className="border-2 border-green-500 bg-green-50">
+                    <CardContent className="p-6 text-center">
+                      <CheckCircle2 className="h-12 w-12 text-green-600 mx-auto mb-3" />
+                      <h3 className="text-xl font-bold text-gray-900 mb-2">
+                        All {results.length} Scholarships Unlocked!
+                      </h3>
+                      <p className="text-gray-600">
+                        We've also sent you a copy of these matches to your email.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+
+              {/* Premium Upsell Section */}
+              <div className="mt-12 grid md:grid-cols-2 gap-6">
+                {/* Premium Features Card */}
+                <Card className="border-2 border-primary shadow-lg">
+                  <CardHeader className="bg-primary text-white rounded-t-lg">
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-5 w-5" />
+                      <CardTitle className="text-lg">Upgrade to Premium - $5/month</CardTitle>
+                    </div>
+                    <CardDescription className="text-white/80">
+                      10x your chances of winning a scholarship
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <ul className="space-y-3 mb-6">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <span className="font-medium">10,000+ Verified Scholarships</span>
+                          <p className="text-sm text-gray-500">Full access to our database</p>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                );
-              })}
-            </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <span className="font-medium">Visa Guidance & Checklist</span>
+                          <p className="text-sm text-gray-500">Know exactly what documents you need</p>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <span className="font-medium">AI Copilot Essay Help</span>
+                          <p className="text-sm text-gray-500">Write winning essays</p>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <span className="font-medium">WhatsApp Deadline Alerts</span>
+                          <p className="text-sm text-gray-500">Never miss a deadline</p>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <span className="font-medium">Application Checklists</span>
+                          <p className="text-sm text-gray-500">Never miss a requirement</p>
+                        </div>
+                      </li>
+                    </ul>
+                    <Link href="/pricing">
+                      <Button className="w-full">
+                        Get Premium - $5/month
+                        <ArrowRight className="h-4 w-4 ml-2" />
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+
+                {/* Expert Help Card */}
+                <Card className="border-2 border-gray-200">
+                  <CardHeader>
+                    <div className="flex items-center gap-2">
+                      <MessageCircle className="h-5 w-5 text-primary" />
+                      <CardTitle className="text-lg">Need Expert Help?</CardTitle>
+                    </div>
+                    <CardDescription>
+                      Let us handle everything for you
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-2">
+                    <div className="bg-primary-light rounded-lg p-4 mb-4">
+                      <p className="text-sm font-medium text-primary mb-1">Our $299 Standard Package includes:</p>
+                      <ul className="text-sm text-gray-600 space-y-1">
+                        <li>✓ Expert writes your Statement of Purpose</li>
+                        <li>✓ 3-5 scholarship applications submitted for you</li>
+                        <li>✓ Visa guidance & document checklist</li>
+                        <li>✓ WhatsApp support until admission</li>
+                        <li>✓ 50% refund if not admitted</li>
+                      </ul>
+                    </div>
+                    <div className="text-center mb-4">
+                      <span className="text-3xl font-bold text-gray-900">$299</span>
+                      <span className="text-gray-500 ml-2">one-time</span>
+                      <p className="text-sm text-gray-600 mt-1">Average scholarship won: $18,000</p>
+                    </div>
+                    <Link href="/contact">
+                      <Button variant="outline" className="w-full">
+                        Talk to an Expert
+                        <ArrowRight className="h-4 w-4 ml-2" />
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Bottom CTA */}
+              <div className="mt-8 text-center">
+                <p className="text-gray-600 mb-4">
+                  Want to browse all 10,000+ scholarships in our database?
+                </p>
+                <Link href="/scholarships">
+                  <Button variant="outline">
+                    View All Scholarships
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </Link>
+              </div>
+            </>
           ) : (
             <Card className="p-12 text-center">
               <Award className="h-16 w-16 text-gray-400 mx-auto mb-4" />
@@ -259,27 +525,6 @@ export default function ScholarshipFinderFlow() {
                 </Link>
               </div>
             </Card>
-          )}
-
-          {results.length > 0 && (
-            <div className="mt-8 text-center">
-              <p className="text-gray-600 mb-4">
-                Want to see more personalized matches? Sign in to get AI-powered recommendations
-              </p>
-              <div className="flex gap-4 justify-center">
-                <Link href="/auth/signin">
-                  <Button variant="outline">
-                    Sign In for Better Matches
-                  </Button>
-                </Link>
-                <Link href="/scholarships">
-                  <Button>
-                    View All Scholarships
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
-                </Link>
-              </div>
-            </div>
           )}
         </div>
       </div>

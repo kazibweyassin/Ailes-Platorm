@@ -185,14 +185,15 @@ export default function HomeClient(): JSX.Element {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 mb-12">
-                <Link href="/scholarships">
+                <Link href="/find-scholarships">
                   <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8">
-                    Browse Scholarships
+                    Find Scholarships in 60 Seconds
+                    <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
                 </Link>
-                <Link href="/auth/signup">
+                <Link href="/scholarships">
                   <Button size="lg" variant="outline" className="border-gray-300">
-                    Create Free Account
+                    Browse All Scholarships
                   </Button>
                 </Link>
               </div>
