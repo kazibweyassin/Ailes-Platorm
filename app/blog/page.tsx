@@ -28,6 +28,50 @@ export default function BlogPage() {
       slug: "top-20-scholarships-2026",
     },
     {
+      id: "commonwealth-scholarship-guide",
+      title: "Commonwealth Scholarship 2026: Complete Application Guide",
+      excerpt:
+        "Everything you need to know about Commonwealth Scholarships for African students. Eligibility, deadlines, amounts, and expert application tips.",
+      category: "Scholarships",
+      date: new Date().toISOString().split('T')[0],
+      readTime: "15 min read",
+      image: "🇬🇧",
+      slug: "commonwealth-scholarship-guide",
+    },
+    {
+      id: "chevening-scholarship-guide",
+      title: "Chevening Scholarship 2026: How to Win the UK's Most Prestigious Award",
+      excerpt:
+        "Master the Chevening application with our complete guide covering the 4 essays, deadlines, and insider tips from alumni.",
+      category: "Scholarships",
+      date: new Date().toISOString().split('T')[0],
+      readTime: "18 min read",
+      image: "🎯",
+      slug: "chevening-scholarship-guide",
+    },
+    {
+      id: "study-germany-free-guide",
+      title: "Study in Germany for FREE: Complete Guide 2026",
+      excerpt:
+        "How to study at world-class German universities without paying tuition fees. Living costs, visa process, and top universities.",
+      category: "Study Abroad",
+      date: new Date().toISOString().split('T')[0],
+      readTime: "16 min read",
+      image: "🇩🇪",
+      slug: "study-germany-free-guide",
+    },
+    {
+      id: "mastercard-foundation-scholarship-guide",
+      title: "Mastercard Foundation Scholars Program 2026: Complete Guide",
+      excerpt:
+        "Join 35,000+ scholars transforming Africa. Learn about partner universities, application process, and what makes this program unique.",
+      category: "Scholarships",
+      date: new Date().toISOString().split('T')[0],
+      readTime: "17 min read",
+      image: "🌍",
+      slug: "mastercard-foundation-scholarship-guide",
+    },
+    {
       id: "study-in-canada",
       title: "How to Study in Canada: Complete Guide for African Students",
       excerpt:
