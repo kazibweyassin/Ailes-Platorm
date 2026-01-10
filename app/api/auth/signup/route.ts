@@ -3,6 +3,8 @@ import { hash } from "bcryptjs"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { Prisma } from "@prisma/client"
+import { addEmailToQueue } from "@/lib/email-service"
+import { EmailType } from "@prisma/client"
 
 const signUpSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").trim(),
@@ -132,6 +134,43 @@ export async function POST(req: Request) {
     }
 
     console.log('User created successfully:', user.id)
+
+    // 🎉 NEW: Create email preferences and send welcome email
+    try {
+      // Create default email preferences for new user
+      await prisma.userEmailPreferences.create({
+        data: {
+          userId: user.id,
+          welcomeEmails: true,
+          deadlineReminders: true,
+          weeklyNewsletter: true,
+          scholarshipMatches: true,
+          applicationUpdates: true,
+          paymentReceipts: true,
+          promotionalEmails: false, // Opt-in for promotional
+        },
+      })
+
+      // Get scholarship count for welcome email
+      const scholarshipCount = await prisma.scholarship.count()
+
+      // Queue welcome email
+      await addEmailToQueue({
+        userId: user.id,
+        email: user.email,
+        templateName: 'welcome-1',
+        type: EmailType.WELCOME,
+        variables: {
+          firstName: user.name.split(' ')[0],
+          scholarshipCount: scholarshipCount.toString(),
+        },
+      })
+
+      console.log('Welcome email queued for:', user.email)
+    } catch (emailError) {
+      // Don't fail signup if email fails - just log it
+      console.error('Failed to queue welcome email:', emailError)
+    }
 
     return NextResponse.json(
       { 

@@ -66,6 +66,9 @@ model User {
   payments      Payment[]
 
   copilotRequests CopilotRequest[]
+  emailQueues   EmailQueue[]
+  emailLogs     EmailLog[]
+  emailPreferences UserEmailPreferences?
   
   @@map("users")
 }
@@ -676,5 +679,144 @@ enum PaymentStatus {
   COMPLETED
   FAILED
   REFUNDED
+  CANCELLED
+}
+
+// Email Automation Models
+model EmailTemplate {
+  id          String   @id @default(cuid())
+  name        String   @unique // welcome-series-1, deadline-reminder, weekly-newsletter
+  subject     String
+  htmlContent String   @db.Text
+  textContent String?  @db.Text
+  variables   String[] // {{userName}}, {{scholarshipName}}, etc.
+  type        EmailType
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  queues      EmailQueue[]
+  logs        EmailLog[]
+  @@map("email_templates")
+}
+
+model EmailQueue {
+  id            String   @id @default(cuid())
+  userId        String?
+  email         String   // Recipient email
+  templateId    String
+  template      EmailTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  
+  // Email data
+  subject       String
+  htmlContent   String   @db.Text
+  variables     Json?    // {{userName}} = "John", etc.
+  
+  // Scheduling
+  scheduledFor  DateTime @default(now()) // When to send
+  status        EmailStatus @default(PENDING) // PENDING, SENT, FAILED, CANCELLED
+  
+  // Retry logic
+  retryCount    Int      @default(0)
+  maxRetries    Int      @default(3)
+  lastError     String?
+  
+  // Metadata
+  type          EmailType
+  metadata      Json?    // Additional context
+  
+  sentAt        DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  log           EmailLog?
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  @@index([status])
+  @@index([scheduledFor])
+  @@index([userId])
+  @@map("email_queue")
+}
+
+model EmailLog {
+  id            String   @id @default(cuid())
+  queueId       String?  @unique
+  queue         EmailQueue? @relation(fields: [queueId], references: [id], onDelete: SetNull)
+  
+  userId        String?
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  email         String   // Recipient email
+  templateId    String
+  template      EmailTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  
+  subject       String
+  type          EmailType
+  
+  status        EmailStatus @default(PENDING)
+  sentAt        DateTime?
+  openedAt      DateTime?
+  clickedAt     DateTime?
+  bounced       Boolean  @default(false)
+  complained    Boolean  @default(false)
+  
+  metadata      Json?    // IP, browser, etc.
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+  @@index([email])
+  @@index([type])
+  @@index([status])
+  @@index([sentAt])
+  @@map("email_logs")
+}
+
+model UserEmailPreferences {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Email preferences
+  welcomeEmails         Boolean @default(true)
+  deadlineReminders     Boolean @default(true)
+  weeklyNewsletter      Boolean @default(true)
+  scholarshipMatches    Boolean @default(true)
+  applicationUpdates    Boolean @default(true)
+  paymentReceipts       Boolean @default(true)
+  promotionalEmails     Boolean @default(false)
+  
+  // Frequency preferences
+  reminderDaysBeforeDeadline Int @default(7) // Send reminder 7 days before
+  maxEmailsPerWeek Int @default(5)
+  
+  // Unsubscribe
+  unsubscribedAt DateTime?
+  unsubscribeReason String?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@map("user_email_preferences")
+}
+
+enum EmailType {
+  WELCOME
+  DEADLINE_REMINDER
+  SCHOLARSHIP_MATCH
+  WEEKLY_NEWSLETTER
+  APPLICATION_UPDATE
+  PAYMENT_RECEIPT
+  PROMOTIONAL
+  CUSTOM
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  FAILED
+  BOUNCED
+  COMPLAINED
   CANCELLED
 }

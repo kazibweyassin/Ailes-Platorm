@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { addEmailToQueue } from "@/lib/email-service";
+import { EmailType } from "@prisma/client";
 
 const PESAPAL_CONSUMER_KEY = process.env.PESAPAL_CONSUMER_KEY;
 const PESAPAL_CONSUMER_SECRET = process.env.PESAPAL_CONSUMER_SECRET;
@@ -108,7 +110,7 @@ export async function GET(req: Request) {
         if (transactionStatus.description) {
           const emailMatch = transactionStatus.description.match(/[\w.-]+@[\w.-]+\.\w+/);
           if (emailMatch) {
-            await prisma.user.update({
+            const updatedUser = await prisma.user.update({
               where: { email: emailMatch[0] },
               data: {
                 subscriptionStatus: "ACTIVE",
@@ -117,6 +119,26 @@ export async function GET(req: Request) {
                 subscriptionTransactionId: orderTrackingId,
               },
             });
+
+            // 🎉 NEW: Send payment receipt email
+            try {
+              await addEmailToQueue({
+                userId: updatedUser.id,
+                email: updatedUser.email,
+                templateName: 'payment-receipt',
+                type: EmailType.PAYMENT_RECEIPT,
+                variables: {
+                  firstName: updatedUser.name?.split(' ')[0] || 'there',
+                  amount: transactionStatus.amount?.toString() || '0',
+                  plan: planId,
+                  transactionId: orderTrackingId,
+                  date: new Date().toLocaleDateString(),
+                },
+              });
+              console.log('Payment receipt email queued for:', updatedUser.email);
+            } catch (emailError) {
+              console.error('Failed to queue payment receipt:', emailError);
+            }
           }
         }
       } catch (dbError) {
