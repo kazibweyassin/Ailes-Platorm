@@ -154,19 +154,41 @@ export async function POST(req: Request) {
       // Get scholarship count for welcome email
       const scholarshipCount = await prisma.scholarship.count()
 
-      // Queue welcome email
-      await addEmailToQueue({
-        userId: user.id,
-        email: user.email,
-        templateName: 'welcome-1',
-        type: EmailType.WELCOME,
-        variables: {
-          firstName: user.name.split(' ')[0],
-          scholarshipCount: scholarshipCount.toString(),
-        },
+      // Get welcome email template
+      const template = await prisma.emailTemplate.findFirst({
+        where: { name: 'welcome-1', isActive: true }
       })
 
-      console.log('Welcome email queued for:', user.email)
+      if (template) {
+        // Render template with variables
+        const variables = {
+          firstName: user.name?.split(' ')[0] || 'there',
+          scholarshipCount: scholarshipCount.toString(),
+        }
+        
+        let htmlContent = template.htmlContent
+        let subject = template.subject
+        
+        // Replace variables in template
+        Object.entries(variables).forEach(([key, value]) => {
+          const placeholder = `{{${key}}}`
+          htmlContent = htmlContent.replace(new RegExp(placeholder, 'g'), value)
+          subject = subject.replace(new RegExp(placeholder, 'g'), value)
+        })
+
+        // Queue welcome email
+        await addEmailToQueue({
+          userId: user.id,
+          email: user.email,
+          templateId: template.id,
+          subject,
+          htmlContent,
+          type: EmailType.WELCOME,
+          variables,
+        })
+
+        console.log('Welcome email queued for:', user.email)
+      }
     } catch (emailError) {
       // Don't fail signup if email fails - just log it
       console.error('Failed to queue welcome email:', emailError)

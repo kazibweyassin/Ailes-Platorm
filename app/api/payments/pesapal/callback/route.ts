@@ -122,22 +122,44 @@ export async function GET(req: Request) {
 
             // 🎉 NEW: Send payment receipt email
             try {
-              await addEmailToQueue({
-                userId: updatedUser.id,
-                email: updatedUser.email,
-                templateName: 'payment-receipt',
-                type: EmailType.PAYMENT_RECEIPT,
-                variables: {
+              // Get payment receipt template
+              const template = await prisma.emailTemplate.findFirst({
+                where: { name: 'payment-receipt', isActive: true }
+              })
+
+              if (template) {
+                const variables = {
                   firstName: updatedUser.name?.split(' ')[0] || 'there',
                   amount: transactionStatus.amount?.toString() || '0',
                   plan: planId,
                   transactionId: orderTrackingId,
                   date: new Date().toLocaleDateString(),
-                },
-              });
-              console.log('Payment receipt email queued for:', updatedUser.email);
+                }
+
+                let htmlContent = template.htmlContent
+                let subject = template.subject
+
+                // Replace variables in template
+                Object.entries(variables).forEach(([key, value]) => {
+                  const placeholder = `{{${key}}}`
+                  htmlContent = htmlContent.replace(new RegExp(placeholder, 'g'), value)
+                  subject = subject.replace(new RegExp(placeholder, 'g'), value)
+                })
+
+                await addEmailToQueue({
+                  userId: updatedUser.id,
+                  email: updatedUser.email,
+                  templateId: template.id,
+                  subject,
+                  htmlContent,
+                  type: EmailType.PAYMENT_RECEIPT,
+                  variables,
+                })
+
+                console.log('Payment receipt email queued for:', updatedUser.email)
+              }
             } catch (emailError) {
-              console.error('Failed to queue payment receipt:', emailError);
+              console.error('Failed to queue payment receipt:', emailError)
             }
           }
         }
