@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Award, Calendar, DollarSign, Globe, CheckCircle2 } from "lucide-react";
+import { ConsultingCTAInline, ConsultingCTABanner, ConsultingCTACompact } from "@/components/consulting-cta";
 
 export const metadata: Metadata = generateSEO({
   title: "Chevening Scholarship 2026: Complete Application Guide for African Students",
@@ -99,6 +100,9 @@ export default function CheveningScholarshipPage() {
             essays that showcase your leadership potential.
           </p>
         </div>
+
+        {/* CTA after intro */}
+        <ConsultingCTACompact />
 
         {/* What's Covered */}
         <section className="mb-12">
@@ -285,6 +289,9 @@ export default function CheveningScholarshipPage() {
           </div>
         </section>
 
+        {/* Expert Help CTA after essays section */}
+        <ConsultingCTAInline />
+
         {/* Tips from Winners */}
         <section className="mb-12">
           <h2 className="text-3xl font-bold mb-6">Insider Tips from Chevening Alumni</h2>
@@ -368,6 +375,9 @@ export default function CheveningScholarshipPage() {
             will create positive change. Show them why you're that person.
           </p>
         </div>
+
+        {/* Final Consulting CTA */}
+        <ConsultingCTABanner />
 
         {/* Back to Blog */}
         <div className="text-center pt-8 border-t border-gray-200">

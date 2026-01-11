@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Award, CheckCircle2, Euro, Plane, Home } from "lucide-react";
+import { ConsultingCTAInline, ConsultingCTABanner, ConsultingCTACompact } from "@/components/consulting-cta";
 
 export const metadata: Metadata = generateSEO({
   title: "Study in Germany for Free: Complete Guide for African Students 2026",
@@ -74,6 +75,9 @@ export default function StudyGermanyFreePage() {
             expenses. This makes Germany one of the most affordable study destinations in Europe for African students.
           </p>
         </div>
+
+        {/* CTA after intro */}
+        <ConsultingCTACompact />
 
         {/* The Truth About Free Education */}
         <section className="mb-12">
@@ -231,6 +235,9 @@ export default function StudyGermanyFreePage() {
           </div>
         </section>
 
+        {/* CTA after universities section */}
+        <ConsultingCTAInline />
+
         {/* Visa Process */}
         <section className="mb-12">
           <h2 className="text-3xl font-bold mb-6">German Student Visa Process</h2>
@@ -382,6 +389,9 @@ export default function StudyGermanyFreePage() {
             (even for English programs), and secure your funding. Your German education journey awaits!
           </p>
         </div>
+
+        {/* Final Consulting CTA */}
+        <ConsultingCTABanner />
 
         {/* Back to Blog */}
         <div className="text-center pt-8 border-t border-gray-200">

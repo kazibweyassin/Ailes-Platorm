@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Award, Calendar, DollarSign, Globe } from "lucide-react";
+import { ConsultingCTAInline, ConsultingCTABanner, ConsultingCTACompact } from "@/components/consulting-cta";
 
 export const metadata: Metadata = generateSEO({
   title: "Commonwealth Scholarship 2026: Complete Application Guide",
@@ -60,6 +61,9 @@ export default function CommonwealthScholarshipPage() {
             strengthen your application.
           </p>
         </div>
+
+        {/* CTA after intro */}
+        <ConsultingCTACompact />
 
         {/* Quick Facts */}
         <Card className="mb-12 border-primary/20 shadow-lg">
@@ -223,6 +227,9 @@ export default function CommonwealthScholarshipPage() {
             </Card>
           </section>
 
+          {/* Expert Help CTA */}
+          <ConsultingCTAInline />
+
           {/* CTA */}
           <Card className="bg-gradient-to-r from-primary to-primary/80 text-white border-0">
             <CardContent className="p-8 text-center">
@@ -239,6 +246,9 @@ export default function CommonwealthScholarshipPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Final Consulting CTA */}
+        <ConsultingCTABanner />
 
         {/* Back to Blog */}
         <div className="text-center pt-8 mt-8 border-t border-gray-200">

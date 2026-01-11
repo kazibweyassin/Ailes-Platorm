@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, DollarSign, Globe, GraduationCap, ArrowRight, Award } from "lucide-react";
 import EmailCapturePopup from "@/components/email-capture-popup";
+import { ConsultingCTAInline, ConsultingCTABanner, ConsultingCTACompact } from "@/components/consulting-cta";
 
 export const metadata: Metadata = generateSEO({
   title: "Top 20 Fully-Funded Scholarships for African Students in 2026",
@@ -366,6 +367,9 @@ export default function Top20Scholarships2026Page() {
           ))}
         </div>
 
+        {/* Consulting CTA mid-page */}
+        <ConsultingCTAInline />
+
         {/* How to Apply Section */}
         <Card className="bg-primary-light border-2 border-primary mb-12">
           <CardContent className="p-8">
@@ -465,6 +469,9 @@ export default function Top20Scholarships2026Page() {
             Your dream of studying abroad is within reach. Start your scholarship search today!
           </p>
         </div>
+
+        {/* Expert Help CTA */}
+        <ConsultingCTABanner />
 
         {/* Back to Blog */}
         <div className="text-center pt-8 border-t border-gray-200">

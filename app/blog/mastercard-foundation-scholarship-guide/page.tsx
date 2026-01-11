@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Award, Calendar, DollarSign, Globe, CheckCircle2, Users } from "lucide-react";
+import { ConsultingCTAInline, ConsultingCTABanner, ConsultingCTACompact } from "@/components/consulting-cta";
 
 export const metadata: Metadata = generateSEO({
   title: "Mastercard Foundation Scholars Program 2026: Complete Application Guide",
@@ -107,6 +108,9 @@ export default function MastercardScholarshipPage() {
             </CardContent>
           </Card>
         </section>
+
+        {/* CTA after intro */}
+        <ConsultingCTACompact />
 
         {/* Eligibility */}
         <section className="mb-12">
@@ -331,6 +335,9 @@ export default function MastercardScholarshipPage() {
           </div>
         </section>
 
+        {/* CTA after application process */}
+        <ConsultingCTAInline />
+
         {/* Application Deadlines */}
         <section className="mb-12">
           <h2 className="text-3xl font-bold mb-6">Important Deadlines 2026</h2>
@@ -474,6 +481,9 @@ export default function MastercardScholarshipPage() {
             Start your application today!
           </p>
         </div>
+
+        {/* Final Consulting CTA */}
+        <ConsultingCTABanner />
 
         {/* Back to Blog */}
         <div className="text-center pt-8 border-t border-gray-200">
