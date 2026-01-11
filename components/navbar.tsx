@@ -27,6 +27,7 @@ export function Navbar() {
     { href: "/university-matcher", label: "University Matching" },
     { href: "/find-scholarships", label: "Scholarship Search" },
     { href: "/copilot/activate", label: "AI Copilot" },
+    { href: "/consulting", label: "Expert Consulting" },
   ];
 
   return (
