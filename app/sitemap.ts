@@ -30,6 +30,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 0.9,
     },
+    // Fellowships page (new high-value SEO target)
+    {
+      url: `${baseUrl}/scholarships?type=FELLOWSHIP`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
     {
       url: `${baseUrl}/scholarships/match`,
       lastModified: new Date(),
@@ -38,7 +45,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${baseUrl}/scholarships/compare`,
-      lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.7,
     },

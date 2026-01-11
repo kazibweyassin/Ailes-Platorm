@@ -526,6 +526,7 @@ enum ScholarshipType {
   TUITION
   LIVING
   RESEARCH
+  FELLOWSHIP
 }
 
 enum ApplicationStatus {
