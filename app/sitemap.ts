@@ -103,6 +103,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly',
       priority: 0.9,
     },
+    // Uganda-specific content (local SEO)
+    {
+      url: `${baseUrl}/blog/scholarships-for-ugandan-students`,
+      lastModified: new Date('2026-01-11'),
+      changeFrequency: 'weekly',
+      priority: 0.95, // Highest priority for local searches
+    },
     // Consulting page (revenue generator)
     {
       url: `${baseUrl}/consulting`,
