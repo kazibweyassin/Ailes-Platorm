@@ -32,7 +32,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     if (!scholarship) {
       return generateSEO({
         title: "Scholarship Not Found",
-        description: "The scholarship you're looking for doesn't exist.",
+        description: "The scholarship you're looking for doesn't exist. Browse our database of 1000+ scholarships for African students.",
+        noIndex: true,
       });
     }
 
@@ -57,6 +58,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return generateSEO({
       title: "Scholarship Details",
       description: "View scholarship details and apply now.",
+      noIndex: true, // Don't index error pages
     });
   }
 }

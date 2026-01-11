@@ -72,6 +72,44 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly',
       priority: 0.8,
     },
+    // High-value SEO blog posts (120K+ monthly searches combined)
+    {
+      url: `${baseUrl}/blog/chevening-scholarship-guide`,
+      lastModified: new Date('2026-01-10'),
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/blog/study-germany-free-guide`,
+      lastModified: new Date('2026-01-10'),
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/blog/mastercard-foundation-scholarship-guide`,
+      lastModified: new Date('2026-01-10'),
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/blog/commonwealth-scholarship-guide`,
+      lastModified: new Date('2026-01-10'),
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/blog/top-20-scholarships-2026`,
+      lastModified: new Date('2026-01-10'),
+      changeFrequency: 'monthly',
+      priority: 0.9,
+    },
+    // Consulting page (revenue generator)
+    {
+      url: `${baseUrl}/consulting`,
+      lastModified: new Date('2026-01-10'),
+      changeFrequency: 'monthly',
+      priority: 0.85,
+    },
     {
       url: `${baseUrl}/pricing`,
       lastModified: new Date(),

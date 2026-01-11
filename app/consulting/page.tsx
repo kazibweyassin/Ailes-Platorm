@@ -369,10 +369,14 @@ export default function ConsultingPage() {
                 Book Free Consultation
               </Button>
             </a>
-            <a href="mailto:support@ailesglobal.com">
+            <a 
+              href="https://wa.me/256786367460?text=Hi%20Ailes%20Global!%20I'm%20interested%20in%20scholarship%20consulting."
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
                 <MessageCircle className="mr-2 h-5 w-5" />
-                Email Us
+                WhatsApp Us
               </Button>
             </a>
           </div>
