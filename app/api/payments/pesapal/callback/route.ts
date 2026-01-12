@@ -1,3 +1,6 @@
+// Prevent static export error on Vercel/Next.js
+export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { addEmailToQueue } from "@/lib/email-service";
