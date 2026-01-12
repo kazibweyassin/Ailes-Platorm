@@ -11,6 +11,14 @@ const PESAPAL_BASE_URL = PESAPAL_ENV === "live"
   ? "https://pay.pesapal.com/v3"
   : "https://cybqa.pesapal.com/pesapalv3";
 
+// Force dynamic rendering - this route handles payment callbacks
+export const dynamic = "force-dynamic";
+
+// Get base URL for redirects
+function getBaseUrl(): string {
+  return process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "https://ailesglobal.org";
+}
+
 // Get Pesapal Access Token
 async function getPesapalToken(): Promise<string | null> {
   try {
@@ -64,7 +72,7 @@ export async function GET(req: Request) {
 
     if (!orderTrackingId) {
       return NextResponse.redirect(
-        `${process.env.NEXTAUTH_URL}/payment/failed?error=missing_tracking_id`
+        `${getBaseUrl()}/payment/failed?error=missing_tracking_id`
       );
     }
 
@@ -72,7 +80,7 @@ export async function GET(req: Request) {
     const token = await getPesapalToken();
     if (!token) {
       return NextResponse.redirect(
-        `${process.env.NEXTAUTH_URL}/payment/failed?error=verification_failed`
+        `${getBaseUrl()}/payment/failed?error=verification_failed`
       );
     }
 
@@ -80,7 +88,7 @@ export async function GET(req: Request) {
 
     if (!transactionStatus) {
       return NextResponse.redirect(
-        `${process.env.NEXTAUTH_URL}/payment/failed?error=status_check_failed`
+        `${getBaseUrl()}/payment/failed?error=status_check_failed`
       );
     }
 
@@ -169,22 +177,22 @@ export async function GET(req: Request) {
       }
 
       return NextResponse.redirect(
-        `${process.env.NEXTAUTH_URL}/payment/success?tx_ref=${merchantReference}&tracking_id=${orderTrackingId}`
+        `${getBaseUrl()}/payment/success?tx_ref=${merchantReference}&tracking_id=${orderTrackingId}`
       );
     } else if (paymentStatusCode === "Failed" || transactionStatus.status_code === 2) {
       return NextResponse.redirect(
-        `${process.env.NEXTAUTH_URL}/payment/failed?error=payment_failed&tx_ref=${merchantReference}`
+        `${getBaseUrl()}/payment/failed?error=payment_failed&tx_ref=${merchantReference}`
       );
     } else {
       // Pending or other status
       return NextResponse.redirect(
-        `${process.env.NEXTAUTH_URL}/payment/pending?tx_ref=${merchantReference}&tracking_id=${orderTrackingId}`
+        `${getBaseUrl()}/payment/pending?tx_ref=${merchantReference}&tracking_id=${orderTrackingId}`
       );
     }
   } catch (error) {
     console.error("Payment callback error:", error);
     return NextResponse.redirect(
-      `${process.env.NEXTAUTH_URL}/payment/failed?error=server_error`
+      `${getBaseUrl()}/payment/failed?error=server_error`
     );
   }
 }
