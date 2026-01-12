@@ -182,43 +182,14 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-white">
-        <div className="container mx-auto px-4 py-16">
-          <div className="max-w-2xl mx-auto text-center">
-            <AlertCircle className="h-16 w-16 text-amber-500 mx-auto mb-6" />
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
-              Scholarship Temporarily Unavailable
-            </h1>
-            <p className="text-gray-600 mb-8 text-lg">
-              We're having trouble loading this scholarship right now. This could be temporary - please try again in a moment.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button onClick={() => window.location.reload()} variant="outline">
-                Try Again
-              </Button>
-              <Link href="/scholarships">
-                <Button>Browse All Scholarships</Button>
-              </Link>
-            </div>
-            <div className="mt-12 p-6 bg-primary/5 rounded-lg">
-              <h2 className="text-lg font-semibold text-gray-900 mb-3">
-                Looking for Popular Scholarships?
-              </h2>
-              <div className="flex flex-wrap justify-center gap-3">
-                <Link href="/blog/chevening-scholarship-guide" className="text-primary hover:underline">
-                  Chevening Guide
-                </Link>
-                <span className="text-gray-300">•</span>
-                <Link href="/blog/mastercard-foundation-scholarship-guide" className="text-primary hover:underline">
-                  Mastercard Foundation
-                </Link>
-                <span className="text-gray-300">•</span>
-                <Link href="/blog/commonwealth-scholarship-guide" className="text-primary hover:underline">
-                  Commonwealth
-                </Link>
-              </div>
-            </div>
-          </div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">Error Loading Scholarship</h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <Link href="/scholarships">
+            <Button>Browse Scholarships</Button>
+          </Link>
         </div>
       </div>
     );

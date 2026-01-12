@@ -732,6 +732,50 @@ export default function HomeClient(): JSX.Element {
         </div>
       </section>
 
+      {/* Work Abroad - VizzarJobs Cross-Promo */}
+      <section className="py-16 bg-gradient-to-r from-slate-900 to-slate-800">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="inline-flex items-center gap-2 bg-green-500/20 text-green-400 px-4 py-2 rounded-full text-sm mb-6">
+              <Globe className="h-4 w-4" />
+              <span>Work Abroad</span>
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+              Find Jobs That Sponsor Your Visa
+            </h2>
+            <p className="text-lg text-gray-300 mb-8 max-w-2xl mx-auto">
+              VizzarJobs connects African professionals with employers in UK, USA, Canada, Germany & more who sponsor work visas. Your path to working abroad legally.
+            </p>
+            <div className="flex flex-wrap gap-3 justify-center mb-8">
+              <span className="px-3 py-1 bg-white/10 text-white text-sm rounded-full">🇬🇧 UK Skilled Worker</span>
+              <span className="px-3 py-1 bg-white/10 text-white text-sm rounded-full">🇺🇸 H1B Sponsors</span>
+              <span className="px-3 py-1 bg-white/10 text-white text-sm rounded-full">🇨🇦 Canada LMIA</span>
+              <span className="px-3 py-1 bg-white/10 text-white text-sm rounded-full">🇩🇪 Germany Blue Card</span>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a 
+                href="https://www.vizzarjobs.com/jobs" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center px-8 py-3 bg-white text-slate-900 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                Browse Visa-Sponsored Jobs
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </a>
+              <a 
+                href="https://www.vizzarjobs.com/auth/signup" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center px-8 py-3 bg-transparent border-2 border-white text-white font-semibold rounded-lg hover:bg-white/10 transition-colors"
+              >
+                Create Free Profile
+              </a>
+            </div>
+            <p className="text-sm text-gray-400 mt-6">✓ Verified Visa Sponsors • ✓ Free for Job Seekers • ✓ Relocation Support</p>
+          </div>
+        </div>
+      </section>
+
       {/* FAQ Section - Reorganized */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">

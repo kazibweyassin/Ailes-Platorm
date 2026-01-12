@@ -76,6 +76,7 @@ export function Footer() {
               <li><Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
               <li><Link href="/terms" className="hover:text-primary transition-colors">Terms & Conditions</Link></li>
               <li><Link href="/refund-policy" className="hover:text-primary transition-colors">Refund Policy</Link></li>
+              <li><a href="https://www.vizzarjobs.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">VizzarJobs - Visa-Sponsored Jobs</a></li>
             </ul>
           </div>
         </div>

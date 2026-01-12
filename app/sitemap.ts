@@ -30,13 +30,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily',
       priority: 0.9,
     },
-    // Fellowships page (new high-value SEO target)
-    {
-      url: `${baseUrl}/scholarships?type=FELLOWSHIP`,
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
     {
       url: `${baseUrl}/scholarships/match`,
       lastModified: new Date(),
@@ -45,6 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${baseUrl}/scholarships/compare`,
+      lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.7,
     },
@@ -77,51 +71,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.8,
-    },
-    // High-value SEO blog posts (120K+ monthly searches combined)
-    {
-      url: `${baseUrl}/blog/chevening-scholarship-guide`,
-      lastModified: new Date('2026-01-10'),
-      changeFrequency: 'monthly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/blog/study-germany-free-guide`,
-      lastModified: new Date('2026-01-10'),
-      changeFrequency: 'monthly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/blog/mastercard-foundation-scholarship-guide`,
-      lastModified: new Date('2026-01-10'),
-      changeFrequency: 'monthly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/blog/commonwealth-scholarship-guide`,
-      lastModified: new Date('2026-01-10'),
-      changeFrequency: 'monthly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/blog/top-20-scholarships-2026`,
-      lastModified: new Date('2026-01-10'),
-      changeFrequency: 'monthly',
-      priority: 0.9,
-    },
-    // Uganda-specific content (local SEO)
-    {
-      url: `${baseUrl}/blog/scholarships-for-ugandan-students`,
-      lastModified: new Date('2026-01-11'),
-      changeFrequency: 'weekly',
-      priority: 0.95, // Highest priority for local searches
-    },
-    // Consulting page (revenue generator)
-    {
-      url: `${baseUrl}/consulting`,
-      lastModified: new Date('2026-01-10'),
-      changeFrequency: 'monthly',
-      priority: 0.85,
     },
     {
       url: `${baseUrl}/pricing`,
