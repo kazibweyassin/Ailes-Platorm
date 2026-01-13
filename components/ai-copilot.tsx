@@ -457,7 +457,7 @@ export default function AICopilot() {
 
   return !isOpen ? (
     <motion.div
-      className="fixed bottom-8 right-8 z-50"
+      className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-50"
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
@@ -469,12 +469,12 @@ export default function AICopilot() {
         }}
         className="rounded-full h-16 w-16 p-0 shadow-lg bg-primary hover:bg-primary/90"
       >
-        <Sparkles className="h-8 w-8" />
+        <Sparkles className="h-6 w-6 md:h-8 md:w-8" />
       </Button>
     </motion.div>
   ) : (
-    <div className="fixed bottom-8 right-8 z-50">
-      <Card className="w-96 bg-white rounded-xl shadow-xl overflow-hidden flex flex-col">
+    <div className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-50 w-[calc(100vw-2rem)] max-w-md">
+      <Card className="w-full bg-white rounded-xl shadow-xl overflow-hidden flex flex-col">
         <div 
           className="bg-primary text-white p-4 cursor-pointer flex justify-between items-center"
           onClick={() => setIsMinimized(!isMinimized)}
