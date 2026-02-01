@@ -94,6 +94,7 @@ export default function ScholarshipsPage() {
       } catch (err) {
         console.error('Error fetching scholarships:', err);
         setError("Failed to load scholarships. Please try again.");
+        setScholarships([]);
       } finally {
         setLoading(false);
       }

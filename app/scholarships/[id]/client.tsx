@@ -39,6 +39,20 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
   const [isSaving, setIsSaving] = useState(false);
   const [similarScholarships, setSimilarScholarships] = useState<any[]>([]);
 
+  const normalizeUrl = (value?: string | null): string | null => {
+    if (!value) return null;
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+    try {
+      const parsed = new URL(withProtocol);
+      if (!parsed.hostname) return null;
+      return parsed.toString();
+    } catch {
+      return null;
+    }
+  };
+
   useEffect(() => {
     async function fetchScholarship() {
       try {
@@ -310,9 +324,9 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-3 pt-6">
-                {scholarship.applicationLink && (
+                {normalizeUrl(scholarship.applicationLink) && (
                   <Button size="lg" className="flex-1 md:flex-none" asChild>
-                    <a href={scholarship.applicationLink} target="_blank" rel="noopener noreferrer">
+                    <a href={normalizeUrl(scholarship.applicationLink) as string} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="h-4 w-4 mr-2" />
                       Apply Now
                     </a>
@@ -332,9 +346,9 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
                   )}
                   {isSaved ? "Saved" : "Save"}
                 </Button>
-                {scholarship.website && (
+                {normalizeUrl(scholarship.website) && (
                   <Button size="lg" variant="outline" asChild>
-                    <a href={scholarship.website} target="_blank" rel="noopener noreferrer">
+                    <a href={normalizeUrl(scholarship.website) as string} target="_blank" rel="noopener noreferrer">
                       <Globe className="h-4 w-4 mr-2" />
                       Visit Website
                     </a>
@@ -528,9 +542,9 @@ export function ScholarshipDetailClient({ id }: { id: string }) {
                     <CardTitle className="text-lg">Quick Actions</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {scholarship.applicationLink && (
+                    {normalizeUrl(scholarship.applicationLink) && (
                       <Button className="w-full" size="lg" asChild>
-                        <a href={scholarship.applicationLink} target="_blank" rel="noopener noreferrer">
+                        <a href={normalizeUrl(scholarship.applicationLink) as string} target="_blank" rel="noopener noreferrer">
                           <ExternalLink className="h-4 w-4 mr-2" />
                           Apply Now
                         </a>
