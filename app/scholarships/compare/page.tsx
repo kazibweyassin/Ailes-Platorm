@@ -188,7 +188,7 @@ export default function ComparePage() {
                         <div className="flex items-center gap-1">
                           <DollarSign className="h-3 w-3 text-primary" />
                           <span className="font-bold text-primary">
-                            {scholarship.currency} ${scholarship.amount.toLocaleString()}
+                            {scholarship.amount ? `${scholarship.currency} $${scholarship.amount.toLocaleString()}` : `${scholarship.currency} Full Funding`}
                           </span>
                         </div>
                         <div className="flex items-center gap-1">

@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const title = `${scholarship.name} - ${scholarship.provider}`;
     const description = scholarship.description 
       ? scholarship.description.substring(0, 150) + "..."
-      : `Apply for ${scholarship.name} scholarship${scholarship.amount ? ` worth ${scholarship.currency} ${scholarship.amount.toLocaleString()}` : ""}`;
+      : `Apply for ${scholarship.name} scholarship${scholarship.amount ? ` worth ${scholarship.currency} $${scholarship.amount.toLocaleString()}` : " with full funding"}`;
     
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://ailesglobal.com';
     const ogTitle = encodeURIComponent(title);

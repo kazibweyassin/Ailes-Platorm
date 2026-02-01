@@ -164,7 +164,7 @@ export default function SavedScholarshipsPage() {
                     {scholarship.amount && (
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <DollarSign className="h-4 w-4" />
-                        <span>{scholarship.currency} {scholarship.amount.toLocaleString()}</span>
+                        <span>{scholarship.amount ? `${scholarship.currency} ${scholarship.amount.toLocaleString()}` : `${scholarship.currency} Full Funding`}</span>
                       </div>
                     )}
 
