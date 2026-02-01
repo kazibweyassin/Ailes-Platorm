@@ -67,7 +67,7 @@ function CheckoutContent() {
   const router = useRouter();
   const { data: session, status } = useSession();
   
-  const planId = searchParams.get("plan") || "premium";
+  const planId = searchParams?.get("plan") || "premium";
   const plan = PLANS[planId] || PLANS.premium;
   
   const [paymentMethod, setPaymentMethod] = useState<string>("mobilemoney");

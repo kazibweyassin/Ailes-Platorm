@@ -9,8 +9,8 @@ import { Clock, RefreshCw, Home, MessageCircle } from "lucide-react";
 
 function PendingContent() {
   const searchParams = useSearchParams();
-  const txRef = searchParams.get("tx_ref");
-  const trackingId = searchParams.get("tracking_id");
+  const txRef = searchParams?.get("tx_ref") || null;
+  const trackingId = searchParams?.get("tracking_id") || null;
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">

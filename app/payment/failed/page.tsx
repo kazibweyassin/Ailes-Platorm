@@ -9,8 +9,8 @@ import { Suspense } from "react";
 
 function PaymentFailedContent() {
   const searchParams = useSearchParams();
-  const error = searchParams.get("error");
-  const txRef = searchParams.get("tx_ref");
+  const error = searchParams?.get("error") || null;
+  const txRef = searchParams?.get("tx_ref") || null;
 
   const errorMessages: Record<string, string> = {
     missing_params: "Payment information was incomplete. Please try again.",

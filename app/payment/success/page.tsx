@@ -9,8 +9,8 @@ import { Suspense } from "react";
 
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
-  const plan = searchParams.get("plan") || "premium";
-  const txRef = searchParams.get("tx_ref");
+  const plan = searchParams?.get("plan") || "premium";
+  const txRef = searchParams?.get("tx_ref") || null;
 
   const planDetails: Record<string, { name: string; features: string[]; nextStep: string; nextLink: string }> = {
     premium: {
