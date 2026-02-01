@@ -473,17 +473,17 @@ export default function AICopilot() {
       </Button>
     </motion.div>
   ) : (
-    <div className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-50 w-[calc(100vw-2rem)] max-w-md">
-      <Card className="w-full bg-white rounded-xl shadow-xl overflow-hidden flex flex-col">
+    <div className="fixed bottom-4 right-4 md:bottom-8 md:right-8 z-50 w-[calc(100vw-2rem)] max-w-sm md:max-w-md">
+      <Card className="w-full bg-white rounded-lg md:rounded-xl shadow-xl overflow-hidden flex flex-col">
         <div 
-          className="bg-primary text-white p-4 cursor-pointer flex justify-between items-center"
+          className="bg-primary text-white p-3 md:p-4 cursor-pointer flex justify-between items-center"
           onClick={() => setIsMinimized(!isMinimized)}
         >
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5" />
-            <span className="font-semibold">Scholarship Copilot</span>
+          <div className="flex items-center gap-2 min-w-0">
+            <Sparkles className="h-4 w-4 md:h-5 md:w-5 flex-shrink-0" />
+            <span className="font-semibold text-sm md:text-base truncate">Scholarship Copilot</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <button 
               onClick={(e) => {
                 e.stopPropagation();
@@ -491,7 +491,7 @@ export default function AICopilot() {
               }}
               className="p-1 hover:bg-white/10 rounded"
             >
-              <ChevronDown className={`h-5 w-5 transition-transform ${isMinimized ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`h-4 w-4 md:h-5 md:w-5 transition-transform ${isMinimized ? 'rotate-180' : ''}`} />
             </button>
             <button 
               onClick={(e) => {
@@ -500,7 +500,7 @@ export default function AICopilot() {
               }}
               className="p-1 hover:bg-white/10 rounded"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4 md:h-5 md:w-5" />
             </button>
           </div>
         </div>
@@ -514,14 +514,14 @@ export default function AICopilot() {
               transition={{ duration: 0.2 }}
               className="overflow-hidden"
             >
-              <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
+              <div className="p-3 md:p-4 space-y-3 md:space-y-4 max-h-[50vh] md:max-h-[60vh] overflow-y-auto">
                 {messages.length === 0 ? (
-                  <div className="space-y-4">
-                    <div className="text-center py-4">
-                      <h3 className="font-semibold text-lg">How can I help you today?</h3>
-                      <p className="text-sm text-muted-foreground">I'm your AI Scholarship Assistant</p>
+                  <div className="space-y-3 md:space-y-4">
+                    <div className="text-center py-2 md:py-4">
+                      <h3 className="font-semibold text-base md:text-lg">How can I help you today?</h3>
+                      <p className="text-xs md:text-sm text-muted-foreground">I'm your AI Scholarship Assistant</p>
                     </div>
-                    <div className="space-y-3">
+                    <div className="space-y-2 md:space-y-3">
                       {quickActions.map((action, index) => (
                         <button
                           key={index}
@@ -530,15 +530,15 @@ export default function AICopilot() {
                             const textarea = document.querySelector('textarea');
                             textarea?.focus();
                           }}
-                          className="w-full text-left p-3 rounded-lg border hover:bg-gray-50 transition-colors"
+                          className="w-full text-left p-2 md:p-3 rounded-lg border hover:bg-gray-50 transition-colors"
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                          <div className="flex items-center gap-2 md:gap-3">
+                            <div className="p-1.5 md:p-2 bg-primary/10 rounded-lg text-primary flex-shrink-0">
                               {action.icon}
                             </div>
-                            <div>
-                              <p className="font-medium">{action.title}</p>
-                              <p className="text-xs text-muted-foreground">{action.description}</p>
+                            <div className="min-w-0">
+                              <p className="font-medium text-sm md:text-base truncate">{action.title}</p>
+                              <p className="text-xs text-muted-foreground truncate">{action.description}</p>
                             </div>
                           </div>
                         </button>
@@ -553,7 +553,7 @@ export default function AICopilot() {
                         className={`flex ${message.isUser ? "justify-end" : "justify-start"}`}
                       >
                         <div
-                          className={`max-w-[80%] rounded-lg p-3 ${
+                          className={`max-w-[85%] md:max-w-[80%] rounded-lg p-2 md:p-3 text-sm ${
                             message.isUser
                               ? "bg-primary text-primary-foreground"
                               : "bg-gray-100"
@@ -737,13 +737,13 @@ export default function AICopilot() {
                 )}
               </div>
 
-              <form onSubmit={handleSendMessage} className="p-4 border-t">
+              <form onSubmit={handleSendMessage} className="p-3 md:p-4 border-t">
                 <div className="relative">
                   <Textarea
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="Ask me anything about scholarships..."
-                    className="pr-24 resize-none"
+                    placeholder="Ask about scholarships..."
+                    className="pr-20 md:pr-24 resize-none text-sm"
                     rows={2}
                     disabled={isProcessing}
                     onKeyDown={(e) => {
@@ -770,15 +770,15 @@ export default function AICopilot() {
                     />
                     <label 
                       htmlFor="document-upload"
-                      className="p-1.5 rounded-md hover:bg-muted cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
+                      className="p-1 rounded-md hover:bg-muted cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
                       title="Upload document"
                     >
-                      <FileUp className="h-4 w-4" />
+                      <FileUp className="h-3.5 w-3.5 md:h-4 md:w-4" />
                     </label>
                     <Button
                       type="submit"
                       size="icon"
-                      className="h-8 w-8"
+                      className="h-7 w-7 md:h-8 md:w-8"
                       disabled={!input.trim() || isProcessing}
                       onClick={(e) => {
                         if (isLoading) e.preventDefault();
@@ -791,7 +791,7 @@ export default function AICopilot() {
                           <div className="w-1.5 h-1.5 rounded-full bg-background animate-bounce" style={{ animationDelay: '300ms' }}></div>
                         </div>
                       ) : (
-                        <Send className="h-4 w-4" />
+                        <Send className="h-3.5 w-3.5 md:h-4 md:w-4" />
                       )}
                     </Button>
                   </div>
