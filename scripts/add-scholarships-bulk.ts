@@ -138,7 +138,7 @@ async function main() {
       
       // Create scholarship
       await prisma.scholarship.create({
-        data: scholarship,
+        data: scholarship as any,
       });
       
       successCount++;

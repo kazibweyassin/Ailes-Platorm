@@ -144,7 +144,8 @@ export async function POST(req: Request) {
           welcomeEmails: true,
           deadlineReminders: true,
           weeklyNewsletter: true,
-          scholarshipMatches: true,
+          matchNotifications: true,
+          applicationReminders: true,
           applicationUpdates: true,
           paymentReceipts: true,
           promotionalEmails: false, // Opt-in for promotional
