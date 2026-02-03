@@ -541,37 +541,40 @@ export default function SponsorPage() {
         </div>
       </section>
 
-      {/* Program in Numbers */}
+      {/* Sponsor Program Goals */}
       <section className="py-16 md:py-24 bg-slate-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Our Program in Numbers
+              Sponsor Program Goals by 2030
             </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              With your support, here's the impact we aim to achieve together
+            </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="border-0 shadow-lg">
               <CardHeader className="pb-4">
-                <div className="text-5xl font-bold text-orange-600 mb-2">40,000+</div>
+                <div className="text-5xl font-bold text-orange-600 mb-2">10,000+</div>
                 <CardTitle className="text-gray-600 font-normal">
-                  Mastercard Foundation Scholars and growing
+                  Students directly funded through sponsor contributions
                 </CardTitle>
               </CardHeader>
             </Card>
             <Card className="border-0 shadow-lg">
               <CardHeader className="pb-4">
-                <div className="text-5xl font-bold text-cyan-600 mb-2">&gt;70%</div>
+                <div className="text-5xl font-bold text-cyan-600 mb-2">$5M</div>
                 <CardTitle className="text-gray-600 font-normal">
-                  More than 70% are young women
+                  Total scholarships disbursed through the fund
                 </CardTitle>
               </CardHeader>
             </Card>
             <Card className="border-0 shadow-lg">
               <CardHeader className="pb-4">
-                <div className="text-5xl font-bold text-orange-600 mb-2">20,206</div>
+                <div className="text-5xl font-bold text-orange-600 mb-2">50+</div>
                 <CardTitle className="text-gray-600 font-normal">
-                  Ailes Scholars Program Alumni
+                  Partner universities across Africa
                 </CardTitle>
               </CardHeader>
             </Card>
@@ -580,25 +583,25 @@ export default function SponsorPage() {
           <div className="grid md:grid-cols-3 gap-8 mt-8">
             <Card className="border-0 shadow-lg">
               <CardHeader className="pb-4">
-                <div className="text-5xl font-bold text-slate-700 mb-2">100,000</div>
+                <div className="text-5xl font-bold text-slate-700 mb-2">70%</div>
                 <CardTitle className="text-gray-600 font-normal">
-                  Our goal for scholarships awarded by 2030
+                  Priority for young women and underrepresented groups
                 </CardTitle>
               </CardHeader>
             </Card>
             <Card className="border-0 shadow-lg bg-yellow-50">
               <CardHeader className="pb-4">
-                <div className="text-5xl font-bold text-yellow-600 mb-2">$3B</div>
+                <div className="text-5xl font-bold text-yellow-600 mb-2">100%</div>
                 <CardTitle className="text-gray-600 font-normal">
-                  The amount we have disbursed (USD) towards education and transitions programs in Africa
+                  Transparency - every dollar tracked and reported
                 </CardTitle>
               </CardHeader>
             </Card>
             <Card className="border-0 shadow-lg">
               <CardHeader className="pb-4">
-                <div className="text-5xl font-bold text-orange-600 mb-2">29</div>
+                <div className="text-5xl font-bold text-orange-600 mb-2">24/7</div>
                 <CardTitle className="text-gray-600 font-normal">
-                  Total number of global partner institutions
+                  Student support and mentorship access
                 </CardTitle>
               </CardHeader>
             </Card>
