@@ -94,7 +94,6 @@ export default function ScholarshipsPage() {
       } catch (err) {
         console.error('Error fetching scholarships:', err);
         setError("Failed to load scholarships. Please try again.");
-        setScholarships([]);
       } finally {
         setLoading(false);
       }
@@ -458,7 +457,7 @@ export default function ScholarshipsPage() {
                         <div className="flex items-center gap-2">
                           <DollarSign className="h-4 w-4 text-primary" />
                           <span className="font-bold text-primary">
-                            {scholarship.amount ? `${scholarship.currency} $${scholarship.amount.toLocaleString()}` : `${scholarship.currency} Full Funding`}
+                            {scholarship.currency} ${scholarship.amount.toLocaleString()}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">

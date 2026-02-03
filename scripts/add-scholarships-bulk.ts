@@ -6,7 +6,7 @@
  * 2. Run: npx ts-node scripts/add-scholarships-bulk.ts
  */
 
-import { PrismaClient, ScholarshipType, DegreeLevel } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -18,7 +18,7 @@ const scholarships = [
     country: "Multiple Countries",
     amount: 50000,
     currency: "USD",
-    type: ScholarshipType.FULL,
+    type: "FULL",
     description: "The Mastercard Foundation Scholars Program provides comprehensive support for academically talented yet economically disadvantaged students from Africa.",
     eligibility: "African citizens with demonstrated academic talent and financial need. Must show leadership potential and commitment to giving back.",
     deadline: new Date("2026-06-30"),
@@ -27,7 +27,7 @@ const scholarships = [
     applicationLink: "https://mastercardfdn.org/apply",
     contactEmail: "scholars@mastercardfdn.org",
     fieldOfStudy: ["Business", "Engineering", "Agriculture", "Education", "Health Sciences"],
-    degreeLevel: [DegreeLevel.BACHELOR, DegreeLevel.MASTER, DegreeLevel.PHD],
+    degreeLevel: ["BACHELORS", "MASTERS", "PHD"],
     minGPA: 3.0,
     maxAge: 35,
     forWomen: false,
@@ -51,7 +51,7 @@ const scholarships = [
     country: "United Kingdom",
     amount: 40000,
     currency: "GBP",
-    type: ScholarshipType.FULL,
+    type: "FULL",
     description: "Chevening Scholarships are the UK government's global scholarship programme, funded by the Foreign, Commonwealth and Development Office (FCDO).",
     eligibility: "Have an undergraduate degree. Have at least two years of work experience. Be a citizen of a Chevening-eligible country.",
     deadline: new Date("2026-11-02"),
@@ -60,7 +60,7 @@ const scholarships = [
     applicationLink: "https://www.chevening.org/apply",
     contactEmail: "chevening@fcdo.gov.uk",
     fieldOfStudy: ["All Fields"],
-    degreeLevel: [DegreeLevel.MASTER],
+    degreeLevel: ["MASTERS"],
     minGPA: 3.0,
     forWomen: false,
     forAfrican: true,
@@ -83,7 +83,7 @@ const scholarships = [
     country: "Germany",
     amount: 20000,
     currency: "EUR",
-    type: ScholarshipType.FULL,
+    type: "FULL",
     description: "DAAD provides funding for postgraduate students and doctoral candidates to study in Germany.",
     eligibility: "Bachelor's degree with above-average results. Graduated no more than six years ago. Proficiency in English or German.",
     deadline: new Date("2026-10-31"),
@@ -92,7 +92,7 @@ const scholarships = [
     applicationLink: "https://www.daad.de/apply",
     contactEmail: "info@daad.de",
     fieldOfStudy: ["Engineering", "Sciences", "Agriculture", "Environmental Studies"],
-    degreeLevel: [DegreeLevel.MASTER, DegreeLevel.PHD],
+    degreeLevel: ["MASTERS", "PHD"],
     minGPA: 3.2,
     maxAge: 35,
     forWomen: false,

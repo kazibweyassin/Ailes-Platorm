@@ -157,13 +157,9 @@ export async function GET(req: Request) {
       prisma.scholarship.count({ where })
     ])
 
-    // Calculate days until deadline for each and serialize dates
+    // Calculate days until deadline for each
     const enriched = scholarships.map((s: any) => ({
       ...s,
-      deadline: s.deadline ? s.deadline.toISOString() : null,
-      applicationOpenDate: s.applicationOpenDate ? s.applicationOpenDate.toISOString() : null,
-      createdAt: s.createdAt ? s.createdAt.toISOString() : null,
-      updatedAt: s.updatedAt ? s.updatedAt.toISOString() : null,
       daysUntilDeadline: s.deadline 
         ? Math.ceil((new Date(s.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
         : null,

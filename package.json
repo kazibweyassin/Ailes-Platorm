@@ -27,6 +27,8 @@
     "pre-generate-templates": "ts-node --project tsconfig.seed.json scripts/pre-generate-scholarship-templates.ts",
     "seed:emails": "ts-node --project tsconfig.seed.json scripts/seed-email-templates.ts",
     "email:scheduler": "ts-node --project tsconfig.seed.json scripts/run-email-scheduler.ts",
+    "email:scheduler-test": "ts-node --project tsconfig.seed.json scripts/test-email-scheduler.ts",
+    "email:send": "ts-node --project tsconfig.seed.json scripts/test-email-send.ts",
     "email:process": "node scripts/process-email-queue.js"
   },
   "prisma": {

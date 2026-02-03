@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "./prisma";
 import { EmailType, EmailStatus } from "@prisma/client";
 import nodemailer from "nodemailer";
 
@@ -305,7 +305,8 @@ export async function unsubscribeUser(userId: string, reason?: string) {
       welcomeEmails: false,
       deadlineReminders: false,
       weeklyNewsletter: false,
-      scholarshipMatches: false,
+      matchNotifications: false,
+      applicationReminders: false,
       applicationUpdates: false,
       promotionalEmails: false,
     },
@@ -324,7 +325,8 @@ export async function resubscribeUser(userId: string) {
       welcomeEmails: true,
       deadlineReminders: true,
       weeklyNewsletter: true,
-      scholarshipMatches: true,
+      matchNotifications: true,
+      applicationReminders: true,
       applicationUpdates: true,
       paymentReceipts: true,
     },

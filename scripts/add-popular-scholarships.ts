@@ -3,7 +3,7 @@ import chalk from 'chalk';
 
 const prisma = new PrismaClient();
 
-// Popular scholarships data to add
+// Popular scholarships data to addjjjjjjj
 const scholarships = [
   // Commonwealth Scholarships
   {

@@ -398,7 +398,7 @@ export default function ScholarshipMatchPage() {
                             </span>
                             <span>•</span>
                             <span className="font-bold text-primary">
-                              {match.scholarship.amount ? `${match.scholarship.currency} $${match.scholarship.amount.toLocaleString()}` : `${match.scholarship.currency} Full Funding`}
+                              {match.scholarship.currency} ${match.scholarship.amount.toLocaleString()}
                             </span>
                             <span>•</span>
                             <span>{match.scholarship.type} Scholarship</span>
