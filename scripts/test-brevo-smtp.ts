@@ -5,14 +5,14 @@ async function testBREVO() {
 
   const configs = [
     {
-      name: "Config 1: Account Email + New Password",
-      user: "kazibweusama@gmail.com",
-      pass: "xsmtpsib-5b7786a1142b98b1ea39bb04b5609116d28c19a3436727ea89bcef9cfc58eab7-CbhMPare2Okmn5kg",
+      name: "Config 1: Account Email + SMTP Password",
+      user: process.env.SMTP_USER || "your-brevo-email@domain.com",
+      pass: process.env.SMTP_PASS || "your-brevo-smtp-password",
     },
     {
-      name: "Config 2: Relay Address + New Password",
-      user: "9ad7fa001@smtp.brevo.com",
-      pass: "xsmtpsib-5b7786a1142b98b1ea39bb04b5609116d28c19a3436727ea89bcef9cfc58eab7-CbhMPare2Okmn5kg",
+      name: "Config 2: Relay Address + SMTP Password",
+      user: process.env.RELAY_USER || "relay-address@smtp.brevo.com",
+      pass: process.env.RELAY_PASS || "your-relay-password",
     },
   ];
 
