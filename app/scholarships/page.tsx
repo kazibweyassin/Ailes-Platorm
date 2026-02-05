@@ -40,6 +40,7 @@ export default function ScholarshipsPage() {
   const [selectedType, setSelectedType] = useState("all");
   const [forWomenOnly, setForWomenOnly] = useState(false);
   const [forAfricanOnly, setForAfricanOnly] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   
   // Additional filters
   const [selectedFieldOfStudy, setSelectedFieldOfStudy] = useState("all");
@@ -250,6 +251,243 @@ export default function ScholarshipsPage() {
     return "text-gray-600";
   };
 
+  const activeFiltersCount = [
+    selectedCountry !== 'all',
+    selectedType !== 'all',
+    selectedDegreeLevel !== 'all',
+    selectedFieldOfStudy !== 'all',
+    selectedDeadline !== 'all',
+    forWomenOnly,
+    forAfricanOnly,
+    coversTuition,
+    coversLiving,
+    noTestRequired,
+    Boolean(minAmount),
+    Boolean(maxAmount)
+  ].filter(Boolean).length;
+
+  const filtersContent = (
+    <div className="bg-white rounded-lg p-6 shadow-sm lg:sticky lg:top-4 lg:max-h-[calc(100vh-100px)] lg:overflow-y-auto">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            setSelectedCountry("all");
+            setSelectedType("all");
+            setSelectedDegreeLevel("all");
+            setSelectedFieldOfStudy("all");
+            setSelectedDeadline("all");
+            setForWomenOnly(false);
+            setForAfricanOnly(false);
+            setCoversTuition(false);
+            setCoversLiving(false);
+            setNoTestRequired(false);
+            setMinAmount("");
+            setMaxAmount("");
+            setSearchTerm("");
+          }}
+          className="text-xs"
+        >
+          Reset
+        </Button>
+      </div>
+
+      <div className="space-y-5">
+        {/* Country */}
+        <div>
+          <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center">
+            <MapPin className="h-4 w-4 mr-2 text-primary" />
+            Country
+          </label>
+          <select
+            value={selectedCountry}
+            onChange={(e) => setSelectedCountry(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary focus:border-primary"
+          >
+            <option value="all">All Countries</option>
+            {allCountries.map((country) => (
+              <option key={country} value={country}>
+                {country}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Type */}
+        <div>
+          <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center">
+            <Award className="h-4 w-4 mr-2 text-primary" />
+            Type
+          </label>
+          <select
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary focus:border-primary"
+          >
+            <option value="all">All Types</option>
+            <option value="FULL">Full Scholarship</option>
+            <option value="PARTIAL">Partial Scholarship</option>
+          </select>
+        </div>
+
+        {/* Degree Level */}
+        <div>
+          <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center">
+            <GraduationCap className="h-4 w-4 mr-2 text-primary" />
+            Degree Level
+          </label>
+          <select
+            value={selectedDegreeLevel}
+            onChange={(e) => setSelectedDegreeLevel(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary focus:border-primary"
+          >
+            <option value="all">All Levels</option>
+            <option value="BACHELOR">Bachelor's</option>
+            <option value="MASTER">Master's</option>
+            <option value="PHD">PhD</option>
+            <option value="DIPLOMA">Diploma</option>
+          </select>
+        </div>
+
+        {/* Field of Study */}
+        <div>
+          <label className="text-sm font-medium text-gray-700 mb-2 block">Field of Study</label>
+          <select
+            value={selectedFieldOfStudy}
+            onChange={(e) => setSelectedFieldOfStudy(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary focus:border-primary"
+          >
+            <option value="all">All Fields</option>
+            <option value="Engineering">Engineering</option>
+            <option value="Medicine">Medicine</option>
+            <option value="Business">Business</option>
+            <option value="Computer Science">Computer Science</option>
+            <option value="Law">Law</option>
+            <option value="Arts">Arts</option>
+            <option value="Agriculture">Agriculture</option>
+            <option value="Education">Education</option>
+            <option value="Science">Science</option>
+          </select>
+        </div>
+
+        {/* Deadline */}
+        <div>
+          <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center">
+            <Calendar className="h-4 w-4 mr-2 text-primary" />
+            Deadline
+          </label>
+          <select
+            value={selectedDeadline}
+            onChange={(e) => setSelectedDeadline(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary focus:border-primary"
+          >
+            <option value="all">All Deadlines</option>
+            <option value="upcoming">Upcoming (Open)</option>
+            <option value="thisMonth">This Month</option>
+            <option value="nextMonth">Next Month</option>
+          </select>
+        </div>
+
+        {/* Amount Range */}
+        <div>
+          <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center">
+            <DollarSign className="h-4 w-4 mr-2 text-primary" />
+            Amount Range (USD)
+          </label>
+          <div className="space-y-2">
+            <Input
+              type="number"
+              placeholder="Min"
+              value={minAmount}
+              onChange={(e) => setMinAmount(e.target.value)}
+              className="text-sm"
+            />
+            <Input
+              type="number"
+              placeholder="Max"
+              value={maxAmount}
+              onChange={(e) => setMaxAmount(e.target.value)}
+              className="text-sm"
+            />
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="border-t border-gray-200 pt-4">
+          <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-3">Special Filters</h3>
+
+          {/* Target Audience */}
+          <div className="space-y-2 mb-4">
+            <label className="flex items-center text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={forWomenOnly}
+                onChange={(e) => setForWomenOnly(e.target.checked)}
+                className="w-4 h-4 text-primary rounded focus:ring-primary"
+              />
+              <span className="ml-2 text-gray-700">For Women Only</span>
+            </label>
+            <label className="flex items-center text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={forAfricanOnly}
+                onChange={(e) => setForAfricanOnly(e.target.checked)}
+                className="w-4 h-4 text-primary rounded focus:ring-primary"
+              />
+              <span className="ml-2 text-gray-700">For Africans Only</span>
+            </label>
+          </div>
+
+          {/* Coverage Benefits */}
+          <div className="space-y-2 mb-4">
+            <label className="flex items-center text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={coversTuition}
+                onChange={(e) => setCoversTuition(e.target.checked)}
+                className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
+              />
+              <span className="ml-2 text-gray-700">Covers Tuition</span>
+            </label>
+            <label className="flex items-center text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={coversLiving}
+                onChange={(e) => setCoversLiving(e.target.checked)}
+                className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
+              />
+              <span className="ml-2 text-gray-700">Covers Living</span>
+            </label>
+          </div>
+
+          {/* Test Requirements */}
+          <div className="space-y-2">
+            <label className="flex items-center text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={noTestRequired}
+                onChange={(e) => setNoTestRequired(e.target.checked)}
+                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+              />
+              <span className="ml-2 text-gray-700">No IELTS/TOEFL/GRE</span>
+            </label>
+          </div>
+        </div>
+
+        {/* Active Filters Count */}
+        {activeFiltersCount > 0 && (
+          <div className="pt-2 border-t border-gray-200">
+            <p className="text-xs text-gray-500 text-center">
+              ✓ Filters Applied
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section with Search */}
@@ -294,237 +532,40 @@ export default function ScholarshipsPage() {
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Left Sidebar - Filters */}
+            {/* Left Sidebar - Filters (Desktop) */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="lg:col-span-1"
+              className="hidden lg:block lg:col-span-1"
             >
-              <div className="bg-white rounded-lg p-6 shadow-sm sticky top-4 max-h-[calc(100vh-100px)] overflow-y-auto">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedCountry("all");
-                      setSelectedType("all");
-                      setSelectedDegreeLevel("all");
-                      setSelectedFieldOfStudy("all");
-                      setSelectedDeadline("all");
-                      setForWomenOnly(false);
-                      setForAfricanOnly(false);
-                      setCoversTuition(false);
-                      setCoversLiving(false);
-                      setNoTestRequired(false);
-                      setMinAmount("");
-                      setMaxAmount("");
-                      setSearchTerm("");
-                    }}
-                    className="text-xs"
-                  >
-                    Reset
-                  </Button>
-                </div>
-
-                <div className="space-y-5">
-                  {/* Country */}
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center">
-                      <MapPin className="h-4 w-4 mr-2 text-primary" />
-                      Country
-                    </label>
-                    <select
-                      value={selectedCountry}
-                      onChange={(e) => setSelectedCountry(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary focus:border-primary"
-                    >
-                      <option value="all">All Countries</option>
-                      {allCountries.map((country) => (
-                        <option key={country} value={country}>
-                          {country}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Type */}
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center">
-                      <Award className="h-4 w-4 mr-2 text-primary" />
-                      Type
-                    </label>
-                    <select
-                      value={selectedType}
-                      onChange={(e) => setSelectedType(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary focus:border-primary"
-                    >
-                      <option value="all">All Types</option>
-                      <option value="FULL">Full Scholarship</option>
-                      <option value="PARTIAL">Partial Scholarship</option>
-                    </select>
-                  </div>
-
-                  {/* Degree Level */}
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center">
-                      <GraduationCap className="h-4 w-4 mr-2 text-primary" />
-                      Degree Level
-                    </label>
-                    <select
-                      value={selectedDegreeLevel}
-                      onChange={(e) => setSelectedDegreeLevel(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary focus:border-primary"
-                    >
-                      <option value="all">All Levels</option>
-                      <option value="BACHELOR">Bachelor's</option>
-                      <option value="MASTER">Master's</option>
-                      <option value="PHD">PhD</option>
-                      <option value="DIPLOMA">Diploma</option>
-                    </select>
-                  </div>
-
-                  {/* Field of Study */}
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block">Field of Study</label>
-                    <select
-                      value={selectedFieldOfStudy}
-                      onChange={(e) => setSelectedFieldOfStudy(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary focus:border-primary"
-                    >
-                      <option value="all">All Fields</option>
-                      <option value="Engineering">Engineering</option>
-                      <option value="Medicine">Medicine</option>
-                      <option value="Business">Business</option>
-                      <option value="Computer Science">Computer Science</option>
-                      <option value="Law">Law</option>
-                      <option value="Arts">Arts</option>
-                      <option value="Agriculture">Agriculture</option>
-                      <option value="Education">Education</option>
-                      <option value="Science">Science</option>
-                    </select>
-                  </div>
-
-                  {/* Deadline */}
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center">
-                      <Calendar className="h-4 w-4 mr-2 text-primary" />
-                      Deadline
-                    </label>
-                    <select
-                      value={selectedDeadline}
-                      onChange={(e) => setSelectedDeadline(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary focus:border-primary"
-                    >
-                      <option value="all">All Deadlines</option>
-                      <option value="upcoming">Upcoming (Open)</option>
-                      <option value="thisMonth">This Month</option>
-                      <option value="nextMonth">Next Month</option>
-                    </select>
-                  </div>
-
-                  {/* Amount Range */}
-                  <div>
-                    <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center">
-                      <DollarSign className="h-4 w-4 mr-2 text-primary" />
-                      Amount Range (USD)
-                    </label>
-                    <div className="space-y-2">
-                      <Input
-                        type="number"
-                        placeholder="Min"
-                        value={minAmount}
-                        onChange={(e) => setMinAmount(e.target.value)}
-                        className="text-sm"
-                      />
-                      <Input
-                        type="number"
-                        placeholder="Max"
-                        value={maxAmount}
-                        onChange={(e) => setMaxAmount(e.target.value)}
-                        className="text-sm"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Divider */}
-                  <div className="border-t border-gray-200 pt-4">
-                    <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-3">Special Filters</h3>
-
-                    {/* Target Audience */}
-                    <div className="space-y-2 mb-4">
-                      <label className="flex items-center text-sm cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={forWomenOnly}
-                          onChange={(e) => setForWomenOnly(e.target.checked)}
-                          className="w-4 h-4 text-primary rounded focus:ring-primary"
-                        />
-                        <span className="ml-2 text-gray-700">For Women Only</span>
-                      </label>
-                      <label className="flex items-center text-sm cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={forAfricanOnly}
-                          onChange={(e) => setForAfricanOnly(e.target.checked)}
-                          className="w-4 h-4 text-primary rounded focus:ring-primary"
-                        />
-                        <span className="ml-2 text-gray-700">For Africans Only</span>
-                      </label>
-                    </div>
-
-                    {/* Coverage Benefits */}
-                    <div className="space-y-2 mb-4">
-                      <label className="flex items-center text-sm cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={coversTuition}
-                          onChange={(e) => setCoversTuition(e.target.checked)}
-                          className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
-                        />
-                        <span className="ml-2 text-gray-700">Covers Tuition</span>
-                      </label>
-                      <label className="flex items-center text-sm cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={coversLiving}
-                          onChange={(e) => setCoversLiving(e.target.checked)}
-                          className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
-                        />
-                        <span className="ml-2 text-gray-700">Covers Living</span>
-                      </label>
-                    </div>
-
-                    {/* Test Requirements */}
-                    <div className="space-y-2">
-                      <label className="flex items-center text-sm cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={noTestRequired}
-                          onChange={(e) => setNoTestRequired(e.target.checked)}
-                          className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                        />
-                        <span className="ml-2 text-gray-700">No IELTS/TOEFL/GRE</span>
-                      </label>
-                    </div>
-                  </div>
-
-                  {/* Active Filters Count */}
-                  {(selectedCountry !== 'all' || selectedType !== 'all' || selectedDegreeLevel !== 'all' || 
-                    selectedFieldOfStudy !== 'all' || selectedDeadline !== 'all' || forWomenOnly || 
-                    forAfricanOnly || coversTuition || coversLiving || noTestRequired || minAmount || maxAmount) && (
-                    <div className="pt-2 border-t border-gray-200">
-                      <p className="text-xs text-gray-500 text-center">
-                        ✓ Filters Applied
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
+              {filtersContent}
             </motion.div>
 
             {/* Right Content Area */}
             <div className="lg:col-span-3">
+              {/* Mobile Filters Toggle */}
+              <div className="lg:hidden mb-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowFilters((prev) => !prev)}
+                  className="w-full flex items-center justify-between"
+                >
+                  <span className="flex items-center gap-2">
+                    <Filter className="h-4 w-4" />
+                    Filters
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {activeFiltersCount > 0 ? `${activeFiltersCount} applied` : "None"}
+                  </span>
+                </Button>
+
+                {showFilters && (
+                  <div className="mt-4">
+                    {filtersContent}
+                  </div>
+                )}
+              </div>
               {/* Top Controls */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                 <div>
