@@ -442,7 +442,7 @@ export default function DashboardPage() {
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-4 text-sm text-gray-600">
                                 <span className="font-semibold text-primary">
-                                  {scholarship.currency} ${scholarship.amount.toLocaleString()}
+                                  {scholarship.currency} {scholarship.amount ? scholarship.amount.toLocaleString() : 'N/A'}
                                 </span>
                                 <span>
                                   Deadline: {new Date(scholarship.deadline).toLocaleDateString()}

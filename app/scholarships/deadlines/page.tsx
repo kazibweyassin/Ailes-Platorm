@@ -292,7 +292,7 @@ export default function DeadlinesPage() {
                                   <div className="flex items-center gap-2">
                                     <DollarSign className="h-4 w-4 text-primary" />
                                     <span className="font-semibold text-primary">
-                                      {scholarship.currency} ${scholarship.amount.toLocaleString()}
+                                      {scholarship.currency} {scholarship.amount ? scholarship.amount.toLocaleString() : 'N/A'}
                                     </span>
                                   </div>
                                   <div className="flex items-center gap-2">
@@ -383,7 +383,7 @@ export default function DeadlinesPage() {
                                   <span className="flex items-center gap-1">
                                     <DollarSign className="h-4 w-4 text-primary" />
                                     <span className="font-semibold text-primary">
-                                      {scholarship.currency} ${scholarship.amount.toLocaleString()}
+                                      {scholarship.currency} {scholarship.amount ? scholarship.amount.toLocaleString() : 'N/A'}
                                     </span>
                                   </span>
                                   <span className="flex items-center gap-1 text-gray-600">
