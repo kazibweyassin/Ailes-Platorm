@@ -41,14 +41,25 @@ export default function ScholarshipsPage() {
   const [forWomenOnly, setForWomenOnly] = useState(false);
   const [forAfricanOnly, setForAfricanOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  
+  // Additional filters
+  const [selectedFieldOfStudy, setSelectedFieldOfStudy] = useState("all");
+  const [selectedDegreeLevel, setSelectedDegreeLevel] = useState("all");
+  const [minAmount, setMinAmount] = useState("");
+  const [maxAmount, setMaxAmount] = useState("");
+  const [selectedDeadline, setSelectedDeadline] = useState("all");
+  const [coversTuition, setCoversTuition] = useState(false);
+  const [coversLiving, setCoversLiving] = useState(false);
+  const [noTestRequired, setNoTestRequired] = useState(false);
   const [savedScholarshipIds, setSavedScholarshipIds] = useState<Set<string>>(new Set());
   const [savingId, setSavingId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState("deadline"); // deadline, amount, name, views
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalResults, setTotalResults] = useState(0);
+  const [allCountries, setAllCountries] = useState<string[]>([]);
 
-  // Fetch saved scholarships on mount
+  // Fetch saved scholarships and all filter options on mount
   useEffect(() => {
     async function fetchSavedScholarships() {
       try {
@@ -62,7 +73,24 @@ export default function ScholarshipsPage() {
         // Silently fail - user might not be logged in
       }
     }
+    
+    async function fetchFilterOptions() {
+      try {
+        // Fetch all scholarships to get unique filter values
+        const res = await fetch('/api/scholarships?limit=1000');
+        if (res.ok) {
+          const data = await res.json();
+          const allScholarships = data.scholarships || [];
+          const uniqueCountries = Array.from(new Set(allScholarships.map((s: any) => s.country).filter(Boolean))) as string[];
+          setAllCountries(uniqueCountries.sort());
+        }
+      } catch (err) {
+        console.error('Error fetching filter options:', err);
+      }
+    }
+    
     fetchSavedScholarships();
+    fetchFilterOptions();
   }, []);
 
   useEffect(() => {
@@ -75,6 +103,14 @@ export default function ScholarshipsPage() {
         if (selectedType !== 'all') params.append('type', selectedType);
         if (forWomenOnly) params.append('forWomen', 'true');
         if (forAfricanOnly) params.append('forAfrican', 'true');
+        if (selectedFieldOfStudy !== 'all') params.append('fieldOfStudy', selectedFieldOfStudy);
+        if (selectedDegreeLevel !== 'all') params.append('degreeLevel', selectedDegreeLevel);
+        if (minAmount) params.append('minAmount', minAmount);
+        if (maxAmount) params.append('maxAmount', maxAmount);
+        if (selectedDeadline !== 'all') params.append('deadline', selectedDeadline);
+        if (coversTuition) params.append('coversTuition', 'true');
+        if (coversLiving) params.append('coversLiving', 'true');
+        if (noTestRequired) params.append('noTestRequired', 'true');
         params.append('page', currentPage.toString());
         params.append('limit', '12'); // 12 per page
         
@@ -100,12 +136,12 @@ export default function ScholarshipsPage() {
     }
     
     fetchScholarships();
-  }, [searchTerm, selectedCountry, selectedType, forWomenOnly, forAfricanOnly, currentPage]);
+  }, [searchTerm, selectedCountry, selectedType, forWomenOnly, forAfricanOnly, selectedFieldOfStudy, selectedDegreeLevel, minAmount, maxAmount, selectedDeadline, coversTuition, coversLiving, noTestRequired, currentPage]);
   
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, selectedCountry, selectedType, forWomenOnly, forAfricanOnly]);
+  }, [searchTerm, selectedCountry, selectedType, forWomenOnly, forAfricanOnly, selectedFieldOfStudy, selectedDegreeLevel, minAmount, maxAmount, selectedDeadline, coversTuition, coversLiving, noTestRequired]);
 
   const toggleSave = async (scholarshipId: string) => {
     try {
@@ -202,7 +238,7 @@ export default function ScholarshipsPage() {
     }
   };
 
-  const countries = Array.from(new Set(scholarships.map((s) => s.country).filter(Boolean)));
+  // Countries list is now fetched on mount and stored in allCountries state
 
   const getDaysUntilDeadline = (deadline: string) => {
     const days = Math.ceil((new Date(deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
@@ -215,10 +251,247 @@ export default function ScholarshipsPage() {
     return "text-gray-600";
   };
 
+  const activeFiltersCount = [
+    selectedCountry !== 'all',
+    selectedType !== 'all',
+    selectedDegreeLevel !== 'all',
+    selectedFieldOfStudy !== 'all',
+    selectedDeadline !== 'all',
+    forWomenOnly,
+    forAfricanOnly,
+    coversTuition,
+    coversLiving,
+    noTestRequired,
+    Boolean(minAmount),
+    Boolean(maxAmount)
+  ].filter(Boolean).length;
+
+  const filtersContent = (
+    <div className="bg-white rounded-lg p-6 shadow-sm lg:sticky lg:top-4 lg:max-h-[calc(100vh-100px)] lg:overflow-y-auto">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            setSelectedCountry("all");
+            setSelectedType("all");
+            setSelectedDegreeLevel("all");
+            setSelectedFieldOfStudy("all");
+            setSelectedDeadline("all");
+            setForWomenOnly(false);
+            setForAfricanOnly(false);
+            setCoversTuition(false);
+            setCoversLiving(false);
+            setNoTestRequired(false);
+            setMinAmount("");
+            setMaxAmount("");
+            setSearchTerm("");
+          }}
+          className="text-xs"
+        >
+          Reset
+        </Button>
+      </div>
+
+      <div className="space-y-5">
+        {/* Country */}
+        <div>
+          <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center">
+            <MapPin className="h-4 w-4 mr-2 text-primary" />
+            Country
+          </label>
+          <select
+            value={selectedCountry}
+            onChange={(e) => setSelectedCountry(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary focus:border-primary"
+          >
+            <option value="all">All Countries</option>
+            {allCountries.map((country) => (
+              <option key={country} value={country}>
+                {country}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Type */}
+        <div>
+          <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center">
+            <Award className="h-4 w-4 mr-2 text-primary" />
+            Type
+          </label>
+          <select
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary focus:border-primary"
+          >
+            <option value="all">All Types</option>
+            <option value="FULL">Full Scholarship</option>
+            <option value="PARTIAL">Partial Scholarship</option>
+          </select>
+        </div>
+
+        {/* Degree Level */}
+        <div>
+          <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center">
+            <GraduationCap className="h-4 w-4 mr-2 text-primary" />
+            Degree Level
+          </label>
+          <select
+            value={selectedDegreeLevel}
+            onChange={(e) => setSelectedDegreeLevel(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary focus:border-primary"
+          >
+            <option value="all">All Levels</option>
+            <option value="BACHELOR">Bachelor's</option>
+            <option value="MASTER">Master's</option>
+            <option value="PHD">PhD</option>
+            <option value="DIPLOMA">Diploma</option>
+          </select>
+        </div>
+
+        {/* Field of Study */}
+        <div>
+          <label className="text-sm font-medium text-gray-700 mb-2 block">Field of Study</label>
+          <select
+            value={selectedFieldOfStudy}
+            onChange={(e) => setSelectedFieldOfStudy(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary focus:border-primary"
+          >
+            <option value="all">All Fields</option>
+            <option value="Engineering">Engineering</option>
+            <option value="Medicine">Medicine</option>
+            <option value="Business">Business</option>
+            <option value="Computer Science">Computer Science</option>
+            <option value="Law">Law</option>
+            <option value="Arts">Arts</option>
+            <option value="Agriculture">Agriculture</option>
+            <option value="Education">Education</option>
+            <option value="Science">Science</option>
+          </select>
+        </div>
+
+        {/* Deadline */}
+        <div>
+          <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center">
+            <Calendar className="h-4 w-4 mr-2 text-primary" />
+            Deadline
+          </label>
+          <select
+            value={selectedDeadline}
+            onChange={(e) => setSelectedDeadline(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:ring-primary focus:border-primary"
+          >
+            <option value="all">All Deadlines</option>
+            <option value="upcoming">Upcoming (Open)</option>
+            <option value="thisMonth">This Month</option>
+            <option value="nextMonth">Next Month</option>
+          </select>
+        </div>
+
+        {/* Amount Range */}
+        <div>
+          <label className="text-sm font-medium text-gray-700 mb-2 block flex items-center">
+            <DollarSign className="h-4 w-4 mr-2 text-primary" />
+            Amount Range (USD)
+          </label>
+          <div className="space-y-2">
+            <Input
+              type="number"
+              placeholder="Min"
+              value={minAmount}
+              onChange={(e) => setMinAmount(e.target.value)}
+              className="text-sm"
+            />
+            <Input
+              type="number"
+              placeholder="Max"
+              value={maxAmount}
+              onChange={(e) => setMaxAmount(e.target.value)}
+              className="text-sm"
+            />
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="border-t border-gray-200 pt-4">
+          <h3 className="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-3">Special Filters</h3>
+
+          {/* Target Audience */}
+          <div className="space-y-2 mb-4">
+            <label className="flex items-center text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={forWomenOnly}
+                onChange={(e) => setForWomenOnly(e.target.checked)}
+                className="w-4 h-4 text-primary rounded focus:ring-primary"
+              />
+              <span className="ml-2 text-gray-700">For Women Only</span>
+            </label>
+            <label className="flex items-center text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={forAfricanOnly}
+                onChange={(e) => setForAfricanOnly(e.target.checked)}
+                className="w-4 h-4 text-primary rounded focus:ring-primary"
+              />
+              <span className="ml-2 text-gray-700">For Africans Only</span>
+            </label>
+          </div>
+
+          {/* Coverage Benefits */}
+          <div className="space-y-2 mb-4">
+            <label className="flex items-center text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={coversTuition}
+                onChange={(e) => setCoversTuition(e.target.checked)}
+                className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
+              />
+              <span className="ml-2 text-gray-700">Covers Tuition</span>
+            </label>
+            <label className="flex items-center text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={coversLiving}
+                onChange={(e) => setCoversLiving(e.target.checked)}
+                className="w-4 h-4 text-green-600 rounded focus:ring-green-500"
+              />
+              <span className="ml-2 text-gray-700">Covers Living</span>
+            </label>
+          </div>
+
+          {/* Test Requirements */}
+          <div className="space-y-2">
+            <label className="flex items-center text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                checked={noTestRequired}
+                onChange={(e) => setNoTestRequired(e.target.checked)}
+                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+              />
+              <span className="ml-2 text-gray-700">No IELTS/TOEFL/GRE</span>
+            </label>
+          </div>
+        </div>
+
+        {/* Active Filters Count */}
+        {activeFiltersCount > 0 && (
+          <div className="pt-2 border-t border-gray-200">
+            <p className="text-xs text-gray-500 text-center">
+              ✓ Filters Applied
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <section className="bg-primary-light py-12">
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section with Search */}
+      <section className="bg-primary-light py-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -226,7 +499,7 @@ export default function ScholarshipsPage() {
             className="max-w-4xl mx-auto text-center"
           >
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
-              Browse 500+ Scholarships
+              Browse 800+ Scholarships for African Students
             </h1>
             <p className="text-base text-gray-600 mb-6">
               Find fully-funded opportunities for your study abroad journey
@@ -248,7 +521,7 @@ export default function ScholarshipsPage() {
         </div>
       </section>
 
-      {/* Filters & Results */}
+      {/* Main Content with Sidebar */}
       <section className="py-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {error && (
@@ -257,32 +530,59 @@ export default function ScholarshipsPage() {
               <p className="text-red-800">{error}</p>
             </div>
           )}
-          
-          {loading ? (
-            <div className="flex justify-center items-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : (
-            <>
+
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Left Sidebar - Filters (Desktop) */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="hidden lg:block lg:col-span-1"
+            >
+              {filtersContent}
+            </motion.div>
+
+            {/* Right Content Area */}
+            <div className="lg:col-span-3">
+              {/* Mobile Filters Toggle */}
+              <div className="lg:hidden mb-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowFilters((prev) => !prev)}
+                  className="w-full flex items-center justify-between"
+                >
+                  <span className="flex items-center gap-2">
+                    <Filter className="h-4 w-4" />
+                    Filters
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    {activeFiltersCount > 0 ? `${activeFiltersCount} applied` : "None"}
+                  </span>
+                </Button>
+
+                {showFilters && (
+                  <div className="mt-4">
+                    {filtersContent}
+                  </div>
+                )}
+              </div>
+              {/* Top Controls */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-                <div className="flex items-center gap-4 flex-wrap">
+                <div>
                   <h2 className="text-lg font-semibold text-gray-900">
                     {totalResults} Scholarships Found
                   </h2>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                onClick={() => setShowFilters(!showFilters)}
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                Filters
-              </Button>
-                  <div className="flex items-center gap-2">
+                  <p className="text-sm text-gray-600 mt-1">
+                    {loading ? "Loading..." : "Ready to explore"}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <div className="flex items-center gap-2 flex-1 sm:flex-none">
                     <ArrowUpDown className="h-4 w-4 text-gray-500" />
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
-                      className="text-sm border rounded-md px-3 py-1.5"
+                      className="text-sm border border-gray-300 rounded-md px-3 py-2 focus:ring-primary focus:border-primary"
                     >
                       <option value="deadline">Sort by Deadline</option>
                       <option value="amount">Sort by Amount</option>
@@ -290,125 +590,54 @@ export default function ScholarshipsPage() {
                       <option value="views">Sort by Popularity</option>
                     </select>
                   </div>
-            </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={exportToCSV}
-                    title="Export to CSV"
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    Export
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={shareResults}
-                    title="Share results"
-                  >
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Share
-                  </Button>
-            <Link href="/scholarships/match">
-                    <Button size="sm">
-                <Award className="h-4 w-4 mr-2" />
-                      AI Match
-              </Button>
-            </Link>
-                </div>
-          </div>
-
-          {/* Filter Panel */}
-          {showFilters && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mb-6 p-4 bg-gray-50 rounded-lg"
-            >
-              <div className="grid md:grid-cols-4 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Country
-                  </label>
-                  <select
-                    value={selectedCountry}
-                    onChange={(e) => setSelectedCountry(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md text-sm"
-                  >
-                    <option value="all">All Countries</option>
-                    {countries.map((country) => (
-                      <option key={country} value={country}>
-                        {country}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Type
-                  </label>
-                  <select
-                    value={selectedType}
-                    onChange={(e) => setSelectedType(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-md text-sm"
-                  >
-                    <option value="all">All Types</option>
-                    <option value="FULL">Full Scholarship</option>
-                    <option value="PARTIAL">Partial Scholarship</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Special Filters
-                  </label>
-                  <div className="space-y-2">
-                    <label className="flex items-center text-sm">
-                      <input
-                        type="checkbox"
-                        checked={forWomenOnly}
-                        onChange={(e) => setForWomenOnly(e.target.checked)}
-                        className="mr-2"
-                      />
-                      For Women Only
-                    </label>
-                    <label className="flex items-center text-sm">
-                      <input
-                        type="checkbox"
-                        checked={forAfricanOnly}
-                        onChange={(e) => setForAfricanOnly(e.target.checked)}
-                        className="mr-2"
-                      />
-                      For Africans Only
-                    </label>
-                  </div>
-                </div>
-                <div className="flex items-end">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedCountry("all");
-                      setSelectedType("all");
-                      setForWomenOnly(false);
-                      setForAfricanOnly(false);
-                      setSearchTerm("");
-                    }}
-                    className="w-full"
-                  >
-                    Clear Filters
-                  </Button>
                 </div>
               </div>
-            </motion.div>
-          )}
 
-          {/* Scholarship Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredScholarships.map((scholarship, index) => {
-              const daysLeft = getDaysUntilDeadline(scholarship.deadline);
-              const deadlineColor = getDeadlineColor(daysLeft);
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-2 mb-6">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={exportToCSV}
+                  title="Export to CSV"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={shareResults}
+                  title="Share results"
+                >
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
+                </Button>
+                <Link href="/scholarships/match">
+                  <Button size="sm">
+                    <Award className="h-4 w-4 mr-2" />
+                    AI Match
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Scholarship Grid */}
+              {loading ? (
+                <div className="flex justify-center items-center py-20">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : filteredScholarships.length === 0 ? (
+                <div className="text-center py-12">
+                  <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600">No scholarships found matching your filters.</p>
+                  <p className="text-sm text-gray-500 mt-2">Try adjusting your search criteria.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="grid md:grid-cols-2 gap-6 mb-8">
+                    {filteredScholarships.map((scholarship, index) => {
+                      const daysLeft = getDaysUntilDeadline(scholarship.deadline);
+                      const deadlineColor = getDeadlineColor(daysLeft);
 
               return (
                 <motion.div
@@ -507,36 +736,11 @@ export default function ScholarshipsPage() {
                 </motion.div>
               );
             })}
-          </div>
+                  </div>
 
-          {/* Empty State */}
-          {filteredScholarships.length === 0 && !loading && (
-            <div className="text-center py-12">
-              <Search className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                No scholarships found
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Try adjusting your filters or search term
-              </p>
-              <Button
-                onClick={() => {
-                  setSearchTerm("");
-                  setSelectedCountry("all");
-                  setSelectedType("all");
-                  setForWomenOnly(false);
-                  setForAfricanOnly(false);
-                  setCurrentPage(1);
-                }}
-              >
-                Clear All Filters
-              </Button>
-            </div>
-          )}
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-8">
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="flex items-center justify-center gap-2 mt-8">
               <Button
                 variant="outline"
                 size="sm"
@@ -587,10 +791,12 @@ export default function ScholarshipsPage() {
               <span className="text-sm text-gray-600 ml-4">
                 Page {currentPage} of {totalPages}
               </span>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
-          )}
-            </>
-          )}
+          </div>
         </div>
       </section>
 

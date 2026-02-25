@@ -1,8 +1,8 @@
 {
   "crons": [
     {
-      "path": "/api/admin/emails?action=process",
-      "schedule": "*/5 * * * *"
+      "path": "/api/email/scheduler",
+      "schedule": "0 6 * * *"
     }
   ]
 }

@@ -295,6 +295,7 @@ model ScholarshipMatch {
   missingRequirements String[] // What user needs to qualify
   
   viewed        Boolean  @default(false)
+  notificationSent Boolean @default(false) // Track if email notification was sent
   createdAt     DateTime @default(now())
   
   @@unique([userId, scholarshipId])
@@ -782,7 +783,8 @@ model UserEmailPreferences {
   welcomeEmails         Boolean @default(true)
   deadlineReminders     Boolean @default(true)
   weeklyNewsletter      Boolean @default(true)
-  scholarshipMatches    Boolean @default(true)
+  matchNotifications    Boolean @default(true) // New scholarship matches
+  applicationReminders  Boolean @default(true) // Application deadlines
   applicationUpdates    Boolean @default(true)
   paymentReceipts       Boolean @default(true)
   promotionalEmails     Boolean @default(false)
@@ -805,6 +807,8 @@ enum EmailType {
   WELCOME
   DEADLINE_REMINDER
   SCHOLARSHIP_MATCH
+  MATCH_NOTIFICATION
+  APPLICATION_REMINDER
   WEEKLY_NEWSLETTER
   APPLICATION_UPDATE
   PAYMENT_RECEIPT

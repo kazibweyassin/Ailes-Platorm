@@ -238,7 +238,7 @@ export async function sendScholarshipMatchEmail(
       include: { emailPreferences: true },
     });
 
-    if (!user || !user.emailPreferences?.scholarshipMatches) {
+    if (!user || !user.emailPreferences?.matchNotifications) {
       return;
     }
 

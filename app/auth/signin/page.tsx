@@ -13,7 +13,7 @@ function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   // Decode and validate callbackUrl
-  const rawCallbackUrl = searchParams.get("callbackUrl");
+  const rawCallbackUrl = searchParams?.get("callbackUrl") || null;
   let callbackUrl = "/dashboard";
   
   if (rawCallbackUrl) {
@@ -30,7 +30,7 @@ function SignInForm() {
     }
   }
   
-  const registered = searchParams.get("registered");
+  const registered = searchParams?.get("registered") || null;
 
   const [formData, setFormData] = useState({
     email: "",

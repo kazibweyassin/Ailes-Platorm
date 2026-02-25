@@ -20,6 +20,9 @@ export async function GET(req: Request) {
     const maxAmount = searchParams.get("maxAmount")
     const deadline = searchParams.get("deadline") // "upcoming", "thisMonth", "nextMonth"
     const featured = searchParams.get("featured") === "true"
+    const coversTuition = searchParams.get("coversTuition") === "true"
+    const coversLiving = searchParams.get("coversLiving") === "true"
+    const noTestRequired = searchParams.get("noTestRequired") === "true"
     const page = parseInt(searchParams.get("page") || "1")
     const limit = parseInt(searchParams.get("limit") || "50")
     const skip = (page - 1) * limit
@@ -112,6 +115,27 @@ export async function GET(req: Request) {
 
     if (featured) {
       andConditions.push({ featured: true })
+    }
+
+    // Coverage filters
+    if (coversTuition) {
+      andConditions.push({ coversTuition: true })
+    }
+
+    if (coversLiving) {
+      andConditions.push({ coversLiving: true })
+    }
+
+    // No test required filter
+    if (noTestRequired) {
+      andConditions.push({
+        AND: [
+          { requiresIELTS: false },
+          { requiresTOEFL: false },
+          { requiresGRE: false },
+          { requiresGMAT: false }
+        ]
+      })
     }
 
     // Flexible text search across multiple fields

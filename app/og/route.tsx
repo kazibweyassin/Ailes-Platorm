@@ -6,9 +6,9 @@ export const runtime = 'edge'
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const title = searchParams.get('title') || 'Ailes Global'
-    const description = searchParams.get('description') || 'Premium Study Abroad & Scholarship Consulting for African Students'
-    const type = searchParams.get('type') || 'default'
+    const title = searchParams?.get('title') || 'Ailes Global'
+    const description = searchParams?.get('description') || 'Premium Study Abroad & Scholarship Consulting for African Students'
+    const type = searchParams?.get('type') || 'default'
 
     // Customize based on type
     let bgColor = '#1e40af' // Primary blue
