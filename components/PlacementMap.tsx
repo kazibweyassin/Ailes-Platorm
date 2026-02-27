@@ -217,7 +217,7 @@ export const PlacementMap: React.FC<PlacementMapProps> = ({
 
         {/* Countries */}
         <Geographies geography={GEO_URL}>
-          {({ geographies }) =>
+          {({ geographies }: { geographies: any[] }) =>
             geographies.map((geo) => (
               <Geography
                 key={geo.rsmKey}
