@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
@@ -13,8 +12,6 @@ import { Analytics } from "@vercel/analytics/next"
 const MobileBottomNav = dynamic(() => import("@/components/mobile-bottom-nav"), {
   ssr: false,
 });
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   ...generateSEO({
@@ -55,7 +52,7 @@ export default function RootLayout({
   const websiteSchema = generateWebsiteSchema();
 
   return (
-      <html lang="en" className={inter.variable}>
+      <html lang="en">
        <head>
          <meta name="google-site-verification" content="iaKmQyNu5cZoj9I84LsHRYK6jPR6hSEvkbi8JobjJxo" />
          <script
